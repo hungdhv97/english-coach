@@ -1,0 +1,101 @@
+# Dependencies
+node_modules/
+vendor/
+.bundle/
+
+# Build outputs
+dist/
+build/
+*.exe
+*.test
+*.out
+target/
+*.class
+*.jar
+bin/
+obj/
+out/
+*.o
+*.so
+*.a
+*.dll
+
+# Environment and secrets
+.env*
+*.env
+!.env.example
+.env.local
+.env.*.local
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Temporary files
+*.tmp
+*.cache
+*.bak
+*.swp
+
+# Coverage reports
+coverage/
+.nyc_output/
+*.lcov
+
+# Go specific
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+vendor/
+
+# TypeScript
+*.tsbuildinfo
+
+# Testing
+.coverage
+.pytest_cache/
+.tox/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Docker
+.dockerignore
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+.terraform.lock.hcl
+
+# Kubernetes
+*.secret.yaml
+secrets/
+.kube/
+kubeconfig*
+
+# Application specific
+public/locales/
+*.pem
+*.key
+*.crt
+

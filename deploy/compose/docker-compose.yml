@@ -1,0 +1,88 @@
+# Docker Compose file for English Coach application
+# Uses variable substitution for environment-specific configuration
+# Set ENV variable (e.g., dev, staging, prod) before running docker compose commands
+# Example: ENV=dev docker compose up
+
+services:
+  postgres:
+    image: postgres:18.1-alpine
+    container_name: english-coach-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: english_coach
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - english-coach-network
+
+  redis:
+    image: redis:8.4-alpine
+    container_name: english-coach-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - english-coach-network
+
+  backend:
+    build:
+      context: ../..
+      dockerfile: deploy/docker/backend/Dockerfile
+    container_name: english-coach-backend
+    ports:
+      - "8080:8080"
+    env_file:
+      - ../env/${ENV:-dev}/backend.env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - english-coach-network
+    profiles:
+      - ${ENV:-dev}
+
+  frontend:
+    build:
+      context: ../..
+      dockerfile: deploy/docker/frontend/${FRONTEND_DOCKERFILE:-Dockerfile.dev}
+    container_name: english-coach-frontend
+    ports:
+      - "5173:5173"
+    env_file:
+      - ../env/${ENV:-dev}/frontend.env
+    volumes:
+      # Mount source code for HMR (Hot Module Replacement)
+      - ../../frontend/src:/app/src
+      - ../../frontend/public:/app/public
+      # Keep node_modules in container to avoid conflicts
+      - /app/node_modules
+    depends_on:
+      - backend
+    networks:
+      - english-coach-network
+    profiles:
+      - ${ENV:-dev}
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  english-coach-network:
+    driver: bridge

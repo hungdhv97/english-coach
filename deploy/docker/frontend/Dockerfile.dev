@@ -1,0 +1,20 @@
+# Frontend Dockerfile - Development
+# For development: runs Vite dev server with HMR
+FROM node:22-alpine3.22
+
+WORKDIR /app
+
+# Copy package files
+COPY frontend/package*.json ./
+RUN npm ci
+
+# Copy source code (will be mounted as volume in dev)
+COPY frontend/ .
+
+# Expose Vite dev server port (default: 5173)
+EXPOSE 5173
+
+# Start Vite dev server with HMR
+# --host 0.0.0.0 allows external connections
+# --port 5173 explicitly sets the port
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0", "--port", "5173"]

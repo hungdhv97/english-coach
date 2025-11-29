@@ -1,0 +1,23 @@
+{
+  "errors": {
+    "network_error": "Network connection error. Please check your internet connection.",
+    "unknown_error": "An unknown error occurred. Please try again later.",
+    "validation_error": "Invalid data. Please check again.",
+    "not_found": "Requested resource not found.",
+    "server_error": "Server error. Please try again later.",
+    "insufficient_words": "Insufficient vocabulary for the selected configuration. Please choose a different configuration.",
+    "same_language": "Source and target languages must be different."
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "back": "Back"
+  }
+}
+

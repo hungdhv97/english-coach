@@ -1,0 +1,23 @@
+{
+  "errors": {
+    "network_error": "Lỗi kết nối mạng. Vui lòng kiểm tra kết nối internet của bạn.",
+    "unknown_error": "Đã xảy ra lỗi không xác định. Vui lòng thử lại sau.",
+    "validation_error": "Dữ liệu không hợp lệ. Vui lòng kiểm tra lại.",
+    "not_found": "Không tìm thấy tài nguyên yêu cầu.",
+    "server_error": "Lỗi máy chủ. Vui lòng thử lại sau.",
+    "insufficient_words": "Không đủ từ vựng cho cấu hình bạn đã chọn. Vui lòng chọn cấu hình khác.",
+    "same_language": "Ngôn ngữ nguồn và ngôn ngữ đích phải khác nhau."
+  },
+  "common": {
+    "loading": "Đang tải...",
+    "error": "Lỗi",
+    "success": "Thành công",
+    "cancel": "Hủy",
+    "confirm": "Xác nhận",
+    "save": "Lưu",
+    "delete": "Xóa",
+    "edit": "Chỉnh sửa",
+    "back": "Quay lại"
+  }
+}
+

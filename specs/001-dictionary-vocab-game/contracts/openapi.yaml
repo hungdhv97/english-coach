@@ -1,0 +1,1004 @@
+openapi: 3.0.3
+info:
+  title: Multilingual Dictionary & Vocabulary Game API
+  version: 1.0.0
+  description: API for multilingual dictionary lookup and vocabulary learning game
+  contact:
+    name: English Coach Team
+
+servers:
+  - url: http://localhost:8080/api/v1
+    description: Local development server
+  - url: https://api.example.com/v1
+    description: Production server
+
+tags:
+  - name: Dictionary
+    description: Dictionary lookup and word search operations
+  - name: Games
+    description: Vocabulary game session management
+  - name: Statistics
+    description: User statistics and performance metrics
+  - name: Reference
+    description: Reference data (languages, topics, levels)
+
+paths:
+  # Dictionary Endpoints
+  /dictionary/search:
+    get:
+      tags:
+        - Dictionary
+      summary: Search for words in dictionary
+      description: Search for words by query string in any supported language
+      operationId: searchDictionary
+      parameters:
+        - name: q
+          in: query
+          required: true
+          description: Search query (word to look up)
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 255
+        - name: language
+          in: query
+          required: false
+          description: Language code to filter results (e.g., 'en', 'vi', 'zh')
+          schema:
+            type: string
+            minLength: 2
+            maxLength: 10
+        - name: limit
+          in: query
+          required: false
+          description: Maximum number of results to return
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: offset
+          in: query
+          required: false
+          description: Number of results to skip for pagination
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+      responses:
+        '200':
+          description: Successful search results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DictionarySearchResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /dictionary/words/{wordId}:
+    get:
+      tags:
+        - Dictionary
+      summary: Get word details
+      description: Retrieve detailed information about a word including definitions, translations, examples, and pronunciation
+      operationId: getWordDetails
+      parameters:
+        - name: wordId
+          in: path
+          required: true
+          description: Word ID
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Word details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WordDetail'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # Reference Data Endpoints
+  /reference/languages:
+    get:
+      tags:
+        - Reference
+      summary: List all languages
+      description: Get list of all supported languages
+      operationId: listLanguages
+      responses:
+        '200':
+          description: List of languages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Language'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /reference/topics:
+    get:
+      tags:
+        - Reference
+      summary: List all topics
+      description: Get list of all vocabulary topics
+      operationId: listTopics
+      responses:
+        '200':
+          description: List of topics
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Topic'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /reference/levels:
+    get:
+      tags:
+        - Reference
+      summary: List all levels
+      description: Get list of all difficulty/proficiency levels
+      operationId: listLevels
+      parameters:
+        - name: languageId
+          in: query
+          required: false
+          description: Filter levels by language ID
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: List of levels
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Level'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # Game Endpoints
+  /games/sessions:
+    post:
+      tags:
+        - Games
+      summary: Create a new game session
+      description: Create a new vocabulary game session with specified configuration
+      operationId: createGameSession
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateGameSessionRequest'
+      responses:
+        '201':
+          description: Game session created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameSession'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '422':
+          description: Validation error - insufficient words for configuration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /games/sessions/{sessionId}:
+    get:
+      tags:
+        - Games
+      summary: Get game session details
+      description: Retrieve details of a game session including all questions
+      operationId: getGameSession
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          description: Game session ID
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Game session details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameSessionDetail'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    patch:
+      tags:
+        - Games
+      summary: Update game session
+      description: Update game session (e.g., end session, update progress)
+      operationId: updateGameSession
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          description: Game session ID
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateGameSessionRequest'
+      responses:
+        '200':
+          description: Game session updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameSession'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /games/sessions/{sessionId}/answers:
+    post:
+      tags:
+        - Games
+      summary: Submit an answer
+      description: Submit an answer to a game question
+      operationId: submitAnswer
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          description: Game session ID
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubmitAnswerRequest'
+      responses:
+        '201':
+          description: Answer submitted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameAnswer'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /games/sessions/user/{userId}:
+    get:
+      tags:
+        - Games
+      summary: List user's game sessions
+      description: Get list of game sessions for a user
+      operationId: listUserGameSessions
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: User ID
+          schema:
+            type: integer
+            format: int64
+        - name: limit
+          in: query
+          required: false
+          description: Maximum number of results
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: offset
+          in: query
+          required: false
+          description: Number of results to skip
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+      responses:
+        '200':
+          description: List of game sessions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameSessionListResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # Statistics Endpoints
+  /statistics/user/{userId}:
+    get:
+      tags:
+        - Statistics
+      summary: Get user statistics
+      description: Get aggregated statistics for a user
+      operationId: getUserStatistics
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: User ID
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: User statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserStatistics'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /statistics/sessions/{sessionId}:
+    get:
+      tags:
+        - Statistics
+      summary: Get game session statistics
+      description: Get detailed statistics for a completed game session
+      operationId: getSessionStatistics
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          description: Game session ID
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Session statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionStatistics'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+components:
+  schemas:
+    # Common Schemas
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          description: Error code
+        message:
+          type: string
+          description: Error message (in Vietnamese for user-facing errors)
+        details:
+          type: object
+          description: Additional error details
+
+    # Reference Data Schemas
+    Language:
+      type: object
+      required:
+        - id
+        - code
+        - name
+      properties:
+        id:
+          type: integer
+          format: int32
+        code:
+          type: string
+          example: en
+        name:
+          type: string
+          example: English
+        nativeName:
+          type: string
+          nullable: true
+          example: English
+
+    Topic:
+      type: object
+      required:
+        - id
+        - code
+        - name
+      properties:
+        id:
+          type: integer
+          format: int64
+        code:
+          type: string
+          example: education
+        name:
+          type: string
+          example: Education
+
+    Level:
+      type: object
+      required:
+        - id
+        - code
+        - name
+      properties:
+        id:
+          type: integer
+          format: int64
+        code:
+          type: string
+          example: HSK1
+        name:
+          type: string
+          example: HSK Level 1
+        description:
+          type: string
+          nullable: true
+        languageId:
+          type: integer
+          format: int32
+          nullable: true
+        difficultyOrder:
+          type: integer
+          format: int32
+          nullable: true
+
+    # Dictionary Schemas
+    Word:
+      type: object
+      required:
+        - id
+        - languageId
+        - lemma
+      properties:
+        id:
+          type: integer
+          format: int64
+        languageId:
+          type: integer
+          format: int32
+        lemma:
+          type: string
+        lemmaNormalized:
+          type: string
+          nullable: true
+        partOfSpeechId:
+          type: integer
+          format: int32
+          nullable: true
+        romanization:
+          type: string
+          nullable: true
+        frequencyRank:
+          type: integer
+          nullable: true
+
+    Sense:
+      type: object
+      required:
+        - id
+        - wordId
+        - senseOrder
+        - definition
+      properties:
+        id:
+          type: integer
+          format: int64
+        wordId:
+          type: integer
+          format: int64
+        senseOrder:
+          type: integer
+          format: int32
+        definition:
+          type: string
+        definitionLanguageId:
+          type: integer
+          format: int32
+        usageLabel:
+          type: string
+          nullable: true
+        levelId:
+          type: integer
+          format: int64
+          nullable: true
+
+    Translation:
+      type: object
+      required:
+        - wordId
+        - languageId
+        - priority
+      properties:
+        wordId:
+          type: integer
+          format: int64
+        wordLemma:
+          type: string
+        languageId:
+          type: integer
+          format: int32
+        languageCode:
+          type: string
+        priority:
+          type: integer
+          format: int32
+
+    Example:
+      type: object
+      required:
+        - id
+        - content
+      properties:
+        id:
+          type: integer
+          format: int64
+        content:
+          type: string
+        languageId:
+          type: integer
+          format: int32
+        audioUrl:
+          type: string
+          nullable: true
+        source:
+          type: string
+          nullable: true
+        translations:
+          type: array
+          items:
+            type: object
+            properties:
+              languageId:
+                type: integer
+                format: int32
+              content:
+                type: string
+
+    Pronunciation:
+      type: object
+      properties:
+        dialect:
+          type: string
+          nullable: true
+        ipa:
+          type: string
+          nullable: true
+        phonetic:
+          type: string
+          nullable: true
+        audioUrl:
+          type: string
+          nullable: true
+
+    WordDetail:
+      type: object
+      required:
+        - id
+        - language
+        - lemma
+      properties:
+        id:
+          type: integer
+          format: int64
+        language:
+          $ref: '#/components/schemas/Language'
+        lemma:
+          type: string
+        lemmaNormalized:
+          type: string
+          nullable: true
+        partOfSpeech:
+          type: string
+          nullable: true
+        romanization:
+          type: string
+          nullable: true
+        frequencyRank:
+          type: integer
+          nullable: true
+        senses:
+          type: array
+          items:
+            $ref: '#/components/schemas/Sense'
+        translations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Translation'
+        examples:
+          type: array
+          items:
+            $ref: '#/components/schemas/Example'
+        pronunciations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Pronunciation'
+        topics:
+          type: array
+          items:
+            $ref: '#/components/schemas/Topic'
+
+    DictionarySearchResponse:
+      type: object
+      required:
+        - words
+        - total
+        - limit
+        - offset
+      properties:
+        words:
+          type: array
+          items:
+            $ref: '#/components/schemas/Word'
+        total:
+          type: integer
+          format: int64
+        limit:
+          type: integer
+        offset:
+          type: integer
+
+    # Game Schemas
+    CreateGameSessionRequest:
+      type: object
+      required:
+        - userId
+        - mode
+        - sourceLanguageId
+        - targetLanguageId
+      properties:
+        userId:
+          type: integer
+          format: int64
+        mode:
+          type: string
+          enum:
+            - topic
+            - level
+        sourceLanguageId:
+          type: integer
+          format: int32
+        targetLanguageId:
+          type: integer
+          format: int32
+        topicId:
+          type: integer
+          format: int64
+          nullable: true
+          description: Required if mode is 'topic'
+        levelId:
+          type: integer
+          format: int64
+          nullable: true
+          description: Required if mode is 'level'
+        totalQuestions:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 50
+          default: 10
+
+    GameQuestionOption:
+      type: object
+      required:
+        - id
+        - optionLabel
+        - targetWord
+        - isCorrect
+      properties:
+        id:
+          type: integer
+          format: int64
+        optionLabel:
+          type: string
+          enum:
+            - A
+            - B
+            - C
+            - D
+        targetWord:
+          $ref: '#/components/schemas/Word'
+        isCorrect:
+          type: boolean
+
+    GameQuestion:
+      type: object
+      required:
+        - id
+        - questionOrder
+        - sourceWord
+        - correctTargetWord
+        - options
+      properties:
+        id:
+          type: integer
+          format: int64
+        questionOrder:
+          type: integer
+          format: int32
+        questionType:
+          type: string
+          example: word_to_translation
+        sourceWord:
+          $ref: '#/components/schemas/Word'
+        correctTargetWord:
+          $ref: '#/components/schemas/Word'
+        options:
+          type: array
+          minItems: 4
+          maxItems: 4
+          items:
+            $ref: '#/components/schemas/GameQuestionOption'
+
+    GameSession:
+      type: object
+      required:
+        - id
+        - userId
+        - mode
+        - sourceLanguageId
+        - targetLanguageId
+        - totalQuestions
+        - correctQuestions
+        - startedAt
+      properties:
+        id:
+          type: integer
+          format: int64
+        userId:
+          type: integer
+          format: int64
+        mode:
+          type: string
+          enum:
+            - topic
+            - level
+        sourceLanguageId:
+          type: integer
+          format: int32
+        targetLanguageId:
+          type: integer
+          format: int32
+        topicId:
+          type: integer
+          format: int64
+          nullable: true
+        levelId:
+          type: integer
+          format: int64
+          nullable: true
+        totalQuestions:
+          type: integer
+          format: int32
+        correctQuestions:
+          type: integer
+          format: int32
+        startedAt:
+          type: string
+          format: date-time
+        endedAt:
+          type: string
+          format: date-time
+          nullable: true
+
+    GameSessionDetail:
+      allOf:
+        - $ref: '#/components/schemas/GameSession'
+        - type: object
+          properties:
+            questions:
+              type: array
+              items:
+                $ref: '#/components/schemas/GameQuestion'
+            answers:
+              type: array
+              items:
+                $ref: '#/components/schemas/GameAnswer'
+
+    UpdateGameSessionRequest:
+      type: object
+      properties:
+        endedAt:
+          type: string
+          format: date-time
+        correctQuestions:
+          type: integer
+          format: int32
+
+    SubmitAnswerRequest:
+      type: object
+      required:
+        - questionId
+        - selectedOptionId
+        - responseTimeMs
+      properties:
+        questionId:
+          type: integer
+          format: int64
+        selectedOptionId:
+          type: integer
+          format: int64
+        responseTimeMs:
+          type: integer
+          format: int32
+          minimum: 0
+
+    GameAnswer:
+      type: object
+      required:
+        - id
+        - questionId
+        - sessionId
+        - userId
+        - isCorrect
+        - answeredAt
+      properties:
+        id:
+          type: integer
+          format: int64
+        questionId:
+          type: integer
+          format: int64
+        sessionId:
+          type: integer
+          format: int64
+        userId:
+          type: integer
+          format: int64
+        selectedOptionId:
+          type: integer
+          format: int64
+          nullable: true
+        isCorrect:
+          type: boolean
+        responseTimeMs:
+          type: integer
+          format: int32
+          nullable: true
+        answeredAt:
+          type: string
+          format: date-time
+
+    GameSessionListResponse:
+      type: object
+      required:
+        - sessions
+        - total
+        - limit
+        - offset
+      properties:
+        sessions:
+          type: array
+          items:
+            $ref: '#/components/schemas/GameSession'
+        total:
+          type: integer
+          format: int64
+        limit:
+          type: integer
+        offset:
+          type: integer
+
+    # Statistics Schemas
+    UserStatistics:
+      type: object
+      required:
+        - userId
+        - totalSessions
+        - totalQuestions
+        - totalCorrect
+        - totalTimeSeconds
+      properties:
+        userId:
+          type: integer
+          format: int64
+        totalSessions:
+          type: integer
+        totalQuestions:
+          type: integer
+        totalCorrect:
+          type: integer
+        totalTimeSeconds:
+          type: integer
+        accuracyPercentage:
+          type: number
+          format: float
+          nullable: true
+        lastPlayedAt:
+          type: string
+          format: date-time
+          nullable: true
+
+    SessionStatistics:
+      type: object
+      required:
+        - sessionId
+        - totalQuestions
+        - correctQuestions
+        - accuracyPercentage
+        - durationSeconds
+      properties:
+        sessionId:
+          type: integer
+          format: int64
+        totalQuestions:
+          type: integer
+        correctQuestions:
+          type: integer
+        wrongQuestions:
+          type: integer
+        accuracyPercentage:
+          type: number
+          format: float
+        durationSeconds:
+          type: integer
+        averageResponseTimeMs:
+          type: number
+          format: float
+          nullable: true
+        startedAt:
+          type: string
+          format: date-time
+        endedAt:
+          type: string
+          format: date-time
+          nullable: true
+
+  responses:
+    BadRequest:
+      description: Bad request - validation error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
