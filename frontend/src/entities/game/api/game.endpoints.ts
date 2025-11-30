@@ -9,6 +9,7 @@ import type {
   GameSessionWithQuestions,
   GameAnswer,
   SubmitAnswerRequest,
+  SessionStatistics,
 } from '../model/game.types';
 
 export interface ApiResponse<T> {
@@ -48,6 +49,16 @@ export const gameEndpoints = {
     const response = await httpClient.post<ApiResponse<GameAnswer>>(
       `/games/sessions/${sessionId}/answers`,
       request
+    );
+    return response.data;
+  },
+
+  /**
+   * Get session statistics
+   */
+  getSessionStatistics: async (sessionId: number): Promise<SessionStatistics> => {
+    const response = await httpClient.get<ApiResponse<SessionStatistics>>(
+      `/statistics/sessions/${sessionId}`
     );
     return response.data;
   },

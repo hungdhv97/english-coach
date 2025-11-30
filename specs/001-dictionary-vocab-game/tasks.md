@@ -227,25 +227,25 @@
 
 ### Backend Implementation for User Story 5
 
-- [ ] T125 [P] [US5] Create SessionStatistics DTO in `backend/internal/domain/game/dto/session_statistics.go`
-- [ ] T126 [US5] Create GetSessionStatistics use case in `backend/internal/domain/game/usecase/query/get_statistics.go`
-- [ ] T127 [US5] Implement statistics calculation logic (accuracy, duration, average response time) in `backend/internal/domain/game/usecase/query/get_statistics.go`
-- [ ] T128 [US5] Create GET /api/v1/statistics/sessions/{sessionId} endpoint handler in `backend/internal/interface/http/handler/statistics_handler.go`
-- [ ] T129 [US5] Register statistics routes in `backend/internal/app/router.go` for session statistics endpoint
-- [ ] T130 [US5] Ensure statistics display complete and accurate information per SC-008 in `backend/internal/domain/game/usecase/query/get_statistics.go`
+- [x] T125 [P] [US5] Create SessionStatistics DTO in `backend/internal/domain/game/dto/session_statistics.go`
+- [x] T126 [US5] Create GetSessionStatistics use case in `backend/internal/domain/game/usecase/query/get_statistics.go`
+- [x] T127 [US5] Implement statistics calculation logic (accuracy, duration, average response time) in `backend/internal/domain/game/usecase/query/get_statistics.go`
+- [x] T128 [US5] Create GET /api/v1/statistics/sessions/{sessionId} endpoint handler in `backend/internal/interface/http/handler/statistics_handler.go`
+- [x] T129 [US5] Register statistics routes in `backend/internal/app/router.go` for session statistics endpoint
+- [x] T130 [US5] Ensure statistics display complete and accurate information per SC-008 in `backend/internal/domain/game/usecase/query/get_statistics.go`
 
 ### Frontend Implementation for User Story 5
 
-- [ ] T131 [P] [US5] Create SessionStatistics type definitions in `frontend/src/entities/game/model/game.types.ts`
-- [ ] T132 [P] [US5] Create statistics API endpoints in `frontend/src/features/game/api/game.endpoints.ts`
-- [ ] T133 [P] [US5] Create statistics queries in `frontend/src/features/game/api/game.queries.ts`
-- [ ] T134 [US5] Create GameStatistics component to display statistics in `frontend/src/features/game/components/GameStatistics.tsx`
-- [ ] T135 [US5] Display total questions, correct answers, accuracy percentage in `frontend/src/features/game/components/GameStatistics.tsx`
-- [ ] T136 [US5] Display session duration in `frontend/src/features/game/components/GameStatistics.tsx`
-- [ ] T137 [US5] Create GameStatisticsPage component in `frontend/src/pages/game/GameStatisticsPage.tsx`
-- [ ] T138 [US5] Add navigation from completion screen to statistics page in `frontend/src/pages/game/GamePlayPage.tsx`
-- [ ] T139 [US5] Add route for statistics page (/games/vocab/statistics/:sessionId) in `frontend/src/app/router/routes.tsx`
-- [ ] T140 [US5] Add navigation options (play again, return to game list) in `frontend/src/pages/game/GameStatisticsPage.tsx`
+- [x] T131 [P] [US5] Create SessionStatistics type definitions in `frontend/src/entities/game/model/game.types.ts`
+- [x] T132 [P] [US5] Create statistics API endpoints in `frontend/src/features/game/api/game.endpoints.ts`
+- [x] T133 [P] [US5] Create statistics queries in `frontend/src/features/game/api/game.queries.ts`
+- [x] T134 [US5] Create GameStatistics component to display statistics in `frontend/src/features/game/components/GameStatistics.tsx`
+- [x] T135 [US5] Display total questions, correct answers, accuracy percentage in `frontend/src/features/game/components/GameStatistics.tsx`
+- [x] T136 [US5] Display session duration in `frontend/src/features/game/components/GameStatistics.tsx`
+- [x] T137 [US5] Create GameStatisticsPage component in `frontend/src/pages/game/GameStatisticsPage.tsx`
+- [x] T138 [US5] Add navigation from completion screen to statistics page in `frontend/src/pages/game/GamePlayPage.tsx`
+- [x] T139 [US5] Add route for statistics page (/games/vocab/statistics/:sessionId) in `frontend/src/app/router/routes.tsx`
+- [x] T140 [US5] Add navigation options (play again, return to game list) in `frontend/src/pages/game/GameStatisticsPage.tsx`
 
 **Checkpoint**: At this point, User Stories 1-5 should work independently - users can view statistics after completing games.
 

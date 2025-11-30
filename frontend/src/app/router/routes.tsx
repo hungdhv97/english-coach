@@ -7,6 +7,7 @@ import LandingPage from '../../pages/LandingPage';
 import GameListPage from '../../pages/game/GameListPage';
 import GameConfigPage from '../../pages/game/GameConfigPage';
 import GamePlayPage from '../../pages/game/GamePlayPage';
+import GameStatisticsPage from '../../pages/game/GameStatisticsPage';
 
 // Placeholder components - will be implemented in later user stories
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -41,6 +42,10 @@ export const router = createBrowserRouter([
   {
     path: '/games/vocab/play/:sessionId',
     element: <GamePlayPage />,
+  },
+  {
+    path: '/games/vocab/statistics/:sessionId',
+    element: <GameStatisticsPage />,
   },
   {
     path: '/dictionary',

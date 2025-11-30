@@ -27,3 +27,12 @@ func RegisterGameRoutes(router *gin.RouterGroup, gameHandler *handler.GameHandle
 	}
 }
 
+// RegisterStatisticsRoutes registers statistics-related routes
+func RegisterStatisticsRoutes(router *gin.RouterGroup, statisticsHandler *handler.StatisticsHandler) {
+	// Statistics endpoints
+	statistics := router.Group("/statistics")
+	{
+		statistics.GET("/sessions/:sessionId", statisticsHandler.GetSessionStatistics)
+	}
+}
+

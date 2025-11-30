@@ -86,3 +86,13 @@ export interface SubmitAnswerRequest {
   response_time_ms?: number;
 }
 
+export interface SessionStatistics {
+  session_id: number;
+  total_questions: number;
+  correct_answers: number;
+  wrong_answers: number;
+  accuracy_percentage: number; // 0-100
+  duration_seconds: number; // Total session duration
+  average_response_time_ms: number; // Average response time in milliseconds
+}
+
