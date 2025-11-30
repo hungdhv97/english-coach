@@ -4,7 +4,9 @@
  */
 
 import { useNavigate } from 'react-router-dom';
-import './LandingPage.css';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Gamepad2, BookOpen } from 'lucide-react';
 
 export default function LandingPage() {
   const navigate = useNavigate();
@@ -18,41 +20,53 @@ export default function LandingPage() {
   };
 
   return (
-    <div className="landing-page">
-      <div className="landing-page__container">
-        <header className="landing-page__header">
-          <h1 className="landing-page__title">English Coach</h1>
-          <p className="landing-page__subtitle">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-background to-muted/20">
+      <div className="w-full max-w-4xl space-y-8">
+        <header className="text-center space-y-4">
+          <h1 className="text-4xl md:text-5xl font-bold tracking-tight">English Coach</h1>
+          <p className="text-lg text-muted-foreground">
             Học từ vựng đa ngôn ngữ một cách hiệu quả
           </p>
         </header>
 
-        <main className="landing-page__main">
-          <div className="landing-page__actions">
-            <button
-              className="landing-page__button landing-page__button--primary"
-              onClick={handlePlayGame}
-              aria-label="Chơi game học từ vựng"
-            >
-              <span className="landing-page__button-icon">🎮</span>
-              <span className="landing-page__button-text">Chơi Game</span>
-              <span className="landing-page__button-description">
+        <main className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Card className="cursor-pointer transition-all hover:shadow-lg hover:scale-105" onClick={handlePlayGame}>
+            <CardHeader>
+              <div className="flex items-center gap-3 mb-2">
+                <div className="p-2 rounded-lg bg-primary/10">
+                  <Gamepad2 className="h-6 w-6 text-primary" />
+                </div>
+                <CardTitle className="text-2xl">Chơi Game</CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <CardDescription className="text-base">
                 Học từ vựng qua các trò chơi thú vị
-              </span>
-            </button>
+              </CardDescription>
+              <Button className="w-full mt-4" size="lg">
+                Bắt Đầu Chơi
+              </Button>
+            </CardContent>
+          </Card>
 
-            <button
-              className="landing-page__button landing-page__button--secondary"
-              onClick={handleDictionaryLookup}
-              aria-label="Tra cứu từ điển"
-            >
-              <span className="landing-page__button-icon">📚</span>
-              <span className="landing-page__button-text">Tra Cứu Từ Điển</span>
-              <span className="landing-page__button-description">
+          <Card className="cursor-pointer transition-all hover:shadow-lg hover:scale-105" onClick={handleDictionaryLookup}>
+            <CardHeader>
+              <div className="flex items-center gap-3 mb-2">
+                <div className="p-2 rounded-lg bg-primary/10">
+                  <BookOpen className="h-6 w-6 text-primary" />
+                </div>
+                <CardTitle className="text-2xl">Tra Cứu Từ Điển</CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <CardDescription className="text-base">
                 Tìm kiếm và học từ vựng đa ngôn ngữ
-              </span>
-            </button>
-          </div>
+              </CardDescription>
+              <Button className="w-full mt-4" size="lg" variant="secondary">
+                Mở Từ Điển
+              </Button>
+            </CardContent>
+          </Card>
         </main>
       </div>
     </div>

@@ -42,7 +42,7 @@
 
 - [x] T009 Setup MySQL database connection in `backend/internal/infrastructure/db/mysql.go` with connection pooling
 - [x] T010 Create database migration runner in `backend/cmd/migration/main.go` to execute `0001_init.sql`
-- [ ] T011 Verify database schema by running migration `backend/internal/infrastructure/db/migrations/0001_init.sql`
+- [x] T011 Verify database schema by running migration `backend/internal/infrastructure/db/migrations/0001_init.sql`
 - [x] T012 [P] Create unified error schema in `backend/internal/shared/response/error.go` with `{ code: string, message: string, details?: unknown }`
 - [x] T013 [P] Implement centralized error handler middleware in `backend/internal/interface/http/middleware/error_handler.go`
 - [x] T014 [P] Setup structured logging with zap in `backend/internal/infrastructure/logger/zap_logger.go`
@@ -106,54 +106,54 @@
 
 ### Backend Implementation for User Story 3
 
-- [ ] T036 [P] [US3] Create Language domain model in `backend/internal/domain/dictionary/model/language.go`
-- [ ] T037 [P] [US3] Create Topic domain model in `backend/internal/domain/dictionary/model/topic.go`
-- [ ] T038 [P] [US3] Create Level domain model in `backend/internal/domain/dictionary/model/level.go`
-- [ ] T039 [P] [US3] Create Language repository interface in `backend/internal/domain/dictionary/port/repository.go`
-- [ ] T040 [P] [US3] Create Topic repository interface in `backend/internal/domain/dictionary/port/repository.go`
-- [ ] T041 [P] [US3] Create Level repository interface in `backend/internal/domain/dictionary/port/repository.go`
-- [ ] T042 [US3] Implement Language repository in `backend/internal/repository/dictionary_pg.go` for MySQL queries
-- [ ] T043 [US3] Implement Topic repository in `backend/internal/repository/dictionary_pg.go` for MySQL queries
-- [ ] T044 [US3] Implement Level repository in `backend/internal/repository/dictionary_pg.go` for MySQL queries
-- [ ] T045 [US3] Create GET /api/v1/reference/languages endpoint handler in `backend/internal/interface/http/handler/dictionary_handler.go`
-- [ ] T046 [US3] Create GET /api/v1/reference/topics endpoint handler in `backend/internal/interface/http/handler/dictionary_handler.go`
-- [ ] T047 [US3] Create GET /api/v1/reference/levels endpoint handler with languageId query param in `backend/internal/interface/http/handler/dictionary_handler.go`
-- [ ] T048 [US3] Register dictionary routes in `backend/internal/app/router.go` for reference data endpoints
-- [ ] T049 [US3] Create GameSession domain model in `backend/internal/domain/game/model/game_session.go`
-- [ ] T050 [US3] Create game session repository interface in `backend/internal/domain/game/port/repository.go`
-- [ ] T051 [US3] Create CreateGameSessionRequest DTO in `backend/internal/domain/game/dto/create_session.go`
-- [ ] T052 [US3] Implement validation for CreateGameSessionRequest (source ≠ target, topic XOR level) in `backend/internal/domain/game/dto/create_session.go`
-- [ ] T053 [US3] Create CreateGameSession use case in `backend/internal/domain/game/usecase/command/create_session.go`
-- [ ] T054 [US3] Implement game session repository in `backend/internal/repository/game_pg.go` for MySQL queries
-- [ ] T055 [US3] Create POST /api/v1/games/sessions endpoint handler in `backend/internal/interface/http/handler/game_handler.go`
-- [ ] T056 [US3] Register game routes in `backend/internal/app/router.go` for session creation endpoint
-- [ ] T057 [US3] Add error handling for insufficient words scenario (FR-026) in `backend/internal/domain/game/usecase/command/create_session.go`
-- [ ] T058 [US3] Add Vietnamese error messages for validation errors (FR-025) in `backend/internal/interface/http/handler/game_handler.go`
+- [x] T036 [P] [US3] Create Language domain model in `backend/internal/domain/dictionary/model/language.go`
+- [x] T037 [P] [US3] Create Topic domain model in `backend/internal/domain/dictionary/model/topic.go`
+- [x] T038 [P] [US3] Create Level domain model in `backend/internal/domain/dictionary/model/level.go`
+- [x] T039 [P] [US3] Create Language repository interface in `backend/internal/domain/dictionary/port/repository.go`
+- [x] T040 [P] [US3] Create Topic repository interface in `backend/internal/domain/dictionary/port/repository.go`
+- [x] T041 [P] [US3] Create Level repository interface in `backend/internal/domain/dictionary/port/repository.go`
+- [x] T042 [US3] Implement Language repository in `backend/internal/repository/dictionary_pg.go` for MySQL queries
+- [x] T043 [US3] Implement Topic repository in `backend/internal/repository/dictionary_pg.go` for MySQL queries
+- [x] T044 [US3] Implement Level repository in `backend/internal/repository/dictionary_pg.go` for MySQL queries
+- [x] T045 [US3] Create GET /api/v1/reference/languages endpoint handler in `backend/internal/interface/http/handler/dictionary_handler.go`
+- [x] T046 [US3] Create GET /api/v1/reference/topics endpoint handler in `backend/internal/interface/http/handler/dictionary_handler.go`
+- [x] T047 [US3] Create GET /api/v1/reference/levels endpoint handler with languageId query param in `backend/internal/interface/http/handler/dictionary_handler.go`
+- [x] T048 [US3] Register dictionary routes in `backend/internal/app/router.go` for reference data endpoints
+- [x] T049 [US3] Create GameSession domain model in `backend/internal/domain/game/model/game_session.go`
+- [x] T050 [US3] Create game session repository interface in `backend/internal/domain/game/port/repository.go`
+- [x] T051 [US3] Create CreateGameSessionRequest DTO in `backend/internal/domain/game/dto/create_session.go`
+- [x] T052 [US3] Implement validation for CreateGameSessionRequest (source ≠ target, topic XOR level) in `backend/internal/domain/game/dto/create_session.go`
+- [x] T053 [US3] Create CreateGameSession use case in `backend/internal/domain/game/usecase/command/create_session.go`
+- [x] T054 [US3] Implement game session repository in `backend/internal/repository/game_pg.go` for MySQL queries
+- [x] T055 [US3] Create POST /api/v1/games/sessions endpoint handler in `backend/internal/interface/http/handler/game_handler.go`
+- [x] T056 [US3] Register game routes in `backend/internal/app/router.go` for session creation endpoint
+- [x] T057 [US3] Add error handling for insufficient words scenario (FR-026) in `backend/internal/domain/game/usecase/command/create_session.go`
+- [x] T058 [US3] Add Vietnamese error messages for validation errors (FR-025) in `backend/internal/interface/http/handler/game_handler.go`
 
 ### Frontend Implementation for User Story 3
 
-- [ ] T059 [P] [US3] Create Language type definitions in `frontend/src/entities/dictionary/model/dictionary.types.ts`
-- [ ] T060 [P] [US3] Create Topic type definitions in `frontend/src/entities/dictionary/model/dictionary.types.ts`
-- [ ] T061 [P] [US3] Create Level type definitions in `frontend/src/entities/dictionary/model/dictionary.types.ts`
-- [ ] T062 [P] [US3] Create dictionary API endpoints in `frontend/src/entities/dictionary/api/dictionary.endpoints.ts`
-- [ ] T063 [P] [US3] Create reference data queries in `frontend/src/entities/dictionary/api/dictionary.queries.ts` for languages, topics, levels
-- [ ] T064 [P] [US3] Create game session types in `frontend/src/entities/game/model/game.types.ts`
-- [ ] T065 [P] [US3] Create game API endpoints in `frontend/src/entities/game/api/game.endpoints.ts`
-- [ ] T066 [US3] Create GameConfigPage component in `frontend/src/pages/game/GameConfigPage.tsx`
-- [ ] T067 [US3] Create language selection dropdowns (source and target) in `frontend/src/pages/game/GameConfigPage.tsx`
-- [ ] T068 [US3] Create mode selector (topic or level) in `frontend/src/pages/game/GameConfigPage.tsx`
-- [ ] T069 [US3] Create topic selection interface that appears when topic mode is selected in `frontend/src/pages/game/GameConfigPage.tsx`
-- [ ] T070 [US3] Create level selection interface that appears when level mode is selected in `frontend/src/pages/game/GameConfigPage.tsx`
-- [ ] T071 [US3] Implement validation logic: source language ≠ target language (FR-010) in `frontend/src/pages/game/GameConfigPage.tsx`
-- [ ] T072 [US3] Implement validation logic: topic XOR level required (FR-011) in `frontend/src/pages/game/GameConfigPage.tsx`
-- [ ] T073 [US3] Create game configuration form component in `frontend/src/features/game/components/GameConfigForm.tsx`
-- [ ] T074 [US3] Create hook for game configuration in `frontend/src/features/game/hooks/useGameConfig.ts`
-- [ ] T075 [US3] Add game session creation mutation in `frontend/src/features/game/api/game.mutations.ts`
-- [ ] T076 [US3] Add start button handler that creates game session in `frontend/src/pages/game/GameConfigPage.tsx`
-- [ ] T077 [US3] Navigate to game play page after session creation in `frontend/src/pages/game/GameConfigPage.tsx`
-- [ ] T078 [US3] Add route for game config page (/games/vocab/config) in `frontend/src/app/router/routes.tsx`
-- [ ] T079 [US3] Ensure configuration can be completed in under 30 seconds per SC-002 in `frontend/src/pages/game/GameConfigPage.tsx`
-- [ ] T080 [US3] Display Vietnamese error messages for validation errors (FR-025) in `frontend/src/pages/game/GameConfigPage.tsx`
+- [x] T059 [P] [US3] Create Language type definitions in `frontend/src/entities/dictionary/model/dictionary.types.ts`
+- [x] T060 [P] [US3] Create Topic type definitions in `frontend/src/entities/dictionary/model/dictionary.types.ts`
+- [x] T061 [P] [US3] Create Level type definitions in `frontend/src/entities/dictionary/model/dictionary.types.ts`
+- [x] T062 [P] [US3] Create dictionary API endpoints in `frontend/src/entities/dictionary/api/dictionary.endpoints.ts`
+- [x] T063 [P] [US3] Create reference data queries in `frontend/src/entities/dictionary/api/dictionary.queries.ts` for languages, topics, levels
+- [x] T064 [P] [US3] Create game session types in `frontend/src/entities/game/model/game.types.ts`
+- [x] T065 [P] [US3] Create game API endpoints in `frontend/src/entities/game/api/game.endpoints.ts`
+- [x] T066 [US3] Create GameConfigPage component in `frontend/src/pages/game/GameConfigPage.tsx`
+- [x] T067 [US3] Create language selection dropdowns (source and target) in `frontend/src/pages/game/GameConfigPage.tsx`
+- [x] T068 [US3] Create mode selector (topic or level) in `frontend/src/pages/game/GameConfigPage.tsx`
+- [x] T069 [US3] Create topic selection interface that appears when topic mode is selected in `frontend/src/pages/game/GameConfigPage.tsx`
+- [x] T070 [US3] Create level selection interface that appears when level mode is selected in `frontend/src/pages/game/GameConfigPage.tsx`
+- [x] T071 [US3] Implement validation logic: source language ≠ target language (FR-010) in `frontend/src/pages/game/GameConfigPage.tsx`
+- [x] T072 [US3] Implement validation logic: topic XOR level required (FR-011) in `frontend/src/pages/game/GameConfigPage.tsx`
+- [x] T073 [US3] Create game configuration form component in `frontend/src/features/game/components/GameConfigForm.tsx`
+- [x] T074 [US3] Create hook for game configuration in `frontend/src/features/game/hooks/useGameConfig.ts`
+- [x] T075 [US3] Add game session creation mutation in `frontend/src/features/game/api/game.mutations.ts`
+- [x] T076 [US3] Add start button handler that creates game session in `frontend/src/pages/game/GameConfigPage.tsx`
+- [x] T077 [US3] Navigate to game play page after session creation in `frontend/src/pages/game/GameConfigPage.tsx`
+- [x] T078 [US3] Add route for game config page (/games/vocab/config) in `frontend/src/app/router/routes.tsx`
+- [x] T079 [US3] Ensure configuration can be completed in under 30 seconds per SC-002 in `frontend/src/pages/game/GameConfigPage.tsx`
+- [x] T080 [US3] Display Vietnamese error messages for validation errors (FR-025) in `frontend/src/pages/game/GameConfigPage.tsx`
 
 **Checkpoint**: At this point, User Stories 1, 2, AND 3 should work independently - users can configure and start a game session.
 
@@ -167,53 +167,53 @@
 
 ### Backend Implementation for User Story 4
 
-- [ ] T081 [P] [US4] Create Word domain model in `backend/internal/domain/dictionary/model/word.go`
-- [ ] T082 [P] [US4] Create Sense domain model in `backend/internal/domain/dictionary/model/sense.go`
-- [ ] T083 [US4] Create Word repository interface in `backend/internal/domain/dictionary/port/repository.go`
-- [ ] T084 [US4] Implement Word repository with search methods in `backend/internal/repository/dictionary_pg.go`
-- [ ] T085 [US4] Create GameQuestion domain model in `backend/internal/domain/game/model/game_question.go`
-- [ ] T086 [US4] Create GameQuestionOption domain model in `backend/internal/domain/game/model/game_question.go`
-- [ ] T087 [US4] Create question generator interface in `backend/internal/domain/game/port/question_generator.go`
-- [ ] T088 [US4] Implement question generator service in `backend/internal/domain/game/service/question_generator_service.go` to generate 4 options with 1 correct answer
-- [ ] T089 [US4] Update CreateGameSession use case to generate questions upfront in `backend/internal/domain/game/usecase/command/create_session.go`
-- [ ] T090 [US4] Create game question repository interface in `backend/internal/domain/game/port/repository.go`
-- [ ] T091 [US4] Implement game question repository in `backend/internal/repository/game_pg.go` for MySQL queries
-- [ ] T092 [US4] Create GET /api/v1/games/sessions/{sessionId} endpoint handler in `backend/internal/interface/http/handler/game_handler.go`
-- [ ] T093 [US4] Create GameAnswer domain model in `backend/internal/domain/game/model/game_answer.go`
-- [ ] T094 [US4] Create SubmitAnswerRequest DTO in `backend/internal/domain/game/dto/submit_answer.go`
-- [ ] T095 [US4] Create SubmitAnswer use case in `backend/internal/domain/game/usecase/command/answer_question.go`
-- [ ] T096 [US4] Create game answer repository interface in `backend/internal/domain/game/port/repository.go`
-- [ ] T097 [US4] Implement game answer repository in `backend/internal/repository/game_pg.go` for MySQL queries
-- [ ] T098 [US4] Create POST /api/v1/games/sessions/{sessionId}/answers endpoint handler in `backend/internal/interface/http/handler/game_handler.go`
-- [ ] T099 [US4] Create EndGameSession use case in `backend/internal/domain/game/usecase/command/end_session.go`
-- [ ] T100 [US4] Update game session repository to support ending session in `backend/internal/repository/game_pg.go`
-- [ ] T101 [US4] Add structured logging for game session start/end in `backend/internal/domain/game/usecase/command/create_session.go` and `end_session.go`
-- [ ] T102 [US4] Add structured logging for question answers in `backend/internal/domain/game/usecase/command/answer_question.go`
-- [ ] T103 [US4] Register game routes for session retrieval and answer submission in `backend/internal/app/router.go`
-- [ ] T104 [US4] Optimize question generation queries to avoid N+1 problem in `backend/internal/domain/game/service/question_generator_service.go`
-- [ ] T105 [US4] Ensure question generation completes within 1 second per SC-003 in `backend/internal/domain/game/service/question_generator_service.go`
+- [x] T081 [P] [US4] Create Word domain model in `backend/internal/domain/dictionary/model/word.go`
+- [x] T082 [P] [US4] Create Sense domain model in `backend/internal/domain/dictionary/model/sense.go`
+- [x] T083 [US4] Create Word repository interface in `backend/internal/domain/dictionary/port/repository.go`
+- [x] T084 [US4] Implement Word repository with search methods in `backend/internal/repository/dictionary_pg.go`
+- [x] T085 [US4] Create GameQuestion domain model in `backend/internal/domain/game/model/game_question.go`
+- [x] T086 [US4] Create GameQuestionOption domain model in `backend/internal/domain/game/model/game_question.go`
+- [x] T087 [US4] Create question generator interface in `backend/internal/domain/game/port/question_generator.go`
+- [x] T088 [US4] Implement question generator service in `backend/internal/domain/game/service/question_generator_service.go` to generate 4 options with 1 correct answer
+- [x] T089 [US4] Update CreateGameSession use case to generate questions upfront in `backend/internal/domain/game/usecase/command/create_session.go`
+- [x] T090 [US4] Create game question repository interface in `backend/internal/domain/game/port/repository.go`
+- [x] T091 [US4] Implement game question repository in `backend/internal/repository/game_pg.go` for MySQL queries
+- [x] T092 [US4] Create GET /api/v1/games/sessions/{sessionId} endpoint handler in `backend/internal/interface/http/handler/game_handler.go`
+- [x] T093 [US4] Create GameAnswer domain model in `backend/internal/domain/game/model/game_answer.go`
+- [x] T094 [US4] Create SubmitAnswerRequest DTO in `backend/internal/domain/game/dto/submit_answer.go`
+- [x] T095 [US4] Create SubmitAnswer use case in `backend/internal/domain/game/usecase/command/answer_question.go`
+- [x] T096 [US4] Create game answer repository interface in `backend/internal/domain/game/port/repository.go`
+- [x] T097 [US4] Implement game answer repository in `backend/internal/repository/game_pg.go` for MySQL queries
+- [x] T098 [US4] Create POST /api/v1/games/sessions/{sessionId}/answers endpoint handler in `backend/internal/interface/http/handler/game_handler.go`
+- [x] T099 [US4] Create EndGameSession use case in `backend/internal/domain/game/usecase/command/end_session.go`
+- [x] T100 [US4] Update game session repository to support ending session in `backend/internal/repository/game_pg.go`
+- [x] T101 [US4] Add structured logging for game session start/end in `backend/internal/domain/game/usecase/command/create_session.go` and `end_session.go`
+- [x] T102 [US4] Add structured logging for question answers in `backend/internal/domain/game/usecase/command/answer_question.go`
+- [x] T103 [US4] Register game routes for session retrieval and answer submission in `backend/internal/app/router.go`
+- [x] T104 [US4] Optimize question generation queries to avoid N+1 problem in `backend/internal/domain/game/service/question_generator_service.go`
+- [x] T105 [US4] Ensure question generation completes within 1 second per SC-003 in `backend/internal/domain/game/service/question_generator_service.go`
 
 ### Frontend Implementation for User Story 4
 
-- [ ] T106 [P] [US4] Create GameQuestion type definitions in `frontend/src/entities/game/model/game.types.ts`
-- [ ] T107 [P] [US4] Create GameAnswer type definitions in `frontend/src/entities/game/model/game.types.ts`
-- [ ] T108 [P] [US4] Create game session queries in `frontend/src/features/game/api/game.queries.ts` for session retrieval
-- [ ] T109 [P] [US4] Create answer submission mutation in `frontend/src/features/game/api/game.mutations.ts`
-- [ ] T110 [US4] Create GamePlayPage component in `frontend/src/pages/game/GamePlayPage.tsx`
-- [ ] T111 [US4] Create GameQuestion component to display question with 4 options (A, B, C, D) in `frontend/src/features/game/components/GameQuestion.tsx`
-- [ ] T112 [US4] Display source word prominently in `frontend/src/features/game/components/GameQuestion.tsx`
-- [ ] T113 [US4] Display four answer options as A, B, C, D buttons in `frontend/src/features/game/components/GameQuestion.tsx`
-- [ ] T114 [US4] Create hook for game session management in `frontend/src/features/game/hooks/useGameSession.ts`
-- [ ] T115 [US4] Implement answer selection handler in `frontend/src/features/game/components/GameQuestion.tsx`
-- [ ] T116 [US4] Track response time for each answer in `frontend/src/features/game/hooks/useGameSession.ts`
-- [ ] T117 [US4] Submit answer to backend API in `frontend/src/features/game/hooks/useGameSession.ts`
-- [ ] T118 [US4] Progress to next question after answer submission in `frontend/src/pages/game/GamePlayPage.tsx`
-- [ ] T119 [US4] Create game completion screen component in `frontend/src/pages/game/GamePlayPage.tsx`
-- [ ] T120 [US4] Display completion screen when all questions are answered in `frontend/src/pages/game/GamePlayPage.tsx`
-- [ ] T121 [US4] Add "View Statistics" button on completion screen (FR-018) in `frontend/src/pages/game/GamePlayPage.tsx`
-- [ ] T122 [US4] Add route for game play page (/games/vocab/play/:sessionId) in `frontend/src/app/router/routes.tsx`
-- [ ] T123 [US4] Ensure questions load within 1 second per SC-003 in `frontend/src/pages/game/GamePlayPage.tsx`
-- [ ] T124 [US4] Implement loading states during question transitions in `frontend/src/pages/game/GamePlayPage.tsx`
+- [x] T106 [P] [US4] Create GameQuestion type definitions in `frontend/src/entities/game/model/game.types.ts`
+- [x] T107 [P] [US4] Create GameAnswer type definitions in `frontend/src/entities/game/model/game.types.ts`
+- [x] T108 [P] [US4] Create game session queries in `frontend/src/features/game/api/game.queries.ts` for session retrieval
+- [x] T109 [P] [US4] Create answer submission mutation in `frontend/src/features/game/api/game.mutations.ts`
+- [x] T110 [US4] Create GamePlayPage component in `frontend/src/pages/game/GamePlayPage.tsx`
+- [x] T111 [US4] Create GameQuestion component to display question with 4 options (A, B, C, D) in `frontend/src/features/game/components/GameQuestion.tsx`
+- [x] T112 [US4] Display source word prominently in `frontend/src/features/game/components/GameQuestion.tsx`
+- [x] T113 [US4] Display four answer options as A, B, C, D buttons in `frontend/src/features/game/components/GameQuestion.tsx`
+- [x] T114 [US4] Create hook for game session management in `frontend/src/features/game/hooks/useGameSession.ts`
+- [x] T115 [US4] Implement answer selection handler in `frontend/src/features/game/components/GameQuestion.tsx`
+- [x] T116 [US4] Track response time for each answer in `frontend/src/features/game/hooks/useGameSession.ts`
+- [x] T117 [US4] Submit answer to backend API in `frontend/src/features/game/hooks/useGameSession.ts`
+- [x] T118 [US4] Progress to next question after answer submission in `frontend/src/pages/game/GamePlayPage.tsx`
+- [x] T119 [US4] Create game completion screen component in `frontend/src/pages/game/GamePlayPage.tsx`
+- [x] T120 [US4] Display completion screen when all questions are answered in `frontend/src/pages/game/GamePlayPage.tsx`
+- [x] T121 [US4] Add "View Statistics" button on completion screen (FR-018) in `frontend/src/pages/game/GamePlayPage.tsx`
+- [x] T122 [US4] Add route for game play page (/games/vocab/play/:sessionId) in `frontend/src/app/router/routes.tsx`
+- [x] T123 [US4] Ensure questions load within 1 second per SC-003 in `frontend/src/pages/game/GamePlayPage.tsx`
+- [x] T124 [US4] Implement loading states during question transitions in `frontend/src/pages/game/GamePlayPage.tsx`
 
 **Checkpoint**: At this point, User Stories 1-4 should work independently - users can play a complete game session from start to finish.
 

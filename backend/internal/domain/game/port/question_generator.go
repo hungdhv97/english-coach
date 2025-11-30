@@ -1,0 +1,22 @@
+package port
+
+import (
+	"context"
+
+	"github.com/english-coach/backend/internal/domain/game/model"
+)
+
+// QuestionGenerator defines operations for generating game questions
+type QuestionGenerator interface {
+	// GenerateQuestions generates questions for a game session
+	// Returns questions with their options (4 options per question, 1 correct)
+	GenerateQuestions(
+		ctx context.Context,
+		sessionID int64,
+		sourceLanguageID, targetLanguageID int16,
+		mode string, // "topic" or "level"
+		topicID, levelID *int64,
+		questionCount int,
+	) ([]*model.GameQuestion, []*model.GameQuestionOption, error)
+}
+

@@ -1,0 +1,113 @@
+.game-question {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding: 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.game-question__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.game-question__number {
+  font-size: 1rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.game-question__content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.game-question__source-word {
+  text-align: center;
+  padding: 2rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 1rem;
+  color: white;
+}
+
+.game-question__word-text {
+  font-size: 3rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.game-question__word-hint {
+  font-size: 1rem;
+  opacity: 0.9;
+  margin: 0;
+}
+
+.game-question__options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+@media (max-width: 640px) {
+  .game-question__options {
+    grid-template-columns: 1fr;
+  }
+}
+
+.game-question__option {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 0.75rem;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 1.125rem;
+  text-align: left;
+}
+
+.game-question__option:hover:not(:disabled) {
+  border-color: #667eea;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+}
+
+.game-question__option--selected {
+  border-color: #667eea;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.game-question__option--disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.game-question__option-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.5rem;
+  background: rgba(0, 0, 0, 0.1);
+  font-weight: 700;
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.game-question__option--selected .game-question__option-label {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.game-question__option-text {
+  flex: 1;
+  font-weight: 500;
+}
+

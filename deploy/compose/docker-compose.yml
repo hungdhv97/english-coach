@@ -70,8 +70,6 @@ services:
       # Mount source code for HMR (Hot Module Replacement)
       - ../../frontend/src:/app/src
       - ../../frontend/public:/app/public
-      # Keep node_modules in container to avoid conflicts
-      - /app/node_modules
     depends_on:
       - backend
     networks:

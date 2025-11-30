@@ -4,8 +4,9 @@
  */
 
 import { useNavigate } from 'react-router-dom';
-import { Gamepad2, BookOpen, TrendingUp, Users } from 'lucide-react';
-import './GameListPage.css';
+import { BookOpen, ChevronRight } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 
 interface Game {
   id: string;
@@ -21,7 +22,7 @@ const availableGames: Game[] = [
     id: 'vocab',
     name: 'Học Từ Vựng',
     description: 'Học từ vựng qua các câu hỏi trắc nghiệm theo chủ đề hoặc cấp độ',
-    icon: <BookOpen className="w-8 h-8" />,
+    icon: <BookOpen className="h-8 w-8" />,
     route: '/games/vocab/config',
     color: 'from-blue-500 to-blue-600',
   },
@@ -30,7 +31,7 @@ const availableGames: Game[] = [
   //   id: 'flashcard',
   //   name: 'Flashcard',
   //   description: 'Học từ vựng bằng thẻ ghi nhớ',
-  //   icon: <FileText className="w-8 h-8" />,
+  //   icon: <FileText className="h-8 w-8" />,
   //   route: '/games/flashcard',
   //   color: 'from-purple-500 to-purple-600',
   // },
@@ -44,21 +45,21 @@ export default function GameListPage() {
   };
 
   return (
-    <div className="game-list-page">
-      <div className="game-list-page__container">
-        <header className="game-list-page__header">
-          <h1 className="game-list-page__title">Chọn Game</h1>
-          <p className="game-list-page__subtitle">
+    <div className="min-h-screen p-4 md:p-8 bg-gradient-to-br from-background to-muted/20">
+      <div className="max-w-4xl mx-auto space-y-8">
+        <header className="text-center space-y-2">
+          <h1 className="text-3xl md:text-4xl font-bold tracking-tight">Chọn Game</h1>
+          <p className="text-muted-foreground text-lg">
             Chọn một game để bắt đầu học từ vựng
           </p>
         </header>
 
-        <main className="game-list-page__main">
-          <div className="game-list-page__games">
+        <main>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {availableGames.map((game) => (
-              <div
+              <Card
                 key={game.id}
-                className={`game-list-page__game-card game-list-page__game-card--${game.id}`}
+                className="cursor-pointer transition-all hover:shadow-lg hover:scale-[1.02] group"
                 onClick={() => handleGameSelect(game)}
                 role="button"
                 tabIndex={0}
@@ -70,17 +71,24 @@ export default function GameListPage() {
                 }}
                 aria-label={`Chọn game ${game.name}`}
               >
-                <div className={`game-list-page__game-icon bg-gradient-to-br ${game.color}`}>
-                  {game.icon}
-                </div>
-                <div className="game-list-page__game-content">
-                  <h2 className="game-list-page__game-name">{game.name}</h2>
-                  <p className="game-list-page__game-description">{game.description}</p>
-                </div>
-                <div className="game-list-page__game-arrow">
-                  →
-                </div>
-              </div>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <div className={`p-3 rounded-lg bg-gradient-to-br ${game.color} text-white`}>
+                      {game.icon}
+                    </div>
+                    <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-foreground group-hover:translate-x-1 transition-all" />
+                  </div>
+                  <CardTitle className="text-xl mt-4">{game.name}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <CardDescription className="text-base mb-4">
+                    {game.description}
+                  </CardDescription>
+                  <Button className="w-full" onClick={() => handleGameSelect(game)}>
+                    Bắt Đầu
+                  </Button>
+                </CardContent>
+              </Card>
             ))}
           </div>
         </main>
