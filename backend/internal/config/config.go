@@ -95,6 +95,30 @@ func Load() (*Config, error) {
 		return nil, fmt.Errorf("failed to unmarshal config: %w", err)
 	}
 
+	// Handle CORS_ALLOWED_ORIGINS from environment variable
+	// Viper reads it as string, but we need []string
+	// Check if CORS_ALLOWED_ORIGINS env var is set and parse it if it's a string
+	if viper.IsSet("cors.allowed_origins") {
+		corsOriginsRaw := viper.Get("cors.allowed_origins")
+		if corsOriginsStr, ok := corsOriginsRaw.(string); ok {
+			// It's a string from env var, parse it
+			if corsOriginsStr == "*" {
+				cfg.CORS.AllowedOrigins = []string{"*"}
+			} else {
+				// Split by comma and trim spaces
+				origins := strings.Split(corsOriginsStr, ",")
+				cfg.CORS.AllowedOrigins = make([]string, 0, len(origins))
+				for _, origin := range origins {
+					trimmed := strings.TrimSpace(origin)
+					if trimmed != "" {
+						cfg.CORS.AllowedOrigins = append(cfg.CORS.AllowedOrigins, trimmed)
+					}
+				}
+			}
+		}
+		// If it's already a slice (from config file), cfg.CORS.AllowedOrigins is already set correctly
+	}
+
 	return cfg, nil
 }
 
