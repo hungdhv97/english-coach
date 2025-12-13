@@ -1,0 +1,157 @@
+{
+  "info": {
+    "name": "English Coach - Dictionary API",
+    "description": "Collection for dictionary lookup, word search, and reference data endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "dictionary-collection",
+    "version": {
+      "major": 1,
+      "minor": 0,
+      "patch": 0
+    }
+  },
+  "item": [
+    {
+      "name": "Dictionary",
+      "item": [
+        {
+          "name": "Search Words",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/dictionary/search?q=hello&language=en&limit=20&offset=0",
+              "host": ["{{base_url}}"],
+              "path": ["dictionary", "search"],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "hello",
+                  "description": "Search query (word to look up)"
+                },
+                {
+                  "key": "language",
+                  "value": "en",
+                  "description": "Language code (optional)"
+                },
+                {
+                  "key": "limit",
+                  "value": "20",
+                  "description": "Maximum number of results"
+                },
+                {
+                  "key": "offset",
+                  "value": "0",
+                  "description": "Number of results to skip"
+                }
+              ]
+            },
+            "description": "Search for words in dictionary by query string"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Word Detail",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/dictionary/words/1",
+              "host": ["{{base_url}}"],
+              "path": ["dictionary", "words", "1"],
+              "variable": [
+                {
+                  "key": "wordId",
+                  "value": "1",
+                  "description": "Word ID"
+                }
+              ]
+            },
+            "description": "Get detailed information about a word"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Reference Data",
+      "item": [
+        {
+          "name": "Get Languages",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/reference/languages",
+              "host": ["{{base_url}}"],
+              "path": ["reference", "languages"]
+            },
+            "description": "Get list of all supported languages"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Topics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/reference/topics",
+              "host": ["{{base_url}}"],
+              "path": ["reference", "topics"]
+            },
+            "description": "Get list of all vocabulary topics"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Levels",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/reference/levels?languageId=1",
+              "host": ["{{base_url}}"],
+              "path": ["reference", "levels"],
+              "query": [
+                {
+                  "key": "languageId",
+                  "value": "1",
+                  "description": "Language ID to filter levels (optional)"
+                }
+              ]
+            },
+            "description": "Get list of all difficulty/proficiency levels"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Levels - All",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/reference/levels",
+              "host": ["{{base_url}}"],
+              "path": ["reference", "levels"]
+            },
+            "description": "Get all levels without filtering by language"
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8080/api/v1",
+      "type": "string"
+    },
+    {
+      "key": "wordId",
+      "value": "1",
+      "type": "string"
+    }
+  ]
+}

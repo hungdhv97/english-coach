@@ -190,6 +190,10 @@ func main() {
 		c.JSON(200, gin.H{"status": "ok"})
 	})
 
+	// OpenAPI documentation endpoint (Swagger UI)
+	openapiHandler := handler.NewOpenAPIHandler(appLogger.Logger, "docs/openapi/openapi.yaml")
+	router.GET("/docs", openapiHandler.GetSwaggerUI)
+
 	// API v1 routes
 	apiV1 := router.Group("/api/v1")
 	{

@@ -1,4 +1,21 @@
 .
+├── docs/
+│   ├── openapi/
+│   │   ├── openapi.yaml
+│   │   ├── user.yaml
+│   │   ├── auth.yaml
+│   │   └── components/
+│   │       ├── schemas.yaml
+│   │       ├── responses.yaml
+│   │       └── parameters.yaml
+│   │
+│   └── postman/
+│       ├── user.postman_collection.json
+│       ├── auth.postman_collection.json
+│       └── environment/
+│           ├── local.postman_environment.json
+│           └── staging.postman_environment.json
+|
 ├── cmd/
 │   ├── api/
 │   │   ├── main.go

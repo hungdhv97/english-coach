@@ -1,0 +1,87 @@
+paths:
+  # Game Endpoints
+  /games/sessions:
+    post:
+      tags:
+        - Games
+      summary: Create a new game session
+      description: Create a new vocabulary game session with specified configuration
+      operationId: createGameSession
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateGameSessionRequest'
+      responses:
+        '201':
+          description: Game session created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/GameSession'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /games/sessions/{sessionId}:
+    get:
+      tags:
+        - Games
+      summary: Get game session details
+      description: Retrieve details of a game session including all questions
+      operationId: getGameSession
+      parameters:
+        - $ref: '#/components/parameters/SessionId'
+      responses:
+        '200':
+          description: Game session details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/GameSessionDetail'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /games/sessions/{sessionId}/answers:
+    post:
+      tags:
+        - Games
+      summary: Submit an answer
+      description: Submit an answer to a game question
+      operationId: submitAnswer
+      parameters:
+        - $ref: '#/components/parameters/SessionId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubmitAnswerRequest'
+      responses:
+        '201':
+          description: Answer submitted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/GameAnswer'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'

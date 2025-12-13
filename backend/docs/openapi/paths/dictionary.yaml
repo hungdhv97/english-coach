@@ -1,0 +1,126 @@
+paths:
+  # Dictionary Endpoints
+  /dictionary/search:
+    get:
+      tags:
+        - Dictionary
+      summary: Search for words in dictionary
+      description: Search for words by query string in any supported language
+      operationId: searchDictionary
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/SearchQuery'
+        - $ref: '#/components/parameters/LanguageCode'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+      responses:
+        '200':
+          description: Successful search results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/DictionarySearchResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /dictionary/words/{wordId}:
+    get:
+      tags:
+        - Dictionary
+      summary: Get word details
+      description: Retrieve detailed information about a word including definitions, translations, examples, and pronunciation
+      operationId: getWordDetails
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/WordId'
+      responses:
+        '200':
+          description: Word details retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/WordDetail'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # Reference Data Endpoints (part of Dictionary domain)
+  /reference/languages:
+    get:
+      tags:
+        - Dictionary
+      summary: List all languages
+      description: Get list of all supported languages
+      operationId: listLanguages
+      security: []
+      responses:
+        '200':
+          description: List of languages
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Language'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /reference/topics:
+    get:
+      tags:
+        - Dictionary
+      summary: List all topics
+      description: Get list of all vocabulary topics
+      operationId: listTopics
+      security: []
+      responses:
+        '200':
+          description: List of topics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Topic'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /reference/levels:
+    get:
+      tags:
+        - Dictionary
+      summary: List all levels
+      description: Get list of all difficulty/proficiency levels
+      operationId: listLevels
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/LanguageId'
+      responses:
+        '200':
+          description: List of levels
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Level'
+        '500':
+          $ref: '#/components/responses/InternalServerError'

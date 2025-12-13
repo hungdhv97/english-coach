@@ -1,0 +1,661 @@
+components:
+  schemas:
+    # Common Schemas
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          description: Error code
+        message:
+          type: string
+          description: Error message (in Vietnamese for user-facing errors)
+        details:
+          type: object
+          description: Additional error details
+
+    # User Schemas
+    User:
+      type: object
+      required:
+        - id
+        - email
+        - created_at
+      properties:
+        id:
+          type: integer
+          format: int64
+        email:
+          type: string
+          format: email
+          nullable: true
+        username:
+          type: string
+          nullable: true
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+          nullable: true
+
+    UserProfile:
+      type: object
+      properties:
+        user_id:
+          type: integer
+          format: int64
+        display_name:
+          type: string
+          nullable: true
+        avatar_url:
+          type: string
+          nullable: true
+        birth_day:
+          type: string
+          format: date
+          nullable: true
+        bio:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+          nullable: true
+
+    RegisterRequest:
+      type: object
+      required:
+        - password
+      properties:
+        display_name:
+          type: string
+          maxLength: 100
+        email:
+          type: string
+          format: email
+        username:
+          type: string
+          minLength: 3
+          maxLength: 100
+        password:
+          type: string
+          minLength: 6
+
+    RegisterResponse:
+      type: object
+      required:
+        - user_id
+        - token
+      properties:
+        user_id:
+          type: integer
+          format: int64
+        token:
+          type: string
+        user:
+          $ref: '#/components/schemas/User'
+
+    LoginRequest:
+      type: object
+      required:
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+        username:
+          type: string
+        password:
+          type: string
+
+    LoginResponse:
+      type: object
+      required:
+        - user_id
+        - token
+      properties:
+        user_id:
+          type: integer
+          format: int64
+        token:
+          type: string
+        user:
+          $ref: '#/components/schemas/User'
+
+    UpdateProfileRequest:
+      type: object
+      properties:
+        display_name:
+          type: string
+          maxLength: 100
+        avatar_url:
+          type: string
+          format: uri
+          maxLength: 500
+        birth_day:
+          type: string
+          format: date
+        bio:
+          type: string
+
+    AvailabilityResponse:
+      type: object
+      required:
+        - available
+        - exists
+      properties:
+        available:
+          type: boolean
+        exists:
+          type: boolean
+
+    # Reference Data Schemas
+    Language:
+      type: object
+      required:
+        - id
+        - code
+        - name
+      properties:
+        id:
+          type: integer
+          format: int32
+        code:
+          type: string
+          example: en
+        name:
+          type: string
+          example: English
+        nativeName:
+          type: string
+          nullable: true
+          example: English
+
+    Topic:
+      type: object
+      required:
+        - id
+        - code
+        - name
+      properties:
+        id:
+          type: integer
+          format: int64
+        code:
+          type: string
+          example: education
+        name:
+          type: string
+          example: Education
+
+    Level:
+      type: object
+      required:
+        - id
+        - code
+        - name
+      properties:
+        id:
+          type: integer
+          format: int64
+        code:
+          type: string
+          example: HSK1
+        name:
+          type: string
+          example: HSK Level 1
+        description:
+          type: string
+          nullable: true
+        languageId:
+          type: integer
+          format: int32
+          nullable: true
+        difficultyOrder:
+          type: integer
+          format: int32
+          nullable: true
+
+    # Dictionary Schemas
+    Word:
+      type: object
+      required:
+        - id
+        - languageId
+        - lemma
+      properties:
+        id:
+          type: integer
+          format: int64
+        languageId:
+          type: integer
+          format: int32
+        lemma:
+          type: string
+        lemmaNormalized:
+          type: string
+          nullable: true
+        partOfSpeechId:
+          type: integer
+          format: int32
+          nullable: true
+        romanization:
+          type: string
+          nullable: true
+        frequencyRank:
+          type: integer
+          nullable: true
+
+    Sense:
+      type: object
+      required:
+        - id
+        - wordId
+        - senseOrder
+        - definition
+      properties:
+        id:
+          type: integer
+          format: int64
+        wordId:
+          type: integer
+          format: int64
+        senseOrder:
+          type: integer
+          format: int32
+        definition:
+          type: string
+        definitionLanguageId:
+          type: integer
+          format: int32
+        usageLabel:
+          type: string
+          nullable: true
+        levelId:
+          type: integer
+          format: int64
+          nullable: true
+
+    Translation:
+      type: object
+      required:
+        - wordId
+        - languageId
+        - priority
+      properties:
+        wordId:
+          type: integer
+          format: int64
+        wordLemma:
+          type: string
+        languageId:
+          type: integer
+          format: int32
+        languageCode:
+          type: string
+        priority:
+          type: integer
+          format: int32
+
+    Example:
+      type: object
+      required:
+        - id
+        - content
+      properties:
+        id:
+          type: integer
+          format: int64
+        content:
+          type: string
+        languageId:
+          type: integer
+          format: int32
+        audioUrl:
+          type: string
+          nullable: true
+        source:
+          type: string
+          nullable: true
+        translations:
+          type: array
+          items:
+            type: object
+            properties:
+              languageId:
+                type: integer
+                format: int32
+              content:
+                type: string
+
+    Pronunciation:
+      type: object
+      properties:
+        dialect:
+          type: string
+          nullable: true
+        ipa:
+          type: string
+          nullable: true
+        phonetic:
+          type: string
+          nullable: true
+        audioUrl:
+          type: string
+          nullable: true
+
+    WordDetail:
+      type: object
+      required:
+        - id
+        - language
+        - lemma
+      properties:
+        id:
+          type: integer
+          format: int64
+        language:
+          $ref: '#/components/schemas/Language'
+        lemma:
+          type: string
+        lemmaNormalized:
+          type: string
+          nullable: true
+        partOfSpeech:
+          type: string
+          nullable: true
+        romanization:
+          type: string
+          nullable: true
+        frequencyRank:
+          type: integer
+          nullable: true
+        senses:
+          type: array
+          items:
+            $ref: '#/components/schemas/Sense'
+        translations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Translation'
+        examples:
+          type: array
+          items:
+            $ref: '#/components/schemas/Example'
+        pronunciations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Pronunciation'
+        topics:
+          type: array
+          items:
+            $ref: '#/components/schemas/Topic'
+
+    DictionarySearchResponse:
+      type: object
+      required:
+        - words
+        - total
+        - limit
+        - offset
+      properties:
+        words:
+          type: array
+          items:
+            $ref: '#/components/schemas/Word'
+        total:
+          type: integer
+          format: int64
+        limit:
+          type: integer
+        offset:
+          type: integer
+
+    # Game Schemas
+    CreateGameSessionRequest:
+      type: object
+      required:
+        - mode
+        - sourceLanguageId
+        - targetLanguageId
+      properties:
+        mode:
+          type: string
+          enum:
+            - topic
+            - level
+        sourceLanguageId:
+          type: integer
+          format: int32
+        targetLanguageId:
+          type: integer
+          format: int32
+        topicId:
+          type: integer
+          format: int64
+          nullable: true
+          description: Required if mode is 'topic'
+        levelId:
+          type: integer
+          format: int64
+          nullable: true
+          description: Required if mode is 'level'
+        totalQuestions:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 50
+          default: 10
+
+    GameQuestionOption:
+      type: object
+      required:
+        - id
+        - optionLabel
+        - targetWord
+        - isCorrect
+      properties:
+        id:
+          type: integer
+          format: int64
+        optionLabel:
+          type: string
+          enum:
+            - A
+            - B
+            - C
+            - D
+        targetWord:
+          $ref: '#/components/schemas/Word'
+        isCorrect:
+          type: boolean
+
+    GameQuestion:
+      type: object
+      required:
+        - id
+        - questionOrder
+        - sourceWord
+        - correctTargetWord
+        - options
+      properties:
+        id:
+          type: integer
+          format: int64
+        questionOrder:
+          type: integer
+          format: int32
+        questionType:
+          type: string
+          example: word_to_translation
+        sourceWord:
+          $ref: '#/components/schemas/Word'
+        correctTargetWord:
+          $ref: '#/components/schemas/Word'
+        options:
+          type: array
+          minItems: 4
+          maxItems: 4
+          items:
+            $ref: '#/components/schemas/GameQuestionOption'
+
+    GameSession:
+      type: object
+      required:
+        - id
+        - userId
+        - mode
+        - sourceLanguageId
+        - targetLanguageId
+        - totalQuestions
+        - correctQuestions
+        - startedAt
+      properties:
+        id:
+          type: integer
+          format: int64
+        userId:
+          type: integer
+          format: int64
+        mode:
+          type: string
+          enum:
+            - topic
+            - level
+        sourceLanguageId:
+          type: integer
+          format: int32
+        targetLanguageId:
+          type: integer
+          format: int32
+        topicId:
+          type: integer
+          format: int64
+          nullable: true
+        levelId:
+          type: integer
+          format: int64
+          nullable: true
+        totalQuestions:
+          type: integer
+          format: int32
+        correctQuestions:
+          type: integer
+          format: int32
+        startedAt:
+          type: string
+          format: date-time
+        endedAt:
+          type: string
+          format: date-time
+          nullable: true
+
+    GameSessionDetail:
+      allOf:
+        - $ref: '#/components/schemas/GameSession'
+        - type: object
+          properties:
+            questions:
+              type: array
+              items:
+                $ref: '#/components/schemas/GameQuestion'
+
+    SubmitAnswerRequest:
+      type: object
+      required:
+        - questionId
+        - selectedOptionId
+        - responseTimeMs
+      properties:
+        questionId:
+          type: integer
+          format: int64
+        selectedOptionId:
+          type: integer
+          format: int64
+        responseTimeMs:
+          type: integer
+          format: int32
+          minimum: 0
+
+    GameAnswer:
+      type: object
+      required:
+        - id
+        - questionId
+        - sessionId
+        - userId
+        - isCorrect
+        - answeredAt
+      properties:
+        id:
+          type: integer
+          format: int64
+        questionId:
+          type: integer
+          format: int64
+        sessionId:
+          type: integer
+          format: int64
+        userId:
+          type: integer
+          format: int64
+        selectedOptionId:
+          type: integer
+          format: int64
+          nullable: true
+        isCorrect:
+          type: boolean
+        responseTimeMs:
+          type: integer
+          format: int32
+          nullable: true
+        answeredAt:
+          type: string
+          format: date-time
+
+    # Statistics Schemas
+    SessionStatistics:
+      type: object
+      required:
+        - sessionId
+        - totalQuestions
+        - correctQuestions
+        - accuracyPercentage
+        - durationSeconds
+      properties:
+        sessionId:
+          type: integer
+          format: int64
+        totalQuestions:
+          type: integer
+        correctQuestions:
+          type: integer
+        wrongQuestions:
+          type: integer
+        accuracyPercentage:
+          type: number
+          format: float
+        durationSeconds:
+          type: integer
+        averageResponseTimeMs:
+          type: number
+          format: float
+          nullable: true
+        startedAt:
+          type: string
+          format: date-time
+        endedAt:
+          type: string
+          format: date-time
+          nullable: true

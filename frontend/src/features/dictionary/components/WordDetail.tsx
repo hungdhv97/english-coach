@@ -77,7 +77,7 @@ export function WordDetail({ wordId }: WordDetailProps) {
           )}
 
           {/* Pronunciations */}
-          {wordDetail.pronunciations.length > 0 && (
+          {wordDetail.pronunciations && wordDetail.pronunciations.length > 0 && (
             <div className="space-y-2">
               <h3 className="font-semibold">Phát âm:</h3>
               <div className="space-y-2">
@@ -112,7 +112,7 @@ export function WordDetail({ wordId }: WordDetailProps) {
       </Card>
 
       {/* Senses */}
-      {wordDetail.senses.length > 0 && (
+      {wordDetail.senses && wordDetail.senses.length > 0 && (
         <div className="space-y-4">
           <h2 className="text-xl font-semibold">Nghĩa:</h2>
           {wordDetail.senses.map((sense) => (
@@ -150,7 +150,7 @@ export function WordDetail({ wordId }: WordDetailProps) {
               </CardHeader>
               <CardContent className="space-y-4">
                 {/* Translations */}
-                {sense.translations.length > 0 && (
+                {sense.translations && sense.translations.length > 0 && (
                   <div>
                     <h3 className="font-semibold mb-2">Bản dịch:</h3>
                     <div className="flex flex-wrap gap-2">
@@ -172,7 +172,7 @@ export function WordDetail({ wordId }: WordDetailProps) {
                 )}
 
                 {/* Examples */}
-                {sense.examples.length > 0 && (
+                {sense.examples && sense.examples.length > 0 && (
                   <div>
                     <h3 className="font-semibold mb-2">Ví dụ:</h3>
                     <div className="space-y-3">

@@ -1,0 +1,25 @@
+paths:
+  # Statistics Endpoints
+  /statistics/sessions/{sessionId}:
+    get:
+      tags:
+        - Statistics
+      summary: Get game session statistics
+      description: Get detailed statistics for a completed game session
+      operationId: getSessionStatistics
+      parameters:
+        - $ref: '#/components/parameters/SessionId'
+      responses:
+        '200':
+          description: Session statistics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SessionStatistics'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
