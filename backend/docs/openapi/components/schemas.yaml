@@ -426,36 +426,34 @@ components:
       type: object
       required:
         - mode
-        - sourceLanguageId
-        - targetLanguageId
+        - source_language_id
+        - target_language_id
       properties:
         mode:
           type: string
           enum:
             - topic
             - level
-        sourceLanguageId:
-          type: integer
-          format: int32
-        targetLanguageId:
-          type: integer
-          format: int32
-        topicId:
-          type: integer
-          format: int64
-          nullable: true
-          description: Required if mode is 'topic'
-        levelId:
-          type: integer
-          format: int64
-          nullable: true
-          description: Required if mode is 'level'
-        totalQuestions:
+        source_language_id:
           type: integer
           format: int32
           minimum: 1
-          maximum: 50
-          default: 10
+        target_language_id:
+          type: integer
+          format: int32
+          minimum: 1
+        topic_id:
+          type: integer
+          format: int64
+          nullable: true
+          minimum: 1
+          description: Required if mode is 'topic'
+        level_id:
+          type: integer
+          format: int64
+          nullable: true
+          minimum: 1
+          description: Required if mode is 'level'
 
     GameQuestionOption:
       type: object
@@ -561,32 +559,37 @@ components:
           nullable: true
 
     GameSessionDetail:
-      allOf:
-        - $ref: '#/components/schemas/GameSession'
-        - type: object
-          properties:
-            questions:
-              type: array
-              items:
-                $ref: '#/components/schemas/GameQuestion'
+      type: object
+      required:
+        - session
+        - questions
+      properties:
+        session:
+          $ref: '#/components/schemas/GameSession'
+        questions:
+          type: array
+          items:
+            $ref: '#/components/schemas/GameQuestion'
 
     SubmitAnswerRequest:
       type: object
       required:
-        - questionId
-        - selectedOptionId
-        - responseTimeMs
+        - question_id
+        - selected_option_id
       properties:
-        questionId:
+        question_id:
           type: integer
           format: int64
-        selectedOptionId:
+          minimum: 1
+        selected_option_id:
           type: integer
           format: int64
-        responseTimeMs:
+          minimum: 1
+        response_time_ms:
           type: integer
           format: int32
-          minimum: 0
+          minimum: 1
+          nullable: true
 
     GameAnswer:
       type: object
@@ -628,34 +631,31 @@ components:
     SessionStatistics:
       type: object
       required:
-        - sessionId
-        - totalQuestions
-        - correctQuestions
-        - accuracyPercentage
-        - durationSeconds
+        - session_id
+        - total_questions
+        - correct_answers
+        - wrong_answers
+        - accuracy_percentage
+        - duration_seconds
+        - average_response_time_ms
       properties:
-        sessionId:
+        session_id:
           type: integer
           format: int64
-        totalQuestions:
+        total_questions:
           type: integer
-        correctQuestions:
+        correct_answers:
           type: integer
-        wrongQuestions:
+        wrong_answers:
           type: integer
-        accuracyPercentage:
+        accuracy_percentage:
           type: number
           format: float
-        durationSeconds:
+          description: Accuracy percentage (0-100)
+        duration_seconds:
           type: integer
-        averageResponseTimeMs:
+          description: Total session duration in seconds
+        average_response_time_ms:
           type: number
           format: float
-          nullable: true
-        startedAt:
-          type: string
-          format: date-time
-        endedAt:
-          type: string
-          format: date-time
-          nullable: true
+          description: Average response time in milliseconds

@@ -10,7 +10,7 @@ paths:
       security: []
       parameters:
         - $ref: '#/components/parameters/SearchQuery'
-        - $ref: '#/components/parameters/LanguageCode'
+        - $ref: '#/components/parameters/LanguageId'
         - $ref: '#/components/parameters/Limit'
         - $ref: '#/components/parameters/Offset'
       responses:

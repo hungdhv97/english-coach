@@ -50,8 +50,8 @@ components:
     LanguageId:
       name: languageId
       in: query
-      required: false
-      description: Language ID to filter results
+      required: true
+      description: Language ID to filter results (required for dictionary search)
       schema:
         type: integer
         format: int32
