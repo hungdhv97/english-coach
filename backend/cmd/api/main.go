@@ -126,11 +126,6 @@ func main() {
 		appLogger.Logger,
 	)
 
-	endSessionUC := command.NewEndGameSessionUseCase(
-		gameRepository.GameSessionRepo(),
-		appLogger.Logger,
-	)
-
 	// Initialize user use cases
 	registerUC := userCommand.NewRegisterUserUseCase(
 		userRepository.UserRepository(),
@@ -166,7 +161,6 @@ func main() {
 	gameHandler := handler.NewGameHandler(
 		createSessionUC,
 		submitAnswerUC,
-		endSessionUC,
 		gameRepository.GameQuestionRepo(),
 		gameRepository.GameSessionRepo(),
 		appLogger.Logger,

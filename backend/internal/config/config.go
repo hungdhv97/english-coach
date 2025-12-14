@@ -13,7 +13,6 @@ type Config struct {
 	App      AppConfig
 	Server   ServerConfig
 	Database DatabaseConfig
-	Redis    RedisConfig
 	JWT      JWTConfig
 	Logging  LoggingConfig
 	CORS     CORSConfig
@@ -46,14 +45,6 @@ type DatabaseConfig struct {
 	MinConns        int32
 	MaxConnLifetime time.Duration
 	MaxConnIdleTime time.Duration
-}
-
-// RedisConfig holds Redis cache configuration
-type RedisConfig struct {
-	Host     string
-	Port     int
-	Password string
-	DB       int
 }
 
 // JWTConfig holds JWT authentication configuration
@@ -146,12 +137,6 @@ func setDefaults() {
 	viper.SetDefault("database.max_conn_lifetime", "5m")
 	viper.SetDefault("database.max_conn_idle_time", "1m")
 
-	// Redis defaults
-	viper.SetDefault("redis.host", "localhost")
-	viper.SetDefault("redis.port", 6379)
-	viper.SetDefault("redis.password", "")
-	viper.SetDefault("redis.db", 0)
-
 	// JWT defaults
 	viper.SetDefault("jwt.secret", "change-me-in-production")
 	viper.SetDefault("jwt.expiration", "24h")
@@ -174,10 +159,6 @@ func setDefaults() {
 	viper.BindEnv("database.password", "DB_PASSWORD")
 	viper.BindEnv("database.database", "DB_NAME")
 	viper.BindEnv("database.sslmode", "DB_SSLMODE")
-	viper.BindEnv("redis.host", "REDIS_HOST")
-	viper.BindEnv("redis.port", "REDIS_PORT")
-	viper.BindEnv("redis.password", "REDIS_PASSWORD")
-	viper.BindEnv("redis.db", "REDIS_DB")
 	viper.BindEnv("jwt.secret", "JWT_SECRET")
 	viper.BindEnv("logging.level", "LOG_LEVEL")
 	viper.BindEnv("cors.allowed_origins", "CORS_ALLOWED_ORIGINS")

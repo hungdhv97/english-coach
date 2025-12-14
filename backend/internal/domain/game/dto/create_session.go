@@ -2,7 +2,6 @@ package dto
 
 import (
 	"errors"
-	"fmt"
 )
 
 // CreateGameSessionRequest represents the request to create a game session
@@ -39,21 +38,5 @@ func (r *CreateGameSessionRequest) Validate() error {
 		}
 	}
 
-	return nil
-}
-
-// Error implements error interface for validation errors
-func (r *CreateGameSessionRequest) Error() string {
-	if err := r.Validate(); err != nil {
-		return err.Error()
-	}
-	return ""
-}
-
-// GetValidationError returns a formatted validation error message
-func (r *CreateGameSessionRequest) GetValidationError() error {
-	if err := r.Validate(); err != nil {
-		return fmt.Errorf("validation failed: %w", err)
-	}
 	return nil
 }

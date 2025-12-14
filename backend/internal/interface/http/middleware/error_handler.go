@@ -77,17 +77,3 @@ func ErrorHandler(logger *zap.Logger) gin.HandlerFunc {
 func SetError(c *gin.Context, err error) {
 	c.Error(err)
 }
-
-// Helper function to check if error is a wrapped domain error
-func UnwrapDomainError(err error) (*domainerrors.DomainError, bool) {
-	if err == nil {
-		return nil, false
-	}
-
-	// Check direct domain error
-	if de, ok := domainerrors.IsDomainError(err); ok {
-		return de, true
-	}
-
-	return nil, false
-}

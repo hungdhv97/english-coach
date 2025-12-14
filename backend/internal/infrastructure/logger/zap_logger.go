@@ -40,13 +40,3 @@ func NewLogger(level string) (*Logger, error) {
 
 	return &Logger{Logger: logger}, nil
 }
-
-// WithRequestID adds request ID to logger context
-func (l *Logger) WithRequestID(requestID string) *Logger {
-	return &Logger{Logger: l.Logger.With(zap.String("request_id", requestID))}
-}
-
-// WithFields adds fields to logger context
-func (l *Logger) WithFields(fields ...zap.Field) *Logger {
-	return &Logger{Logger: l.Logger.With(fields...)}
-}

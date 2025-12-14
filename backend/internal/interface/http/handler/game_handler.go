@@ -19,7 +19,6 @@ import (
 type GameHandler struct {
 	createSessionUC *command.CreateGameSessionUseCase
 	submitAnswerUC  *command.SubmitAnswerUseCase
-	endSessionUC    *command.EndGameSessionUseCase
 	questionRepo    port.GameQuestionRepository
 	sessionRepo     port.GameSessionRepository
 	logger          *zap.Logger
@@ -29,7 +28,6 @@ type GameHandler struct {
 func NewGameHandler(
 	createSessionUC *command.CreateGameSessionUseCase,
 	submitAnswerUC *command.SubmitAnswerUseCase,
-	endSessionUC *command.EndGameSessionUseCase,
 	questionRepo port.GameQuestionRepository,
 	sessionRepo port.GameSessionRepository,
 	logger *zap.Logger,
@@ -37,7 +35,6 @@ func NewGameHandler(
 	return &GameHandler{
 		createSessionUC: createSessionUC,
 		submitAnswerUC:  submitAnswerUC,
-		endSessionUC:    endSessionUC,
 		questionRepo:    questionRepo,
 		sessionRepo:     sessionRepo,
 		logger:          logger,
