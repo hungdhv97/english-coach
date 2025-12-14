@@ -9,8 +9,8 @@ import (
 )
 
 var (
-	ErrInvalidToken = errors.New("invalid token")
-	ErrExpiredToken = errors.New("token has expired")
+	ErrInvalidToken = errors.New("Token không hợp lệ")
+	ErrExpiredToken = errors.New("Token đã hết hạn")
 )
 
 // Claims represents JWT claims

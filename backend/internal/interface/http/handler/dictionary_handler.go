@@ -52,7 +52,7 @@ func (h *DictionaryHandler) GetLanguages(c *gin.Context) {
 		)
 		response.ErrorResponse(c, http.StatusInternalServerError,
 			"INTERNAL_ERROR",
-			"Failed to fetch languages",
+			"Không thể lấy danh sách ngôn ngữ",
 			nil,
 		)
 		return
@@ -73,7 +73,7 @@ func (h *DictionaryHandler) GetTopics(c *gin.Context) {
 		)
 		response.ErrorResponse(c, http.StatusInternalServerError,
 			"INTERNAL_ERROR",
-			"Failed to fetch topics",
+			"Không thể lấy danh sách chủ đề",
 			nil,
 		)
 		return
@@ -92,7 +92,7 @@ func (h *DictionaryHandler) GetLevels(c *gin.Context) {
 		if err != nil {
 			response.ErrorResponse(c, http.StatusBadRequest,
 				"INVALID_PARAMETER",
-				"Invalid languageId parameter",
+				"Tham số languageId không hợp lệ",
 				nil,
 			)
 			return
@@ -107,7 +107,7 @@ func (h *DictionaryHandler) GetLevels(c *gin.Context) {
 			)
 			response.ErrorResponse(c, http.StatusInternalServerError,
 				"INTERNAL_ERROR",
-				"Failed to fetch levels",
+				"Không thể lấy danh sách cấp độ",
 				nil,
 			)
 			return
@@ -126,7 +126,7 @@ func (h *DictionaryHandler) GetLevels(c *gin.Context) {
 		)
 		response.ErrorResponse(c, http.StatusInternalServerError,
 			"INTERNAL_ERROR",
-			"Failed to fetch levels",
+			"Không thể lấy danh sách cấp độ",
 			nil,
 		)
 		return
@@ -143,7 +143,7 @@ func (h *DictionaryHandler) SearchWords(c *gin.Context) {
 	if query == "" {
 		response.ErrorResponse(c, http.StatusBadRequest,
 			"INVALID_PARAMETER",
-			"Search parameter (q) is required",
+			"Tham số tìm kiếm (q) là bắt buộc",
 			nil,
 		)
 		return
@@ -154,7 +154,7 @@ func (h *DictionaryHandler) SearchWords(c *gin.Context) {
 	if languageIDStr == "" {
 		response.ErrorResponse(c, http.StatusBadRequest,
 			"INVALID_PARAMETER",
-			"Language ID (languageId) is required",
+			"ID ngôn ngữ (languageId) là bắt buộc",
 			nil,
 		)
 		return
@@ -164,7 +164,7 @@ func (h *DictionaryHandler) SearchWords(c *gin.Context) {
 	if err != nil {
 		response.ErrorResponse(c, http.StatusBadRequest,
 			"INVALID_PARAMETER",
-			"Invalid languageId parameter",
+			"Tham số languageId không hợp lệ",
 			nil,
 		)
 		return
@@ -178,7 +178,7 @@ func (h *DictionaryHandler) SearchWords(c *gin.Context) {
 		if err != nil || parsedLimit < 1 || parsedLimit > 100 {
 			response.ErrorResponse(c, http.StatusBadRequest,
 				"INVALID_PARAMETER",
-				"Limit parameter must be a number between 1 and 100",
+				"Tham số limit phải là số từ 1 đến 100",
 				nil,
 			)
 			return
@@ -192,7 +192,7 @@ func (h *DictionaryHandler) SearchWords(c *gin.Context) {
 		if err != nil || parsedOffset < 0 {
 			response.ErrorResponse(c, http.StatusBadRequest,
 				"INVALID_PARAMETER",
-				"Offset parameter must be a non-negative number",
+				"Tham số offset phải là số không âm",
 				nil,
 			)
 			return
@@ -227,7 +227,7 @@ func (h *DictionaryHandler) SearchWords(c *gin.Context) {
 		)
 		response.ErrorResponse(c, http.StatusInternalServerError,
 			"INTERNAL_ERROR",
-			"Failed to search words",
+			"Không thể tìm kiếm từ",
 			nil,
 		)
 		return
@@ -283,7 +283,7 @@ func (h *DictionaryHandler) GetWordDetail(c *gin.Context) {
 	if err != nil {
 		response.ErrorResponse(c, http.StatusBadRequest,
 			"INVALID_PARAMETER",
-			"Invalid wordId parameter",
+			"Tham số wordId không hợp lệ",
 			nil,
 		)
 		return
@@ -312,7 +312,7 @@ func (h *DictionaryHandler) GetWordDetail(c *gin.Context) {
 		)
 		response.ErrorResponse(c, http.StatusInternalServerError,
 			"INTERNAL_ERROR",
-			"Failed to get word detail",
+			"Không thể lấy chi tiết từ",
 			nil,
 		)
 		return
@@ -321,7 +321,7 @@ func (h *DictionaryHandler) GetWordDetail(c *gin.Context) {
 	if wordDetail == nil || wordDetail.Word == nil {
 		response.ErrorResponse(c, http.StatusNotFound,
 			"NOT_FOUND",
-			"Word not found",
+			"Không tìm thấy từ",
 			nil,
 		)
 		return

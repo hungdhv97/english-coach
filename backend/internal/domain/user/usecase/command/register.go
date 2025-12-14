@@ -11,10 +11,10 @@ import (
 )
 
 var (
-	ErrEmailRequired   = errors.New("email or username is required")
-	ErrEmailExists     = errors.New("email already exists")
-	ErrUsernameExists  = errors.New("username already exists")
-	ErrInvalidPassword = errors.New("password must be at least 6 characters")
+	ErrEmailRequired   = errors.New("Email hoặc tên đăng nhập là bắt buộc")
+	ErrEmailExists     = errors.New("Email đã tồn tại")
+	ErrUsernameExists  = errors.New("Tên đăng nhập đã tồn tại")
+	ErrInvalidPassword = errors.New("Mật khẩu phải có ít nhất 6 ký tự")
 )
 
 // RegisterUserUseCase handles user registration

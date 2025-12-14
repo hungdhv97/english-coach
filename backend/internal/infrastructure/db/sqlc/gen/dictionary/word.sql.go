@@ -217,6 +217,83 @@ func (q *Queries) FindWordsByLevelAndLanguages(ctx context.Context, arg FindWord
 	return items, nil
 }
 
+const findWordsByLevelAndTopicsAndLanguages = `-- name: FindWordsByLevelAndTopicsAndLanguages :many
+SELECT DISTINCT w.id, w.language_id, w.lemma, w.lemma_normalized, w.search_key,
+       w.romanization, w.script_code, w.frequency_rank,
+       w.note, w.created_at, w.updated_at
+FROM words w
+INNER JOIN senses s ON w.id = s.word_id
+WHERE s.level_id = $1
+  AND w.language_id = $2
+  AND (
+    -- If topic_ids array is empty/null, include all words
+    -- Otherwise filter by topic_ids using ANY
+    $3::bigint[] IS NULL
+    OR array_length($3::bigint[], 1) IS NULL
+    OR EXISTS (
+      SELECT 1
+      FROM word_topics wt
+      WHERE wt.word_id = w.id
+        AND wt.topic_id = ANY($3::bigint[])
+    )
+  )
+  AND EXISTS (
+      SELECT 1
+      FROM sense_translations st
+      INNER JOIN words tw ON st.target_word_id = tw.id
+      WHERE st.source_sense_id = s.id
+        AND tw.language_id = $4
+  )
+ORDER BY w.frequency_rank NULLS LAST, w.id
+LIMIT $5
+`
+
+type FindWordsByLevelAndTopicsAndLanguagesParams struct {
+	LevelID          pgtype.Int8 `json:"level_id"`
+	SourceLanguageID int16       `json:"source_language_id"`
+	TopicIds         []int64     `json:"topic_ids"`
+	TargetLanguageID int16       `json:"target_language_id"`
+	Limit            int32       `json:"limit"`
+}
+
+func (q *Queries) FindWordsByLevelAndTopicsAndLanguages(ctx context.Context, arg FindWordsByLevelAndTopicsAndLanguagesParams) ([]Word, error) {
+	rows, err := q.db.Query(ctx, findWordsByLevelAndTopicsAndLanguages,
+		arg.LevelID,
+		arg.SourceLanguageID,
+		arg.TopicIds,
+		arg.TargetLanguageID,
+		arg.Limit,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Word{}
+	for rows.Next() {
+		var i Word
+		if err := rows.Scan(
+			&i.ID,
+			&i.LanguageID,
+			&i.Lemma,
+			&i.LemmaNormalized,
+			&i.SearchKey,
+			&i.Romanization,
+			&i.ScriptCode,
+			&i.FrequencyRank,
+			&i.Note,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const findWordsByTopicAndLanguages = `-- name: FindWordsByTopicAndLanguages :many
 SELECT DISTINCT w.id, w.language_id, w.lemma, w.lemma_normalized, w.search_key,
        w.romanization, w.script_code, w.frequency_rank,

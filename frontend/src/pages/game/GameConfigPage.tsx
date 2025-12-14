@@ -1,6 +1,6 @@
 /**
  * Game Configuration Page Component
- * Allows users to configure game session settings
+ * Multi-step flow: Languages -> Level -> Topics
  */
 
 import { useState, useEffect } from 'react';
@@ -13,15 +13,27 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle } from 'lucide-react';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Badge } from '@/components/ui/badge';
+import { AlertCircle, ChevronRight, ChevronLeft } from 'lucide-react';
+
+type Step = 'languages' | 'level' | 'topics';
 
 export default function GameConfigPage() {
   const navigate = useNavigate();
+  const [currentStep, setCurrentStep] = useState<Step>('languages');
+  
+  // Step 1: Languages
   const [sourceLanguageId, setSourceLanguageId] = useState<number | ''>('');
   const [targetLanguageId, setTargetLanguageId] = useState<number | ''>('');
-  const [mode, setMode] = useState<'topic' | 'level' | ''>('');
-  const [topicId, setTopicId] = useState<number | ''>('');
+  
+  // Step 2: Level
   const [levelId, setLevelId] = useState<number | ''>('');
+  
+  // Step 3: Topics
+  const [selectedTopicIds, setSelectedTopicIds] = useState<Set<number>>(new Set());
+  const [isAllTopicsSelected, setIsAllTopicsSelected] = useState(true);
+  
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   // Fetch reference data
@@ -31,62 +43,151 @@ export default function GameConfigPage() {
     sourceLanguageId ? Number(sourceLanguageId) : undefined
   );
 
+  // Filter target languages (exclude source language)
+  const availableTargetLanguages = languages.filter(
+    (lang: Language) => !sourceLanguageId || lang.id !== sourceLanguageId
+  );
+
+  // Set default source language to English on initial load
+  useEffect(() => {
+    if (languages.length > 0 && !sourceLanguageId) {
+      const englishLang = languages.find((lang: Language) => lang.code === 'en');
+      if (englishLang) {
+        setSourceLanguageId(englishLang.id);
+      }
+    }
+  }, [languages, sourceLanguageId]);
+
+  // Auto-set target language when source language changes
+  // Set to first available language (excluding source)
+  useEffect(() => {
+    if (languages.length > 0 && sourceLanguageId) {
+      const filtered = languages.filter(
+        (lang: Language) => lang.id !== sourceLanguageId
+      );
+      if (filtered.length > 0) {
+        // Always set target to first available language when source changes
+        setTargetLanguageId(filtered[0].id);
+      } else {
+        // If no available languages, clear target
+        setTargetLanguageId('');
+      }
+    }
+  }, [languages, sourceLanguageId]);
+
   // Create session mutation
   const createSessionMutation = gameMutations.useCreateSession();
 
   // Validation
-  const validate = (): boolean => {
+  const validateLanguages = (): boolean => {
     const newErrors: Record<string, string> = {};
 
-    // Source and target languages must be different (FR-010)
-    if (sourceLanguageId && targetLanguageId && sourceLanguageId === targetLanguageId) {
+    if (!sourceLanguageId || !targetLanguageId) {
+      newErrors.languages = 'Vui lòng chọn cả ngôn ngữ nguồn và ngôn ngữ đích';
+    } else if (sourceLanguageId === targetLanguageId) {
       newErrors.languages = 'Ngôn ngữ nguồn và ngôn ngữ đích phải khác nhau';
-    }
-
-    // Mode is required
-    if (!mode) {
-      newErrors.mode = 'Vui lòng chọn chế độ chơi';
-    }
-
-    // Topic XOR Level required (FR-011)
-    if (mode === 'topic') {
-      if (!topicId) {
-        newErrors.topic = 'Vui lòng chọn chủ đề';
-      }
-      if (levelId) {
-        newErrors.level = 'Không thể chọn cả chủ đề và cấp độ cùng lúc';
-      }
-    } else if (mode === 'level') {
-      if (!levelId) {
-        newErrors.level = 'Vui lòng chọn cấp độ';
-      }
-      if (topicId) {
-        newErrors.topic = 'Không thể chọn cả chủ đề và cấp độ cùng lúc';
-      }
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
+  const validateLevel = (): boolean => {
+    const newErrors: Record<string, string> = {};
+
+    if (!levelId) {
+      newErrors.level = 'Vui lòng chọn cấp độ';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  // Handle step navigation
+  const handleNextStep = (e?: React.MouseEvent<HTMLButtonElement>) => {
+    e?.preventDefault();
+    e?.stopPropagation();
+    
+    if (currentStep === 'languages') {
+      if (validateLanguages()) {
+        setCurrentStep('level');
+        setErrors({});
+      }
+    } else if (currentStep === 'level') {
+      if (validateLevel()) {
+        setCurrentStep('topics');
+        setErrors({});
+      }
+    }
+  };
+
+  const handlePreviousStep = () => {
+    if (currentStep === 'level') {
+      setCurrentStep('languages');
+      setErrors({});
+    } else if (currentStep === 'topics') {
+      setCurrentStep('level');
+      setErrors({});
+    }
+  };
+
+  // Handle topic selection
+  const handleTopicToggle = (topicId: number) => {
+    const newSelected = new Set(selectedTopicIds);
+    
+    if (topicId === -1) {
+      // "All" chip clicked
+      if (isAllTopicsSelected) {
+        // Deselect all
+        setIsAllTopicsSelected(false);
+        setSelectedTopicIds(new Set());
+      } else {
+        // Select all
+        setIsAllTopicsSelected(true);
+        setSelectedTopicIds(new Set());
+      }
+    } else {
+      // Specific topic clicked
+      if (newSelected.has(topicId)) {
+        newSelected.delete(topicId);
+      } else {
+        newSelected.add(topicId);
+      }
+      
+      // If any specific topic is selected, unselect "all"
+      if (newSelected.size > 0) {
+        setIsAllTopicsSelected(false);
+      }
+      
+      // If all topics are selected, set "all" as selected
+      if (newSelected.size === topics.length) {
+        setIsAllTopicsSelected(true);
+        setSelectedTopicIds(new Set());
+      } else {
+        setSelectedTopicIds(newSelected);
+      }
+    }
+  };
+
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!validate()) {
-      return;
-    }
-
     try {
+      // Prepare topic_ids: empty array or undefined means "all topics"
+      const topicIds = isAllTopicsSelected || selectedTopicIds.size === 0 
+        ? undefined 
+        : Array.from(selectedTopicIds);
+
       const session = await createSessionMutation.mutateAsync({
         source_language_id: Number(sourceLanguageId),
         target_language_id: Number(targetLanguageId),
-        mode: mode as 'topic' | 'level',
-        topic_id: mode === 'topic' ? Number(topicId) : undefined,
-        level_id: mode === 'level' ? Number(levelId) : undefined,
+        mode: 'level',
+        level_id: Number(levelId),
+        topic_ids: topicIds,
       });
 
-      // Navigate to game play page (will be implemented in Phase 6)
+      // Navigate to game play page
       navigate(`/games/vocab/play/${session.id}`);
     } catch (error: unknown) {
       const apiError = error as { code?: string; message?: string };
@@ -102,17 +203,30 @@ export default function GameConfigPage() {
 
   // Reset level when source language changes
   useEffect(() => {
-    if (mode === 'level') {
+    if (currentStep === 'level' || currentStep === 'topics') {
       setLevelId('');
+      setSelectedTopicIds(new Set());
+      setIsAllTopicsSelected(true);
+      setCurrentStep('languages');
     }
-  }, [sourceLanguageId, mode]);
+  }, [sourceLanguageId]);
 
-  // Reset topic/level when mode changes
+  // Reset topics when level changes
   useEffect(() => {
-    setTopicId('');
-    setLevelId('');
-    setErrors({});
-  }, [mode]);
+    if (currentStep === 'topics') {
+      setSelectedTopicIds(new Set());
+      setIsAllTopicsSelected(true);
+    }
+  }, [levelId]);
+
+  const canProceedToNextStep = () => {
+    if (currentStep === 'languages') {
+      return sourceLanguageId && targetLanguageId && sourceLanguageId !== targetLanguageId;
+    } else if (currentStep === 'level') {
+      return !!levelId;
+    }
+    return false;
+  };
 
   return (
     <div className="min-h-screen p-4 md:p-8 bg-gradient-to-br from-background to-muted/20">
@@ -120,168 +234,116 @@ export default function GameConfigPage() {
         <header className="text-center space-y-2">
           <h1 className="text-3xl md:text-4xl font-bold tracking-tight">Cấu Hình Game</h1>
           <p className="text-muted-foreground text-lg">
-            Chọn ngôn ngữ và chế độ chơi để bắt đầu
+            {currentStep === 'languages' && 'Chọn ngôn ngữ nguồn và ngôn ngữ đích'}
+            {currentStep === 'level' && 'Chọn cấp độ'}
+            {currentStep === 'topics' && 'Chọn chủ đề (tùy chọn)'}
           </p>
         </header>
 
+        {/* Progress indicator */}
+        <div className="flex items-center justify-center gap-2 mb-6">
+          <div className={`h-2 w-16 rounded-full ${currentStep === 'languages' ? 'bg-primary' : 'bg-primary/30'}`} />
+          <div className={`h-2 w-16 rounded-full ${currentStep === 'level' ? 'bg-primary' : currentStep === 'topics' ? 'bg-primary/30' : 'bg-muted'}`} />
+          <div className={`h-2 w-16 rounded-full ${currentStep === 'topics' ? 'bg-primary' : 'bg-muted'}`} />
+        </div>
+
         <main>
-          <form onSubmit={handleSubmit}>
-            <Card>
-              <CardHeader>
-                <CardTitle>Ngôn Ngữ</CardTitle>
-                <CardDescription>Chọn ngôn ngữ nguồn và ngôn ngữ đích</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="source-language">Ngôn Ngữ Nguồn</Label>
-                    <Select
-                      value={sourceLanguageId ? String(sourceLanguageId) : undefined}
-                      onValueChange={(value) => setSourceLanguageId(value ? Number(value) : '')}
-                      disabled={languagesLoading}
-                      required
-                    >
-                      <SelectTrigger id="source-language" className={errors.languages ? 'border-destructive' : ''}>
-                        <SelectValue placeholder="Chọn ngôn ngữ nguồn" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {languages.map((lang: Language) => (
-                          <SelectItem key={lang.id} value={String(lang.id)}>
-                            {lang.name} ({lang.code})
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="target-language">Ngôn Ngữ Đích</Label>
-                    <Select
-                      value={targetLanguageId ? String(targetLanguageId) : undefined}
-                      onValueChange={(value) => setTargetLanguageId(value ? Number(value) : '')}
-                      disabled={languagesLoading}
-                      required
-                    >
-                      <SelectTrigger id="target-language" className={errors.languages ? 'border-destructive' : ''}>
-                        <SelectValue placeholder="Chọn ngôn ngữ đích" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {languages.map((lang: Language) => (
-                          <SelectItem key={lang.id} value={String(lang.id)}>
-                            {lang.name} ({lang.code})
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                {errors.languages && (
-                  <Alert variant="destructive">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertDescription>{errors.languages}</AlertDescription>
-                  </Alert>
-                )}
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Chế Độ Chơi</CardTitle>
-                <CardDescription>Chọn cách bạn muốn học từ vựng</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <Button
-                    type="button"
-                    variant={mode === 'topic' ? 'default' : 'outline'}
-                    className="h-auto py-6 flex flex-col gap-2"
-                    onClick={() => setMode('topic')}
-                  >
-                    <span className="text-2xl">📚</span>
-                    <span>Theo Chủ Đề</span>
-                  </Button>
-                  <Button
-                    type="button"
-                    variant={mode === 'level' ? 'default' : 'outline'}
-                    className="h-auto py-6 flex flex-col gap-2"
-                    onClick={() => setMode('level')}
-                  >
-                    <span className="text-2xl">📊</span>
-                    <span>Theo Cấp Độ</span>
-                  </Button>
-                </div>
-                {errors.mode && (
-                  <Alert variant="destructive">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertDescription>{errors.mode}</AlertDescription>
-                  </Alert>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Topic Selection (when mode is topic) */}
-            {mode === 'topic' && (
+          <form onSubmit={currentStep === 'topics' ? handleSubmit : (e) => e.preventDefault()}>
+            {/* Step 1: Language Selection */}
+            {currentStep === 'languages' && (
               <Card>
                 <CardHeader>
-                  <CardTitle>Chọn Chủ Đề</CardTitle>
+                  <CardTitle>Ngôn Ngữ</CardTitle>
+                  <CardDescription>Chọn ngôn ngữ nguồn và ngôn ngữ đích</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="topic">Chủ Đề</Label>
-                    <Select
-                      value={topicId ? String(topicId) : undefined}
-                      onValueChange={(value) => setTopicId(value ? Number(value) : '')}
-                      disabled={topicsLoading}
-                      required
-                    >
-                      <SelectTrigger id="topic" className={errors.topic ? 'border-destructive' : ''}>
-                        <SelectValue placeholder="Chọn chủ đề" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {topics.map((topic: Topic) => (
-                          <SelectItem key={topic.id} value={String(topic.id)}>
-                            {topic.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="source-language">Ngôn Ngữ Nguồn</Label>
+                      <Select
+                        value={sourceLanguageId ? String(sourceLanguageId) : undefined}
+                        onValueChange={(value) => setSourceLanguageId(value ? Number(value) : '')}
+                        disabled={languagesLoading}
+                        required
+                      >
+                        <SelectTrigger id="source-language" className={errors.languages ? 'border-destructive' : ''}>
+                          <SelectValue placeholder="Chọn ngôn ngữ nguồn" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {languages.map((lang: Language) => (
+                            <SelectItem key={lang.id} value={String(lang.id)}>
+                              {lang.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="target-language">Ngôn Ngữ Đích</Label>
+                      <Select
+                        value={targetLanguageId ? String(targetLanguageId) : undefined}
+                        onValueChange={(value) => setTargetLanguageId(value ? Number(value) : '')}
+                        disabled={languagesLoading || !sourceLanguageId}
+                        required
+                      >
+                        <SelectTrigger id="target-language" className={errors.languages ? 'border-destructive' : ''}>
+                          <SelectValue placeholder={!sourceLanguageId ? "Chọn ngôn ngữ nguồn trước" : "Chọn ngôn ngữ đích"} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {availableTargetLanguages.map((lang: Language) => (
+                            <SelectItem key={lang.id} value={String(lang.id)}>
+                              {lang.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
-                  {errors.topic && (
+                  {errors.languages && (
                     <Alert variant="destructive">
                       <AlertCircle className="h-4 w-4" />
-                      <AlertDescription>{errors.topic}</AlertDescription>
+                      <AlertDescription>{errors.languages}</AlertDescription>
                     </Alert>
                   )}
                 </CardContent>
               </Card>
             )}
 
-            {/* Level Selection (when mode is level) */}
-            {mode === 'level' && (
+            {/* Step 2: Level Selection */}
+            {currentStep === 'level' && (
               <Card>
                 <CardHeader>
                   <CardTitle>Chọn Cấp Độ</CardTitle>
+                  <CardDescription>Chọn cấp độ bạn muốn học</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="level">Cấp Độ</Label>
-                    <Select
+                    <Label>Cấp Độ (Bắt buộc)</Label>
+                    <RadioGroup
                       value={levelId ? String(levelId) : undefined}
                       onValueChange={(value) => setLevelId(value ? Number(value) : '')}
-                      disabled={levelsLoading || !sourceLanguageId}
-                      required
                     >
-                      <SelectTrigger id="level" className={errors.level ? 'border-destructive' : ''}>
-                        <SelectValue placeholder={!sourceLanguageId ? 'Vui lòng chọn ngôn ngữ nguồn trước' : 'Chọn cấp độ'} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {levels.map((level: Level) => (
-                          <SelectItem key={level.id} value={String(level.id)}>
-                            {level.name} {level.description && `- ${level.description}`}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                      <div className="space-y-3">
+                        {levelsLoading ? (
+                          <div className="text-muted-foreground">Đang tải...</div>
+                        ) : levels.length === 0 ? (
+                          <div className="text-muted-foreground">Không có cấp độ nào. Vui lòng chọn ngôn ngữ nguồn trước.</div>
+                        ) : (
+                          levels.map((level: Level) => (
+                            <div key={level.id} className="flex items-center gap-3 p-3 rounded-lg border hover:bg-accent transition-colors">
+                              <RadioGroupItem value={String(level.id)} id={`level-${level.id}`} />
+                              <Label htmlFor={`level-${level.id}`} className="flex-1 cursor-pointer">
+                                <div className="font-medium">{level.name}</div>
+                                {level.description && (
+                                  <div className="text-sm text-muted-foreground">{level.description}</div>
+                                )}
+                              </Label>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </RadioGroup>
                   </div>
                   {errors.level && (
                     <Alert variant="destructive">
@@ -289,6 +351,54 @@ export default function GameConfigPage() {
                       <AlertDescription>{errors.level}</AlertDescription>
                     </Alert>
                   )}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Step 3: Topic Selection */}
+            {currentStep === 'topics' && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Chọn Chủ Đề</CardTitle>
+                  <CardDescription>Chọn một hoặc nhiều chủ đề (mặc định: Tất cả)</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-3">
+                    {topicsLoading ? (
+                      <div className="text-muted-foreground">Đang tải...</div>
+                    ) : (
+                      <div className="flex flex-wrap gap-2">
+                        {/* "All" chip */}
+                        <Badge
+                          variant={isAllTopicsSelected ? 'default' : 'outline'}
+                          className="cursor-pointer px-4 py-2 text-sm font-medium transition-colors hover:bg-primary/90"
+                          onClick={() => handleTopicToggle(-1)}
+                        >
+                          Tất Cả
+                        </Badge>
+                        
+                        {/* Topic chips */}
+                        {topics.map((topic: Topic) => {
+                          const isSelected = selectedTopicIds.has(topic.id);
+                          return (
+                            <Badge
+                              key={topic.id}
+                              variant={isSelected ? 'default' : 'outline'}
+                              className="cursor-pointer px-4 py-2 text-sm font-medium transition-colors hover:bg-primary/90"
+                              onClick={() => handleTopicToggle(topic.id)}
+                            >
+                              {topic.name}
+                            </Badge>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    {isAllTopicsSelected || selectedTopicIds.size === 0
+                      ? 'Đã chọn: Tất cả chủ đề'
+                      : `Đã chọn: ${selectedTopicIds.size} chủ đề`}
+                  </div>
                 </CardContent>
               </Card>
             )}
@@ -302,21 +412,54 @@ export default function GameConfigPage() {
               </Alert>
             )}
 
-            {/* Submit Button */}
-            <div className="flex gap-4 justify-end">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => navigate('/games')}
-              >
-                Quay Lại
-              </Button>
-              <Button
-                type="submit"
-                disabled={createSessionMutation.isPending}
-              >
-                {createSessionMutation.isPending ? 'Đang tạo...' : 'Bắt Đầu Chơi'}
-              </Button>
+            {/* Navigation Buttons */}
+            <div className="flex gap-4 justify-between mt-6">
+              <div>
+                {currentStep !== 'languages' && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handlePreviousStep}
+                    disabled={createSessionMutation.isPending}
+                  >
+                    <ChevronLeft className="h-4 w-4 mr-2" />
+                    Quay Lại
+                  </Button>
+                )}
+                {currentStep === 'languages' && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => navigate('/games')}
+                  >
+                    Quay Lại
+                  </Button>
+                )}
+              </div>
+              
+              <div className="flex gap-2">
+                {currentStep !== 'topics' ? (
+                  <Button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleNextStep(e);
+                    }}
+                    disabled={!canProceedToNextStep() || createSessionMutation.isPending}
+                  >
+                    Tiếp Tục
+                    <ChevronRight className="h-4 w-4 ml-2" />
+                  </Button>
+                ) : (
+                  <Button
+                    type="submit"
+                    disabled={createSessionMutation.isPending}
+                  >
+                    {createSessionMutation.isPending ? 'Đang tạo...' : 'Bắt Đầu Chơi'}
+                  </Button>
+                )}
+              </div>
             </div>
           </form>
         </main>
@@ -324,4 +467,3 @@ export default function GameConfigPage() {
     </div>
   );
 }
-

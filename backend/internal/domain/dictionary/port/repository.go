@@ -48,6 +48,9 @@ type WordRepository interface {
 	FindWordsByTopicAndLanguages(ctx context.Context, topicID int64, sourceLanguageID, targetLanguageID int16, limit int) ([]*model.Word, error)
 	// FindWordsByLevelAndLanguages finds words filtered by level and language pair
 	FindWordsByLevelAndLanguages(ctx context.Context, levelID int64, sourceLanguageID, targetLanguageID int16, limit int) ([]*model.Word, error)
+	// FindWordsByLevelAndTopicsAndLanguages finds words filtered by level, optional topics, and language pair
+	// If topicIDs is nil or empty, returns all words for the level (no topic filter)
+	FindWordsByLevelAndTopicsAndLanguages(ctx context.Context, levelID int64, topicIDs []int64, sourceLanguageID, targetLanguageID int16, limit int) ([]*model.Word, error)
 	// FindTranslationsForWord finds translation words for a given source word and target language
 	FindTranslationsForWord(ctx context.Context, sourceWordID int64, targetLanguageID int16, limit int) ([]*model.Word, error)
 	// SearchWords searches for words using multiple strategies (lemma, normalized, search_key)

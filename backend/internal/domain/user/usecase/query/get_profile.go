@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	ErrProfileNotFound = errors.New("user profile not found")
+	ErrProfileNotFound = errors.New("Không tìm thấy hồ sơ người dùng")
 )
 
 // GetUserProfileUseCase handles getting user profile

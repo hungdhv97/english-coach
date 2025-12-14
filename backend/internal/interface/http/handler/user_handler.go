@@ -59,7 +59,7 @@ func (h *UserHandler) Register(c *gin.Context) {
 	if err := c.ShouldBindJSON(&req); err != nil {
 		response.ErrorResponse(c, http.StatusBadRequest,
 			"INVALID_REQUEST",
-			"Invalid request body",
+			"Dữ liệu yêu cầu không hợp lệ",
 			err.Error(),
 		)
 		return
@@ -69,7 +69,7 @@ func (h *UserHandler) Register(c *gin.Context) {
 	if (req.Email == nil || *req.Email == "") && (req.Username == nil || *req.Username == "") {
 		response.ErrorResponse(c, http.StatusBadRequest,
 			"INVALID_REQUEST",
-			"Either email or username is required",
+			"Email hoặc tên đăng nhập là bắt buộc",
 			nil,
 		)
 		return
@@ -90,7 +90,7 @@ func (h *UserHandler) Register(c *gin.Context) {
 
 		statusCode := http.StatusInternalServerError
 		code := "INTERNAL_ERROR"
-		message := "Failed to register user"
+		message := "Không thể đăng ký người dùng"
 
 		if err == command.ErrEmailRequired {
 			statusCode = http.StatusBadRequest
@@ -144,7 +144,7 @@ func (h *UserHandler) Login(c *gin.Context) {
 	if err := c.ShouldBindJSON(&req); err != nil {
 		response.ErrorResponse(c, http.StatusBadRequest,
 			"INVALID_REQUEST",
-			"Invalid request body",
+			"Dữ liệu yêu cầu không hợp lệ",
 			err.Error(),
 		)
 		return
@@ -154,7 +154,7 @@ func (h *UserHandler) Login(c *gin.Context) {
 	if (req.Email == nil || *req.Email == "") && (req.Username == nil || *req.Username == "") {
 		response.ErrorResponse(c, http.StatusBadRequest,
 			"INVALID_REQUEST",
-			"Either email or username is required",
+			"Email hoặc tên đăng nhập là bắt buộc",
 			nil,
 		)
 		return
@@ -174,7 +174,7 @@ func (h *UserHandler) Login(c *gin.Context) {
 
 		statusCode := http.StatusUnauthorized
 		code := "UNAUTHORIZED"
-		message := "Invalid credentials"
+		message := "Thông tin đăng nhập không hợp lệ"
 
 		if err == command.ErrInvalidCredentials {
 			statusCode = http.StatusUnauthorized
@@ -202,7 +202,7 @@ func (h *UserHandler) GetProfile(c *gin.Context) {
 	if !exists {
 		response.ErrorResponse(c, http.StatusUnauthorized,
 			"UNAUTHORIZED",
-			"User not authenticated",
+			"Người dùng chưa được xác thực",
 			nil,
 		)
 		return
@@ -212,7 +212,7 @@ func (h *UserHandler) GetProfile(c *gin.Context) {
 	if !ok {
 		response.ErrorResponse(c, http.StatusInternalServerError,
 			"INTERNAL_ERROR",
-			"Invalid user ID",
+			"ID người dùng không hợp lệ",
 			nil,
 		)
 		return
@@ -228,7 +228,7 @@ func (h *UserHandler) GetProfile(c *gin.Context) {
 
 		statusCode := http.StatusInternalServerError
 		code := "INTERNAL_ERROR"
-		message := "Failed to get user profile"
+		message := "Không thể lấy hồ sơ người dùng"
 
 		if err == query.ErrProfileNotFound {
 			statusCode = http.StatusNotFound
@@ -260,7 +260,7 @@ func (h *UserHandler) UpdateProfile(c *gin.Context) {
 	if !exists {
 		response.ErrorResponse(c, http.StatusUnauthorized,
 			"UNAUTHORIZED",
-			"User not authenticated",
+			"Người dùng chưa được xác thực",
 			nil,
 		)
 		return
@@ -270,7 +270,7 @@ func (h *UserHandler) UpdateProfile(c *gin.Context) {
 	if !ok {
 		response.ErrorResponse(c, http.StatusInternalServerError,
 			"INTERNAL_ERROR",
-			"Invalid user ID",
+			"ID người dùng không hợp lệ",
 			nil,
 		)
 		return
@@ -280,7 +280,7 @@ func (h *UserHandler) UpdateProfile(c *gin.Context) {
 	if err := c.ShouldBindJSON(&req); err != nil {
 		response.ErrorResponse(c, http.StatusBadRequest,
 			"INVALID_REQUEST",
-			"Invalid request body",
+			"Dữ liệu yêu cầu không hợp lệ",
 			err.Error(),
 		)
 		return
@@ -302,7 +302,7 @@ func (h *UserHandler) UpdateProfile(c *gin.Context) {
 
 		response.ErrorResponse(c, http.StatusInternalServerError,
 			"INTERNAL_ERROR",
-			"Failed to update user profile",
+			"Không thể cập nhật hồ sơ người dùng",
 			nil,
 		)
 		return
@@ -319,7 +319,7 @@ func (h *UserHandler) CheckEmailAvailability(c *gin.Context) {
 	if email == "" {
 		response.ErrorResponse(c, http.StatusBadRequest,
 			"INVALID_PARAMETER",
-			"Email parameter is required",
+			"Tham số email là bắt buộc",
 			nil,
 		)
 		return
@@ -333,7 +333,7 @@ func (h *UserHandler) CheckEmailAvailability(c *gin.Context) {
 		)
 		response.ErrorResponse(c, http.StatusInternalServerError,
 			"INTERNAL_ERROR",
-			"Failed to check email availability",
+			"Không thể kiểm tra tính khả dụng của email",
 			nil,
 		)
 		return
@@ -353,7 +353,7 @@ func (h *UserHandler) CheckUsernameAvailability(c *gin.Context) {
 	if username == "" {
 		response.ErrorResponse(c, http.StatusBadRequest,
 			"INVALID_PARAMETER",
-			"Username parameter is required",
+			"Tham số tên đăng nhập là bắt buộc",
 			nil,
 		)
 		return
@@ -367,7 +367,7 @@ func (h *UserHandler) CheckUsernameAvailability(c *gin.Context) {
 		)
 		response.ErrorResponse(c, http.StatusInternalServerError,
 			"INTERNAL_ERROR",
-			"Failed to check username availability",
+			"Không thể kiểm tra tính khả dụng của tên đăng nhập",
 			nil,
 		)
 		return

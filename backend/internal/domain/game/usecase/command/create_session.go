@@ -45,13 +45,21 @@ func (uc *CreateGameSessionUseCase) Execute(ctx context.Context, req *dto.Create
 	}
 
 	// Create game session model
+	// Note: TopicID is kept for backward compatibility with DB schema, but we use TopicIDs array for filtering
+	var topicID *int64
+	if len(req.TopicIDs) > 0 {
+		// Store first topic ID for DB compatibility (schema still has single topic_id)
+		topicID = &req.TopicIDs[0]
+	}
+	levelID := &req.LevelID
+
 	session := &model.GameSession{
 		UserID:           userID,
 		Mode:             req.Mode,
 		SourceLanguageID: req.SourceLanguageID,
 		TargetLanguageID: req.TargetLanguageID,
-		TopicID:          req.TopicID,
-		LevelID:          req.LevelID,
+		TopicID:          topicID,
+		LevelID:          levelID,
 		TotalQuestions:   0, // Will be set when questions are generated
 		CorrectQuestions: 0,
 		StartedAt:        time.Now(),
@@ -74,7 +82,7 @@ func (uc *CreateGameSessionUseCase) Execute(ctx context.Context, req *dto.Create
 		req.SourceLanguageID,
 		req.TargetLanguageID,
 		req.Mode,
-		req.TopicID,
+		req.TopicIDs,
 		req.LevelID,
 		constants.MaxGameQuestionCount,
 	)
@@ -85,12 +93,12 @@ func (uc *CreateGameSessionUseCase) Execute(ctx context.Context, req *dto.Create
 			zap.String("mode", req.Mode),
 			zap.Int16("source_language_id", req.SourceLanguageID),
 			zap.Int16("target_language_id", req.TargetLanguageID),
-			zap.Any("topic_id", req.TopicID),
+			zap.Any("topic_ids", req.TopicIDs),
 			zap.Any("level_id", req.LevelID),
 		)
 		// Check for insufficient words error (FR-026)
-		// Error message format: "insufficient words: need X, have Y"
-		if strings.Contains(err.Error(), "insufficient words") {
+		// Error message format: "Không đủ từ: cần X, có Y"
+		if strings.Contains(err.Error(), "Không đủ từ") {
 			return nil, InsufficientWordsError
 		}
 		return nil, fmt.Errorf("failed to generate questions: %w", err)
@@ -134,4 +142,4 @@ func (uc *CreateGameSessionUseCase) Execute(ctx context.Context, req *dto.Create
 }
 
 // InsufficientWordsError represents the error when there are not enough words
-var InsufficientWordsError = errors.New("insufficient vocabulary to create game session. Please choose a different topic or level")
+var InsufficientWordsError = errors.New("Không đủ từ vựng để tạo phiên chơi. Vui lòng chọn chủ đề hoặc cấp độ khác")

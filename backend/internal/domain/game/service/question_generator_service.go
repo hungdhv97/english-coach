@@ -35,74 +35,47 @@ func (s *QuestionGeneratorService) GenerateQuestions(
 	sessionID int64,
 	sourceLanguageID, targetLanguageID int16,
 	mode string,
-	topicID, levelID *int64,
+	topicIDs []int64,
+	levelID int64,
 	questionCount int,
 ) ([]*model.GameQuestion, []*model.GameQuestionOption, error) {
 	startTime := time.Now()
 
-	// Fetch source words based on mode
-	var sourceWords []*dictModel.Word
-	var err error
-
-	if mode == "topic" && topicID != nil {
-		// Fetch up to questionCount*3 words to have options for wrong answers
-		// But request at least questionCount words (up to max available)
-		maxWordsToFetch := questionCount * 3
-		if maxWordsToFetch > 60 { // Cap at 60 (20*3) to avoid excessive queries
-			maxWordsToFetch = 60
-		}
-		sourceWords, err = s.wordRepo.FindWordsByTopicAndLanguages(
-			ctx, *topicID, sourceLanguageID, targetLanguageID, maxWordsToFetch,
-		)
-		if err != nil {
-			s.logger.Error("failed to fetch source words by topic",
-				zap.Error(err),
-				zap.String("mode", mode),
-				zap.Int64("topic_id", *topicID),
-				zap.Int16("source_language_id", sourceLanguageID),
-				zap.Int16("target_language_id", targetLanguageID),
-				zap.Int("requested_limit", maxWordsToFetch),
-			)
-			return nil, nil, fmt.Errorf("failed to fetch source words: %w", err)
-		}
-		s.logger.Info("fetched words by topic",
-			zap.Int64("topic_id", *topicID),
-			zap.Int16("source_language_id", sourceLanguageID),
-			zap.Int16("target_language_id", targetLanguageID),
-			zap.Int("word_count", len(sourceWords)),
-			zap.Int("requested_limit", maxWordsToFetch),
-		)
-	} else if mode == "level" && levelID != nil {
-		// Fetch up to questionCount*3 words to have options for wrong answers
-		// But request at least questionCount words (up to max available)
-		maxWordsToFetch := questionCount * 3
-		if maxWordsToFetch > 60 { // Cap at 60 (20*3) to avoid excessive queries
-			maxWordsToFetch = 60
-		}
-		sourceWords, err = s.wordRepo.FindWordsByLevelAndLanguages(
-			ctx, *levelID, sourceLanguageID, targetLanguageID, maxWordsToFetch,
-		)
-		if err != nil {
-			s.logger.Error("failed to fetch source words by level",
-				zap.Error(err),
-				zap.String("mode", mode),
-				zap.Int64("level_id", *levelID),
-				zap.Int16("source_language_id", sourceLanguageID),
-				zap.Int16("target_language_id", targetLanguageID),
-				zap.Int("requested_limit", maxWordsToFetch),
-			)
-			return nil, nil, fmt.Errorf("failed to fetch source words: %w", err)
-		}
-		s.logger.Info("fetched words by level",
-			zap.Int64("level_id", *levelID),
-			zap.Int16("source_language_id", sourceLanguageID),
-			zap.Int16("target_language_id", targetLanguageID),
-			zap.Int("word_count", len(sourceWords)),
-			zap.Int("requested_limit", maxWordsToFetch),
-		)
-	} else {
-		return nil, nil, fmt.Errorf("invalid mode or missing topic/level ID")
+	// Validate mode
+	if mode != "level" {
+		return nil, nil, fmt.Errorf("Chế độ không hợp lệ: %s (yêu cầu 'level')", mode)
 	}
+
+	// Fetch source words by level and optional topics
+	// Fetch up to questionCount*3 words to have options for wrong answers
+	maxWordsToFetch := questionCount * 3
+	if maxWordsToFetch > 60 { // Cap at 60 (20*3) to avoid excessive queries
+		maxWordsToFetch = 60
+	}
+
+	sourceWords, err := s.wordRepo.FindWordsByLevelAndTopicsAndLanguages(
+		ctx, levelID, topicIDs, sourceLanguageID, targetLanguageID, maxWordsToFetch,
+	)
+	if err != nil {
+		s.logger.Error("failed to fetch source words by level and topics",
+			zap.Error(err),
+			zap.String("mode", mode),
+			zap.Int64("level_id", levelID),
+			zap.Any("topic_ids", topicIDs),
+			zap.Int16("source_language_id", sourceLanguageID),
+			zap.Int16("target_language_id", targetLanguageID),
+			zap.Int("requested_limit", maxWordsToFetch),
+		)
+		return nil, nil, fmt.Errorf("failed to fetch source words: %w", err)
+	}
+	s.logger.Info("fetched words by level and topics",
+		zap.Int64("level_id", levelID),
+		zap.Any("topic_ids", topicIDs),
+		zap.Int16("source_language_id", sourceLanguageID),
+		zap.Int16("target_language_id", targetLanguageID),
+		zap.Int("word_count", len(sourceWords)),
+		zap.Int("requested_limit", maxWordsToFetch),
+	)
 
 	// Check if we have at least 1 word (minimum required)
 	if len(sourceWords) < 1 {
@@ -110,12 +83,12 @@ func (s *QuestionGeneratorService) GenerateQuestions(
 			zap.String("mode", mode),
 			zap.Int("requested", questionCount),
 			zap.Int("available", len(sourceWords)),
-			zap.Any("topic_id", topicID),
-			zap.Any("level_id", levelID),
+			zap.Any("topic_ids", topicIDs),
+			zap.Int64("level_id", levelID),
 			zap.Int16("source_language_id", sourceLanguageID),
 			zap.Int16("target_language_id", targetLanguageID),
 		)
-		return nil, nil, fmt.Errorf("insufficient words: need at least 1, have %d", len(sourceWords))
+		return nil, nil, fmt.Errorf("Không đủ từ: cần ít nhất 1, có %d", len(sourceWords))
 	}
 
 	// Shuffle words for randomness
@@ -194,7 +167,7 @@ func (s *QuestionGeneratorService) GenerateQuestions(
 		// Get correct word
 		correctWord, exists := allTargetWords[question.CorrectTargetWordID]
 		if !exists {
-			return nil, nil, fmt.Errorf("correct word not found for question %d", i+1)
+			return nil, nil, fmt.Errorf("Không tìm thấy từ đúng cho câu hỏi %d", i+1)
 		}
 
 		// Get wrong answer candidates (exclude correct answer)
@@ -215,7 +188,7 @@ func (s *QuestionGeneratorService) GenerateQuestions(
 				if len(wrongCandidates) > 0 {
 					wrongCandidates = append(wrongCandidates, wrongCandidates[0])
 				} else {
-					return nil, nil, fmt.Errorf("insufficient wrong answer options for question %d", i+1)
+					return nil, nil, fmt.Errorf("Không đủ lựa chọn sai cho câu hỏi %d", i+1)
 				}
 			}
 		}
@@ -244,7 +217,7 @@ func (s *QuestionGeneratorService) GenerateQuestions(
 		}
 
 		if correctIndex == -1 {
-			return nil, nil, fmt.Errorf("correct answer not found in shuffled options")
+			return nil, nil, fmt.Errorf("Không tìm thấy câu trả lời đúng trong các lựa chọn đã xáo trộn")
 		}
 
 		// Create options (A, B, C, D)

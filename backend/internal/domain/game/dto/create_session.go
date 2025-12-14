@@ -7,39 +7,35 @@ import (
 
 // CreateGameSessionRequest represents the request to create a game session
 type CreateGameSessionRequest struct {
-	SourceLanguageID int16  `json:"source_language_id" validate:"required,gt=0"`
-	TargetLanguageID int16  `json:"target_language_id" validate:"required,gt=0"`
-	Mode             string `json:"mode" validate:"required,oneof=topic level"`
-	TopicID          *int64 `json:"topic_id,omitempty" validate:"omitempty,gt=0"`
-	LevelID          *int64 `json:"level_id,omitempty" validate:"omitempty,gt=0"`
+	SourceLanguageID int16   `json:"source_language_id" validate:"required,gt=0"`
+	TargetLanguageID int16   `json:"target_language_id" validate:"required,gt=0"`
+	Mode             string  `json:"mode" validate:"required,oneof=level"`               // Always 'level' now
+	LevelID          int64   `json:"level_id" validate:"required,gt=0"`                  // Required
+	TopicIDs         []int64 `json:"topic_ids,omitempty" validate:"omitempty,dive,gt=0"` // Optional array (empty/null means all topics)
 }
 
 // Validate validates the CreateGameSessionRequest
 func (r *CreateGameSessionRequest) Validate() error {
 	// Source and target languages must be different
 	if r.SourceLanguageID == r.TargetLanguageID {
-		return errors.New("source and target languages must be different")
+		return errors.New("Ngôn ngữ nguồn và ngôn ngữ đích phải khác nhau")
 	}
 
-	// Mode must be either 'topic' or 'level'
-	if r.Mode != "topic" && r.Mode != "level" {
-		return errors.New("mode must be either 'topic' or 'level'")
+	// Mode must be 'level'
+	if r.Mode != "level" {
+		return errors.New("Chế độ phải là 'level'")
 	}
 
-	// Topic XOR Level required (exactly one must be set)
-	if r.Mode == "topic" {
-		if r.TopicID == nil || *r.TopicID <= 0 {
-			return errors.New("topic_id is required when mode is 'topic'")
-		}
-		if r.LevelID != nil {
-			return errors.New("cannot specify both topic_id and level_id at the same time")
-		}
-	} else if r.Mode == "level" {
-		if r.LevelID == nil || *r.LevelID <= 0 {
-			return errors.New("level_id is required when mode is 'level'")
-		}
-		if r.TopicID != nil {
-			return errors.New("cannot specify both topic_id and level_id at the same time")
+	// Level ID is required
+	if r.LevelID <= 0 {
+		return errors.New("Level_id là bắt buộc và phải lớn hơn 0")
+	}
+
+	// TopicIDs is optional (empty array or nil means all topics)
+	// If provided, all topic IDs must be valid
+	for _, topicID := range r.TopicIDs {
+		if topicID <= 0 {
+			return errors.New("Tất cả topic_ids phải lớn hơn 0")
 		}
 	}
 
@@ -61,4 +57,3 @@ func (r *CreateGameSessionRequest) GetValidationError() error {
 	}
 	return nil
 }
-

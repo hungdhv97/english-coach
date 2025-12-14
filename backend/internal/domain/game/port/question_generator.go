@@ -10,13 +10,15 @@ import (
 type QuestionGenerator interface {
 	// GenerateQuestions generates questions for a game session
 	// Returns questions with their options (4 options per question, 1 correct)
+	// mode is always "level" now
+	// topicIDs is optional array - if nil or empty, includes all topics
 	GenerateQuestions(
 		ctx context.Context,
 		sessionID int64,
 		sourceLanguageID, targetLanguageID int16,
-		mode string, // "topic" or "level"
-		topicID, levelID *int64,
+		mode string, // Always "level" now
+		topicIDs []int64, // Optional array of topic IDs (nil/empty means all topics)
+		levelID int64, // Required level ID
 		questionCount int,
 	) ([]*model.GameQuestion, []*model.GameQuestionOption, error)
 }
-

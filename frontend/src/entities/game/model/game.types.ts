@@ -5,11 +5,11 @@
 export interface GameSession {
   id: number;
   user_id: number;
-  mode: 'topic' | 'level';
+  mode: 'level'; // Always 'level' now
   source_language_id: number;
   target_language_id: number;
-  topic_id?: number;
-  level_id?: number;
+  topic_id?: number; // Kept for backward compatibility, but not used for filtering
+  level_id?: number; // Required
   total_questions: number;
   correct_questions: number;
   started_at: string;
@@ -19,9 +19,9 @@ export interface GameSession {
 export interface CreateGameSessionRequest {
   source_language_id: number;
   target_language_id: number;
-  mode: 'topic' | 'level';
-  topic_id?: number;
-  level_id?: number;
+  mode: 'level'; // Always 'level' now
+  level_id: number; // Required
+  topic_ids?: number[]; // Optional array of topic IDs (empty/null means all topics)
 }
 
 export interface CreateGameSessionResponse {

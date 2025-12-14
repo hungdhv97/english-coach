@@ -14,8 +14,8 @@ import (
 )
 
 var (
-	ErrInvalidCredentials = errors.New("invalid email/username or password")
-	ErrUserInactive       = errors.New("user account is inactive")
+	ErrInvalidCredentials = errors.New("Email hoặc tên đăng nhập không hợp lệ")
+	ErrUserInactive       = errors.New("Tài khoản người dùng đã bị vô hiệu hóa")
 )
 
 // LoginUseCase handles user login

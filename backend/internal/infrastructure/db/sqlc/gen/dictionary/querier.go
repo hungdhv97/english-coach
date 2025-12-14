@@ -32,6 +32,7 @@ type Querier interface {
 	FindWordByID(ctx context.Context, id int64) (Word, error)
 	FindWordsByIDs(ctx context.Context, dollar_1 []int64) ([]Word, error)
 	FindWordsByLevelAndLanguages(ctx context.Context, arg FindWordsByLevelAndLanguagesParams) ([]Word, error)
+	FindWordsByLevelAndTopicsAndLanguages(ctx context.Context, arg FindWordsByLevelAndTopicsAndLanguagesParams) ([]Word, error)
 	FindWordsByTopicAndLanguages(ctx context.Context, arg FindWordsByTopicAndLanguagesParams) ([]Word, error)
 	SearchWords(ctx context.Context, arg SearchWordsParams) ([]Word, error)
 }

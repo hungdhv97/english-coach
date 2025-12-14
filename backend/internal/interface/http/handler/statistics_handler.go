@@ -3,6 +3,7 @@ package handler
 import (
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/english-coach/backend/internal/domain/game/usecase/query"
 	"github.com/english-coach/backend/internal/shared/response"
@@ -37,7 +38,7 @@ func (h *StatisticsHandler) GetSessionStatistics(c *gin.Context) {
 	if err != nil {
 		response.ErrorResponse(c, http.StatusBadRequest,
 			"INVALID_SESSION_ID",
-			"Invalid session ID",
+			"ID phiên chơi không hợp lệ",
 			nil,
 		)
 		return
@@ -63,7 +64,7 @@ func (h *StatisticsHandler) GetSessionStatistics(c *gin.Context) {
 		if err != nil {
 			response.ErrorResponse(c, http.StatusBadRequest,
 				"INVALID_USER_ID",
-				"Invalid user ID",
+				"ID người dùng không hợp lệ",
 				nil,
 			)
 			return
@@ -83,19 +84,19 @@ func (h *StatisticsHandler) GetSessionStatistics(c *gin.Context) {
 		)
 
 		// Check for specific errors
-		if err.Error() == "session does not belong to user" {
+		if err.Error() == "Phiên chơi không thuộc về người dùng này" {
 			response.ErrorResponse(c, http.StatusForbidden,
 				"FORBIDDEN",
-				"You do not have permission to access this game session",
+				"Bạn không có quyền truy cập phiên chơi này",
 				nil,
 			)
 			return
 		}
 
-		if err.Error() == "failed to find session" || err.Error() == "sql: no rows in result set" {
+		if strings.Contains(err.Error(), "Không tìm thấy phiên chơi") || err.Error() == "sql: no rows in result set" {
 			response.ErrorResponse(c, http.StatusNotFound,
 				"SESSION_NOT_FOUND",
-				"Game session not found",
+				"Không tìm thấy phiên chơi",
 				nil,
 			)
 			return
@@ -103,7 +104,7 @@ func (h *StatisticsHandler) GetSessionStatistics(c *gin.Context) {
 
 		response.ErrorResponse(c, http.StatusInternalServerError,
 			"INTERNAL_ERROR",
-			"Failed to get session statistics",
+			"Không thể lấy thống kê phiên chơi",
 			nil,
 		)
 		return

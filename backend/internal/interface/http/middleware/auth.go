@@ -16,7 +16,7 @@ func AuthMiddleware(jwtManager *auth.JWTManager) gin.HandlerFunc {
 		if authHeader == "" {
 			c.JSON(http.StatusUnauthorized, response.NewError(
 				"UNAUTHORIZED",
-				"Authorization header is required",
+				"Yêu cầu header Authorization",
 				nil,
 			))
 			c.Abort()
@@ -27,7 +27,7 @@ func AuthMiddleware(jwtManager *auth.JWTManager) gin.HandlerFunc {
 		if len(parts) != 2 || parts[0] != "Bearer" {
 			c.JSON(http.StatusUnauthorized, response.NewError(
 				"UNAUTHORIZED",
-				"Invalid authorization header format",
+				"Định dạng header Authorization không hợp lệ",
 				nil,
 			))
 			c.Abort()
@@ -59,4 +59,3 @@ func AuthMiddleware(jwtManager *auth.JWTManager) gin.HandlerFunc {
 		c.Next()
 	}
 }
-

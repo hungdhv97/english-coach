@@ -47,7 +47,7 @@ func ValidateStruct(c *gin.Context, s interface{}) bool {
 			errs = []string{err.Error()}
 		}
 
-		response.ErrorResponse(c, http.StatusBadRequest, "VALIDATION_ERROR", "Validation failed", errs)
+		response.ErrorResponse(c, http.StatusBadRequest, "VALIDATION_ERROR", "Xác thực thất bại", errs)
 		return false
 	}
 	return true
@@ -56,7 +56,7 @@ func ValidateStruct(c *gin.Context, s interface{}) bool {
 // ShouldBindJSON validates and binds JSON body
 func ShouldBindJSON(c *gin.Context, s interface{}) bool {
 	if err := c.ShouldBindJSON(s); err != nil {
-		response.ErrorResponse(c, http.StatusBadRequest, "INVALID_JSON", "Invalid JSON format", err.Error())
+		response.ErrorResponse(c, http.StatusBadRequest, "INVALID_JSON", "Định dạng JSON không hợp lệ", err.Error())
 		return false
 	}
 	return ValidateStruct(c, s)
@@ -66,14 +66,14 @@ func ShouldBindJSON(c *gin.Context, s interface{}) bool {
 func getValidationErrorMessage(e validator.FieldError) string {
 	switch e.Tag() {
 	case "required":
-		return e.Field() + " is required"
+		return e.Field() + " là bắt buộc"
 	case "email":
-		return e.Field() + " must be a valid email"
+		return e.Field() + " phải là email hợp lệ"
 	case "min":
-		return e.Field() + " must be at least " + e.Param() + " characters"
+		return e.Field() + " phải có ít nhất " + e.Param() + " ký tự"
 	case "max":
-		return e.Field() + " must be at most " + e.Param() + " characters"
+		return e.Field() + " phải có tối đa " + e.Param() + " ký tự"
 	default:
-		return e.Field() + " is invalid"
+		return e.Field() + " không hợp lệ"
 	}
 }

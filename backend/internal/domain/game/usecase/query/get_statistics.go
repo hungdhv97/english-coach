@@ -44,12 +44,12 @@ func (uc *GetSessionStatisticsUseCase) Execute(ctx context.Context, sessionID, u
 
 	// Check if session is nil
 	if session == nil {
-		return nil, fmt.Errorf("session not found")
+		return nil, fmt.Errorf("Không tìm thấy phiên chơi")
 	}
 
 	// Verify session belongs to user
 	if session.UserID != userID {
-		return nil, fmt.Errorf("session does not belong to user")
+		return nil, fmt.Errorf("Phiên chơi không thuộc về người dùng này")
 	}
 
 	// Get all answers for the session

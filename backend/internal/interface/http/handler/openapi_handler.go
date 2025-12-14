@@ -302,7 +302,7 @@ func (h *OpenAPIHandler) GetSwaggerUI(c *gin.Context) {
 		)
 		response.ErrorResponse(c, http.StatusInternalServerError,
 			"INTERNAL_ERROR",
-			"Failed to load OpenAPI specification",
+			"Không thể tải đặc tả OpenAPI",
 			nil,
 		)
 		return

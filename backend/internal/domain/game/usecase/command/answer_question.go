@@ -48,12 +48,12 @@ func (uc *SubmitAnswerUseCase) Execute(ctx context.Context, req *dto.SubmitAnswe
 
 	// Check if question is nil
 	if question == nil {
-		return nil, fmt.Errorf("question not found")
+		return nil, fmt.Errorf("Không tìm thấy câu hỏi")
 	}
 
 	// Verify question belongs to session
 	if question.SessionID != sessionID {
-		return nil, fmt.Errorf("question does not belong to session")
+		return nil, fmt.Errorf("Câu hỏi không thuộc về phiên chơi này")
 	}
 
 	// Find the selected option
@@ -68,13 +68,13 @@ func (uc *SubmitAnswerUseCase) Execute(ctx context.Context, req *dto.SubmitAnswe
 	}
 
 	if selectedOption == nil {
-		return nil, fmt.Errorf("selected option not found")
+		return nil, fmt.Errorf("Không tìm thấy lựa chọn đã chọn")
 	}
 
 	// Check if answer already exists
 	existingAnswer, _ := uc.answerRepo.FindByQuestionID(ctx, req.QuestionID, sessionID, userID)
 	if existingAnswer != nil {
-		return nil, fmt.Errorf("answer already submitted for this question")
+		return nil, fmt.Errorf("Đã gửi câu trả lời cho câu hỏi này")
 	}
 
 	// Create answer

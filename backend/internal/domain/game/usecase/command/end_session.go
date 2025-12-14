@@ -40,12 +40,12 @@ func (uc *EndGameSessionUseCase) Execute(ctx context.Context, sessionID int64) e
 
 	// Check if session is nil
 	if session == nil {
-		return fmt.Errorf("session not found")
+		return fmt.Errorf("Không tìm thấy phiên chơi")
 	}
 
 	// Check if already ended
 	if session.EndedAt != nil {
-		return fmt.Errorf("session already ended")
+		return fmt.Errorf("Phiên chơi đã kết thúc")
 	}
 
 	// End session
