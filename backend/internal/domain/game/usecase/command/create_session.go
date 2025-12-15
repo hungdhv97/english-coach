@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/english-coach/backend/internal/domain/game/dto"
-	gameerror "github.com/english-coach/backend/internal/domain/game/error"
+	gameerrors "github.com/english-coach/backend/internal/domain/game/error"
 	"github.com/english-coach/backend/internal/domain/game/model"
 	"github.com/english-coach/backend/internal/domain/game/port"
 	"github.com/english-coach/backend/internal/shared/constants"
@@ -99,14 +99,14 @@ func (uc *CreateGameSessionUseCase) Execute(ctx context.Context, req *dto.Create
 		// Check for insufficient words error (FR-026)
 		// Error message format: "Không đủ từ: cần X, có Y"
 		if strings.Contains(err.Error(), "Không đủ từ") {
-			return nil, gameerror.ErrInsufficientWords
+			return nil, gameerrors.ErrInsufficientWords
 		}
 		return nil, errors.WrapError(err, "failed to generate questions")
 	}
 
 	// Check if we have at least the minimum required questions (1)
 	if len(questions) < constants.MinGameQuestionCount {
-		return nil, gameerror.ErrInsufficientWords
+		return nil, gameerrors.ErrInsufficientWords
 	}
 
 	// Save questions and options

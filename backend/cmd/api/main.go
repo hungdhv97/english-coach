@@ -9,17 +9,17 @@ import (
 
 	"github.com/english-coach/backend/internal/config"
 	"github.com/english-coach/backend/internal/domain/dictionary/service"
-	gameService "github.com/english-coach/backend/internal/domain/game/service"
-	"github.com/english-coach/backend/internal/domain/game/usecase/command"
-	userCommand "github.com/english-coach/backend/internal/domain/user/usecase/command"
-	userQuery "github.com/english-coach/backend/internal/domain/user/usecase/query"
+	gamesvc "github.com/english-coach/backend/internal/domain/game/service"
+	gamecmd "github.com/english-coach/backend/internal/domain/game/usecase/command"
+	usercmd "github.com/english-coach/backend/internal/domain/user/usecase/command"
+	userqry "github.com/english-coach/backend/internal/domain/user/usecase/query"
 	"github.com/english-coach/backend/internal/infrastructure/auth"
 	"github.com/english-coach/backend/internal/infrastructure/db"
 	"github.com/english-coach/backend/internal/infrastructure/logger"
 	"github.com/english-coach/backend/internal/infrastructure/repository/dictionary"
-	gameRepo "github.com/english-coach/backend/internal/infrastructure/repository/game"
-	userRepo "github.com/english-coach/backend/internal/infrastructure/repository/user"
-	httpServer "github.com/english-coach/backend/internal/interface/http"
+	gamerepo "github.com/english-coach/backend/internal/infrastructure/repository/game"
+	userrepo "github.com/english-coach/backend/internal/infrastructure/repository/user"
+	httpserver "github.com/english-coach/backend/internal/interface/http"
 	"github.com/english-coach/backend/internal/interface/http/handler"
 	"github.com/english-coach/backend/internal/interface/http/middleware"
 	"github.com/gin-gonic/gin"
@@ -72,8 +72,8 @@ func main() {
 	)
 
 	// Setup HTTP server
-	server := httpServer.NewServer(
-		httpServer.Config{
+	server := httpserver.NewServer(
+		httpserver.Config{
 			Port:            cfg.Server.Port,
 			ReadTimeout:     cfg.Server.ReadTimeout,
 			WriteTimeout:    cfg.Server.WriteTimeout,
@@ -91,8 +91,8 @@ func main() {
 
 	// Initialize repositories
 	dictRepo := dictionary.NewDictionaryRepository(pool)
-	gameRepository := gameRepo.NewGameRepository(pool)
-	userRepository := userRepo.NewUserRepository(pool)
+	gameRepository := gamerepo.NewGameRepository(pool)
+	userRepository := userrepo.NewUserRepository(pool)
 
 	// Initialize services
 	dictService := service.NewDictionaryService(
@@ -106,20 +106,20 @@ func main() {
 	)
 
 	// Initialize game question generator service
-	questionGenerator := gameService.NewQuestionGeneratorService(
+	questionGenerator := gamesvc.NewQuestionGeneratorService(
 		dictRepo.WordRepository(),
 		appLogger.Logger,
 	)
 
 	// Initialize game use cases
-	createSessionUC := command.NewCreateGameSessionUseCase(
+	createSessionUC := gamecmd.NewCreateGameSessionUseCase(
 		gameRepository.GameSessionRepo(),
 		gameRepository.GameQuestionRepo(),
 		questionGenerator,
 		appLogger.Logger,
 	)
 
-	submitAnswerUC := command.NewSubmitAnswerUseCase(
+	submitAnswerUC := gamecmd.NewSubmitAnswerUseCase(
 		gameRepository.GameAnswerRepo(),
 		gameRepository.GameQuestionRepo(),
 		gameRepository.GameSessionRepo(),
@@ -127,23 +127,23 @@ func main() {
 	)
 
 	// Initialize user use cases
-	registerUC := userCommand.NewRegisterUserUseCase(
+	registerUC := usercmd.NewRegisterUserUseCase(
 		userRepository.UserRepository(),
 		appLogger.Logger,
 	)
 
-	loginUC := userCommand.NewLoginUseCase(
+	loginUC := usercmd.NewLoginUseCase(
 		userRepository.UserRepository(),
 		jwtManager,
 		appLogger.Logger,
 	)
 
-	getProfileUC := userQuery.NewGetUserProfileUseCase(
+	getProfileUC := userqry.NewGetUserProfileUseCase(
 		userRepository.UserProfileRepository(),
 		appLogger.Logger,
 	)
 
-	updateProfileUC := userCommand.NewUpdateUserProfileUseCase(
+	updateProfileUC := usercmd.NewUpdateUserProfileUseCase(
 		userRepository.UserProfileRepository(),
 		appLogger.Logger,
 	)

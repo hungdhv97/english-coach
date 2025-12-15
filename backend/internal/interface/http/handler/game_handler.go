@@ -9,7 +9,7 @@ import (
 	"github.com/english-coach/backend/internal/domain/game/port"
 	"github.com/english-coach/backend/internal/domain/game/usecase/command"
 	"github.com/english-coach/backend/internal/interface/http/middleware"
-	commonerrors "github.com/english-coach/backend/internal/shared/errors"
+	sharederrors "github.com/english-coach/backend/internal/shared/errors"
 	"github.com/english-coach/backend/internal/shared/response"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -63,7 +63,7 @@ func (h *GameHandler) CreateSession(c *gin.Context) {
 	case string:
 		parsed, err := strconv.ParseInt(v, 10, 64)
 		if err != nil {
-			middleware.SetError(c, commonerrors.ErrInvalidParameter.WithDetails("invalid user_id"))
+			middleware.SetError(c, sharederrors.ErrInvalidParameter.WithDetails("invalid user_id"))
 			return
 		}
 		userIDInt64 = parsed
@@ -74,13 +74,13 @@ func (h *GameHandler) CreateSession(c *gin.Context) {
 	// Bind request
 	var req dto.CreateGameSessionRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		middleware.SetError(c, commonerrors.ErrInvalidRequest.WithDetails(err.Error()))
+		middleware.SetError(c, sharederrors.ErrInvalidRequest.WithDetails(err.Error()))
 		return
 	}
 
 	// Validate request
 	if err := req.Validate(); err != nil {
-		middleware.SetError(c, commonerrors.ErrValidationError.WithDetails(err.Error()))
+		middleware.SetError(c, sharederrors.ErrValidationError.WithDetails(err.Error()))
 		return
 	}
 
@@ -167,7 +167,7 @@ func (h *GameHandler) GetSession(c *gin.Context) {
 
 	// Verify user owns session
 	if session.UserID != userIDInt64 {
-		middleware.SetError(c, commonerrors.ErrForbidden)
+		middleware.SetError(c, sharederrors.ErrForbidden)
 		return
 	}
 
@@ -247,7 +247,7 @@ func (h *GameHandler) SubmitAnswer(c *gin.Context) {
 	// Bind request
 	var req dto.SubmitAnswerRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		middleware.SetError(c, commonerrors.ErrInvalidRequest.WithDetails(err.Error()))
+		middleware.SetError(c, sharederrors.ErrInvalidRequest.WithDetails(err.Error()))
 		return
 	}
 

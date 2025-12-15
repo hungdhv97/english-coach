@@ -6,9 +6,9 @@ import (
 	"math/rand"
 	"time"
 
-	dictModel "github.com/english-coach/backend/internal/domain/dictionary/model"
-	dictPort "github.com/english-coach/backend/internal/domain/dictionary/port"
-	gameerror "github.com/english-coach/backend/internal/domain/game/error"
+	dictmodel "github.com/english-coach/backend/internal/domain/dictionary/model"
+	dictport "github.com/english-coach/backend/internal/domain/dictionary/port"
+	gameerrors "github.com/english-coach/backend/internal/domain/game/error"
 	"github.com/english-coach/backend/internal/domain/game/model"
 	"github.com/english-coach/backend/internal/shared/errors"
 	"go.uber.org/zap"
@@ -16,13 +16,13 @@ import (
 
 // QuestionGeneratorService implements question generation logic
 type QuestionGeneratorService struct {
-	wordRepo dictPort.WordRepository
+	wordRepo dictport.WordRepository
 	logger   *zap.Logger
 }
 
 // NewQuestionGeneratorService creates a new question generator service
 func NewQuestionGeneratorService(
-	wordRepo dictPort.WordRepository,
+	wordRepo dictport.WordRepository,
 	logger *zap.Logger,
 ) *QuestionGeneratorService {
 	return &QuestionGeneratorService{
@@ -45,7 +45,7 @@ func (s *QuestionGeneratorService) GenerateQuestions(
 
 	// Validate mode
 	if mode != "level" {
-		return nil, nil, gameerror.ErrInvalidMode.WithDetails(fmt.Sprintf("mode: %s, required: 'level'", mode))
+		return nil, nil, gameerrors.ErrInvalidMode.WithDetails(fmt.Sprintf("mode: %s, required: 'level'", mode))
 	}
 
 	// Fetch source words by level and optional topics
@@ -90,7 +90,7 @@ func (s *QuestionGeneratorService) GenerateQuestions(
 			zap.Int16("source_language_id", sourceLanguageID),
 			zap.Int16("target_language_id", targetLanguageID),
 		)
-		return nil, nil, gameerror.ErrInsufficientWords.WithDetails(fmt.Sprintf("required: 1, available: %d", len(sourceWords)))
+		return nil, nil, gameerrors.ErrInsufficientWords.WithDetails(fmt.Sprintf("required: 1, available: %d", len(sourceWords)))
 	}
 
 	// Shuffle words for randomness
@@ -116,7 +116,7 @@ func (s *QuestionGeneratorService) GenerateQuestions(
 	options := make([]*model.GameQuestionOption, 0, questionCount*4)
 
 	// Collect all target words for wrong answer options
-	allTargetWords := make(map[int64]*dictModel.Word)
+	allTargetWords := make(map[int64]*dictmodel.Word)
 
 	// Track question order separately to ensure sequential ordering even when words are skipped
 	questionOrder := int16(0)
@@ -160,7 +160,7 @@ func (s *QuestionGeneratorService) GenerateQuestions(
 	}
 
 	// Generate options for each question
-	targetWordList := make([]*dictModel.Word, 0, len(allTargetWords))
+	targetWordList := make([]*dictmodel.Word, 0, len(allTargetWords))
 	for _, word := range allTargetWords {
 		targetWordList = append(targetWordList, word)
 	}
@@ -169,11 +169,11 @@ func (s *QuestionGeneratorService) GenerateQuestions(
 		// Get correct word
 		correctWord, exists := allTargetWords[question.CorrectTargetWordID]
 		if !exists {
-			return nil, nil, gameerror.ErrQuestionNotFound.WithDetails(fmt.Sprintf("question_index: %d", i+1))
+			return nil, nil, gameerrors.ErrQuestionNotFound.WithDetails(fmt.Sprintf("question_index: %d", i+1))
 		}
 
 		// Get wrong answer candidates (exclude correct answer)
-		wrongCandidates := make([]*dictModel.Word, 0)
+		wrongCandidates := make([]*dictmodel.Word, 0)
 		for _, word := range targetWordList {
 			if word.ID != correctWord.ID {
 				wrongCandidates = append(wrongCandidates, word)
@@ -190,7 +190,7 @@ func (s *QuestionGeneratorService) GenerateQuestions(
 				if len(wrongCandidates) > 0 {
 					wrongCandidates = append(wrongCandidates, wrongCandidates[0])
 				} else {
-					return nil, nil, gameerror.ErrOptionNotFound.WithDetails(fmt.Sprintf("question_index: %d", i+1))
+					return nil, nil, gameerrors.ErrOptionNotFound.WithDetails(fmt.Sprintf("question_index: %d", i+1))
 				}
 			}
 		}
@@ -204,7 +204,7 @@ func (s *QuestionGeneratorService) GenerateQuestions(
 		selectedWrong := wrongCandidates[:3]
 
 		// Combine correct + wrong answers and shuffle
-		allAnswers := []*dictModel.Word{correctWord, selectedWrong[0], selectedWrong[1], selectedWrong[2]}
+		allAnswers := []*dictmodel.Word{correctWord, selectedWrong[0], selectedWrong[1], selectedWrong[2]}
 		rand.Shuffle(len(allAnswers), func(i, j int) {
 			allAnswers[i], allAnswers[j] = allAnswers[j], allAnswers[i]
 		})
@@ -219,7 +219,7 @@ func (s *QuestionGeneratorService) GenerateQuestions(
 		}
 
 		if correctIndex == -1 {
-			return nil, nil, gameerror.ErrQuestionNotFound.WithDetails("correct answer not found in shuffled options")
+			return nil, nil, gameerrors.ErrQuestionNotFound.WithDetails("correct answer not found in shuffled options")
 		}
 
 		// Create options (A, B, C, D)

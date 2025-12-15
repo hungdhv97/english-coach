@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strings"
 
-	domainerrors "github.com/english-coach/backend/internal/shared/errors"
+	sharederrors "github.com/english-coach/backend/internal/shared/errors"
 	"github.com/english-coach/backend/internal/shared/response"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -20,7 +20,7 @@ func ErrorHandler(logger *zap.Logger) gin.HandlerFunc {
 			err := c.Errors.Last().Err
 
 			// Try to extract domain error
-			domainErr, isDomainErr := domainerrors.IsDomainError(err)
+			domainErr, isDomainErr := sharederrors.IsDomainError(err)
 			if isDomainErr {
 				// Log domain error (message is already in Vietnamese for user)
 				logger.Info("domain error",
@@ -56,8 +56,8 @@ func ErrorHandler(logger *zap.Logger) gin.HandlerFunc {
 
 			// Determine status code
 			statusCode := http.StatusInternalServerError
-			code := domainerrors.CodeInternalError
-			message := domainerrors.ErrInternalError.Message
+			code := sharederrors.CodeInternalError
+			message := sharederrors.ErrInternalError.Message
 
 			// Check if status code was already set
 			if c.Writer.Status() != http.StatusOK {

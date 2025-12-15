@@ -3,7 +3,7 @@ package command
 import (
 	"context"
 
-	usererror "github.com/english-coach/backend/internal/domain/user/error"
+	usererrors "github.com/english-coach/backend/internal/domain/user/error"
 	"github.com/english-coach/backend/internal/domain/user/model"
 	"github.com/english-coach/backend/internal/domain/user/port"
 	"github.com/english-coach/backend/internal/infrastructure/auth"
@@ -59,29 +59,29 @@ func (uc *LoginUseCase) Execute(ctx context.Context, input LoginInput) (*LoginOu
 	} else if input.Username != nil && *input.Username != "" {
 		user, err = uc.userRepo.FindByUsername(ctx, *input.Username)
 	} else {
-		return nil, usererror.ErrInvalidCredentials
+		return nil, usererrors.ErrInvalidCredentials
 	}
 
 	if err != nil {
 		if common.IsNotFound(err) {
-			return nil, usererror.ErrInvalidCredentials
+			return nil, usererrors.ErrInvalidCredentials
 		}
 		uc.logger.Error("failed to find user", zap.Error(err))
 		return nil, errors.WrapError(err, "failed to find user")
 	}
 
 	if user == nil {
-		return nil, usererror.ErrInvalidCredentials
+		return nil, usererrors.ErrInvalidCredentials
 	}
 
 	// Check if user is active
 	if !user.IsActive {
-		return nil, usererror.ErrUserInactive
+		return nil, usererrors.ErrUserInactive
 	}
 
 	// Verify password
 	if !crypto.CheckPasswordHash(input.Password, user.PasswordHash) {
-		return nil, usererror.ErrInvalidCredentials
+		return nil, usererrors.ErrInvalidCredentials
 	}
 
 	// Generate JWT token

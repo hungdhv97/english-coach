@@ -7,7 +7,7 @@ import (
 	"github.com/english-coach/backend/internal/domain/dictionary/port"
 	"github.com/english-coach/backend/internal/domain/dictionary/service"
 	"github.com/english-coach/backend/internal/interface/http/middleware"
-	commonerrors "github.com/english-coach/backend/internal/shared/errors"
+	sharederrors "github.com/english-coach/backend/internal/shared/errors"
 	"github.com/english-coach/backend/internal/shared/response"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -76,7 +76,7 @@ func (h *DictionaryHandler) GetLevels(c *gin.Context) {
 	if languageIDStr != "" {
 		languageID, err := strconv.ParseInt(languageIDStr, 10, 16)
 		if err != nil {
-			middleware.SetError(c, commonerrors.ErrInvalidParameter.WithDetails("invalid languageId"))
+			middleware.SetError(c, sharederrors.ErrInvalidParameter.WithDetails("invalid languageId"))
 			return
 		}
 
@@ -106,20 +106,20 @@ func (h *DictionaryHandler) SearchWords(c *gin.Context) {
 
 	query := c.Query("q")
 	if query == "" {
-		middleware.SetError(c, commonerrors.ErrInvalidParameter.WithDetails("query parameter (q) is required"))
+		middleware.SetError(c, sharederrors.ErrInvalidParameter.WithDetails("query parameter (q) is required"))
 		return
 	}
 
 	// Parse language ID (required)
 	languageIDStr := c.Query("languageId")
 	if languageIDStr == "" {
-		middleware.SetError(c, commonerrors.ErrInvalidParameter.WithDetails("languageId parameter is required"))
+		middleware.SetError(c, sharederrors.ErrInvalidParameter.WithDetails("languageId parameter is required"))
 		return
 	}
 
 	languageID, err := strconv.ParseInt(languageIDStr, 10, 16)
 	if err != nil {
-		middleware.SetError(c, commonerrors.ErrInvalidParameter.WithDetails("invalid languageId"))
+		middleware.SetError(c, sharederrors.ErrInvalidParameter.WithDetails("invalid languageId"))
 		return
 	}
 	langID := int16(languageID)
@@ -129,7 +129,7 @@ func (h *DictionaryHandler) SearchWords(c *gin.Context) {
 	if limitStr := c.Query("limit"); limitStr != "" {
 		parsedLimit, err := strconv.Atoi(limitStr)
 		if err != nil || parsedLimit < 1 || parsedLimit > 100 {
-			middleware.SetError(c, commonerrors.ErrInvalidParameter.WithDetails("limit must be between 1 and 100"))
+			middleware.SetError(c, sharederrors.ErrInvalidParameter.WithDetails("limit must be between 1 and 100"))
 			return
 		}
 		limit = parsedLimit
@@ -139,7 +139,7 @@ func (h *DictionaryHandler) SearchWords(c *gin.Context) {
 	if offsetStr := c.Query("offset"); offsetStr != "" {
 		parsedOffset, err := strconv.Atoi(offsetStr)
 		if err != nil || parsedOffset < 0 {
-			middleware.SetError(c, commonerrors.ErrInvalidParameter.WithDetails("offset must be non-negative"))
+			middleware.SetError(c, sharederrors.ErrInvalidParameter.WithDetails("offset must be non-negative"))
 			return
 		}
 		offset = parsedOffset
@@ -217,7 +217,7 @@ func (h *DictionaryHandler) GetWordDetail(c *gin.Context) {
 	wordIDStr := c.Param("wordId")
 	wordID, err := strconv.ParseInt(wordIDStr, 10, 64)
 	if err != nil {
-		middleware.SetError(c, commonerrors.ErrInvalidParameter.WithDetails("invalid wordId"))
+		middleware.SetError(c, sharederrors.ErrInvalidParameter.WithDetails("invalid wordId"))
 		return
 	}
 
@@ -242,7 +242,7 @@ func (h *DictionaryHandler) GetWordDetail(c *gin.Context) {
 	}
 
 	if wordDetail == nil || wordDetail.Word == nil {
-		middleware.SetError(c, commonerrors.ErrNotFound)
+		middleware.SetError(c, sharederrors.ErrNotFound)
 		return
 	}
 

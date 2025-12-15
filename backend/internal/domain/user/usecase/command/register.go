@@ -3,7 +3,7 @@ package command
 import (
 	"context"
 
-	usererror "github.com/english-coach/backend/internal/domain/user/error"
+	usererrors "github.com/english-coach/backend/internal/domain/user/error"
 	"github.com/english-coach/backend/internal/domain/user/port"
 	"github.com/english-coach/backend/internal/infrastructure/crypto"
 	"github.com/english-coach/backend/internal/shared/errors"
@@ -46,11 +46,11 @@ type RegisterUserOutput struct {
 func (uc *RegisterUserUseCase) Execute(ctx context.Context, input RegisterUserInput) (*RegisterUserOutput, error) {
 	// Validate input
 	if (input.Email == nil || *input.Email == "") && (input.Username == nil || *input.Username == "") {
-		return nil, usererror.ErrEmailRequired
+		return nil, usererrors.ErrEmailRequired
 	}
 
 	if len(input.Password) < 6 {
-		return nil, usererror.ErrInvalidPassword
+		return nil, usererrors.ErrInvalidPassword
 	}
 
 	// Check if email already exists
@@ -64,7 +64,7 @@ func (uc *RegisterUserUseCase) Execute(ctx context.Context, input RegisterUserIn
 			return nil, errors.WrapError(err, "failed to check if email exists")
 		}
 		if exists {
-			return nil, usererror.ErrEmailExists
+			return nil, usererrors.ErrEmailExists
 		}
 	}
 
@@ -79,7 +79,7 @@ func (uc *RegisterUserUseCase) Execute(ctx context.Context, input RegisterUserIn
 			return nil, errors.WrapError(err, "failed to check if username exists")
 		}
 		if exists {
-			return nil, usererror.ErrUsernameExists
+			return nil, usererrors.ErrUsernameExists
 		}
 	}
 

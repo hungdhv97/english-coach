@@ -3,12 +3,12 @@ package handler
 import (
 	"net/http"
 
-	usererror "github.com/english-coach/backend/internal/domain/user/error"
+	usererrors "github.com/english-coach/backend/internal/domain/user/error"
 	"github.com/english-coach/backend/internal/domain/user/port"
 	"github.com/english-coach/backend/internal/domain/user/usecase/command"
 	"github.com/english-coach/backend/internal/domain/user/usecase/query"
 	"github.com/english-coach/backend/internal/interface/http/middleware"
-	commonerrors "github.com/english-coach/backend/internal/shared/errors"
+	sharederrors "github.com/english-coach/backend/internal/shared/errors"
 	"github.com/english-coach/backend/internal/shared/response"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -60,13 +60,13 @@ func (h *UserHandler) Register(c *gin.Context) {
 
 	var req RegisterRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		middleware.SetError(c, commonerrors.ErrInvalidRequest.WithDetails(err.Error()))
+		middleware.SetError(c, sharederrors.ErrInvalidRequest.WithDetails(err.Error()))
 		return
 	}
 
 	// Validate that at least email or username is provided
 	if (req.Email == nil || *req.Email == "") && (req.Username == nil || *req.Username == "") {
-		middleware.SetError(c, usererror.ErrEmailRequired)
+		middleware.SetError(c, usererrors.ErrEmailRequired)
 		return
 	}
 
@@ -110,13 +110,13 @@ func (h *UserHandler) Login(c *gin.Context) {
 
 	var req LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		middleware.SetError(c, commonerrors.ErrInvalidRequest.WithDetails(err.Error()))
+		middleware.SetError(c, sharederrors.ErrInvalidRequest.WithDetails(err.Error()))
 		return
 	}
 
 	// Validate that at least email or username is provided
 	if (req.Email == nil || *req.Email == "") && (req.Username == nil || *req.Username == "") {
-		middleware.SetError(c, usererror.ErrEmailRequired)
+		middleware.SetError(c, usererrors.ErrEmailRequired)
 		return
 	}
 
@@ -141,13 +141,13 @@ func (h *UserHandler) GetProfile(c *gin.Context) {
 	// Get user ID from context (set by auth middleware)
 	userID, exists := c.Get("user_id")
 	if !exists {
-		middleware.SetError(c, commonerrors.ErrUnauthorized)
+		middleware.SetError(c, sharederrors.ErrUnauthorized)
 		return
 	}
 
 	userIDInt64, ok := userID.(int64)
 	if !ok {
-		middleware.SetError(c, commonerrors.ErrInternalError)
+		middleware.SetError(c, sharederrors.ErrInternalError)
 		return
 	}
 
@@ -175,19 +175,19 @@ func (h *UserHandler) UpdateProfile(c *gin.Context) {
 	// Get user ID from context (set by auth middleware)
 	userID, exists := c.Get("user_id")
 	if !exists {
-		middleware.SetError(c, commonerrors.ErrUnauthorized)
+		middleware.SetError(c, sharederrors.ErrUnauthorized)
 		return
 	}
 
 	userIDInt64, ok := userID.(int64)
 	if !ok {
-		middleware.SetError(c, commonerrors.ErrInternalError)
+		middleware.SetError(c, sharederrors.ErrInternalError)
 		return
 	}
 
 	var req UpdateProfileRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		middleware.SetError(c, commonerrors.ErrInvalidRequest.WithDetails(err.Error()))
+		middleware.SetError(c, sharederrors.ErrInvalidRequest.WithDetails(err.Error()))
 		return
 	}
 
@@ -212,7 +212,7 @@ func (h *UserHandler) CheckEmailAvailability(c *gin.Context) {
 	email := c.Query("email")
 
 	if email == "" {
-		middleware.SetError(c, commonerrors.ErrInvalidParameter.WithDetails("email parameter is required"))
+		middleware.SetError(c, sharederrors.ErrInvalidParameter.WithDetails("email parameter is required"))
 		return
 	}
 
@@ -234,7 +234,7 @@ func (h *UserHandler) CheckUsernameAvailability(c *gin.Context) {
 	username := c.Query("username")
 
 	if username == "" {
-		middleware.SetError(c, commonerrors.ErrInvalidParameter.WithDetails("username parameter is required"))
+		middleware.SetError(c, sharederrors.ErrInvalidParameter.WithDetails("username parameter is required"))
 		return
 	}
 

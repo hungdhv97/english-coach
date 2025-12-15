@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/english-coach/backend/internal/domain/game/dto"
-	gameerror "github.com/english-coach/backend/internal/domain/game/error"
+	gameerrors "github.com/english-coach/backend/internal/domain/game/error"
 	"github.com/english-coach/backend/internal/domain/game/model"
 	"github.com/english-coach/backend/internal/domain/game/port"
 	"github.com/english-coach/backend/internal/shared/errors"
@@ -49,12 +49,12 @@ func (uc *SubmitAnswerUseCase) Execute(ctx context.Context, req *dto.SubmitAnswe
 
 	// Check if question is nil
 	if question == nil {
-		return nil, gameerror.ErrQuestionNotFound
+		return nil, gameerrors.ErrQuestionNotFound
 	}
 
 	// Verify question belongs to session
 	if question.SessionID != sessionID {
-		return nil, gameerror.ErrQuestionNotInSession
+		return nil, gameerrors.ErrQuestionNotInSession
 	}
 
 	// Find the selected option
@@ -69,13 +69,13 @@ func (uc *SubmitAnswerUseCase) Execute(ctx context.Context, req *dto.SubmitAnswe
 	}
 
 	if selectedOption == nil {
-		return nil, gameerror.ErrOptionNotFound
+		return nil, gameerrors.ErrOptionNotFound
 	}
 
 	// Check if answer already exists
 	existingAnswer, _ := uc.answerRepo.FindByQuestionID(ctx, req.QuestionID, sessionID, userID)
 	if existingAnswer != nil {
-		return nil, gameerror.ErrAnswerAlreadySubmitted
+		return nil, gameerrors.ErrAnswerAlreadySubmitted
 	}
 
 	// Create answer

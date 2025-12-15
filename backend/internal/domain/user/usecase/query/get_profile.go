@@ -3,7 +3,7 @@ package query
 import (
 	"context"
 
-	usererror "github.com/english-coach/backend/internal/domain/user/error"
+	usererrors "github.com/english-coach/backend/internal/domain/user/error"
 	"github.com/english-coach/backend/internal/domain/user/model"
 	"github.com/english-coach/backend/internal/domain/user/port"
 	"github.com/english-coach/backend/internal/shared/errors"
@@ -36,7 +36,7 @@ func (uc *GetUserProfileUseCase) Execute(ctx context.Context, userID int64) (*mo
 	}
 
 	if profile == nil {
-		return nil, usererror.ErrProfileNotFound
+		return nil, usererrors.ErrProfileNotFound
 	}
 
 	return profile, nil
