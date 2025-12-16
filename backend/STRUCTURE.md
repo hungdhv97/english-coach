@@ -254,6 +254,10 @@
 ├── proto/
 │   └── user.proto
 │
+├── logs/
+│   ├── app.log
+│   └── error.log
+│
 ├── Makefile
 ├── sqlc.yaml
 └── go.mod

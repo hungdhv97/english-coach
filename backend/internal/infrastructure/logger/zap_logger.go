@@ -86,6 +86,6 @@ func NewLogger(env string) (*Logger, error) {
 		})),
 	)
 
-	logger := zap.New(core, zap.AddCaller(), zap.AddCallerSkip(1))
+	logger := zap.New(core, zap.AddCaller())
 	return &Logger{Logger: logger}, nil
 }
