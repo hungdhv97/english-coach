@@ -1,8 +1,11 @@
 package logger
 
 import (
+	"os"
+
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	"gopkg.in/natefinch/lumberjack.v2"
 )
 
 // Logger wraps zap logger
@@ -12,32 +15,77 @@ type Logger struct {
 
 // NewLogger creates a new structured logger using zap
 func NewLogger(env string) (*Logger, error) {
-	var zapLevel zapcore.Level
-	var config zap.Config
-
 	// Map environment to log level
+	var level zapcore.Level
 	switch env {
 	case "development":
-		zapLevel = zapcore.DebugLevel
-		config = zap.NewDevelopmentConfig()
+		level = zapcore.DebugLevel
 	case "staging", "production":
-		zapLevel = zapcore.InfoLevel
-		config = zap.NewProductionConfig()
+		level = zapcore.InfoLevel
 	default:
-		zapLevel = zapcore.InfoLevel
-		config = zap.NewDevelopmentConfig()
+		level = zapcore.InfoLevel
 	}
 
-	config.Level = zap.NewAtomicLevelAt(zapLevel)
-	config.EncoderConfig.TimeKey = "timestamp"
-	config.EncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
-	config.EncoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder
-	config.EncoderConfig.EncodeCaller = zapcore.ShortCallerEncoder
+	// Base encoder config
+	encoderCfg := zap.NewProductionEncoderConfig()
+	if env == "development" {
+		encoderCfg = zap.NewDevelopmentEncoderConfig()
+	}
 
-	logger, err := config.Build()
-	if err != nil {
+	encoderCfg.TimeKey = "timestamp"
+	encoderCfg.EncodeTime = zapcore.ISO8601TimeEncoder
+	encoderCfg.EncodeCaller = zapcore.ShortCallerEncoder
+
+	// Console encoder (with color)
+	consoleEncoderCfg := encoderCfg
+	consoleEncoderCfg.EncodeLevel = zapcore.CapitalColorLevelEncoder
+	consoleEncoder := zapcore.NewConsoleEncoder(consoleEncoderCfg)
+
+	// File encoder (no color)
+	fileEncoderCfg := encoderCfg
+	fileEncoderCfg.EncodeLevel = zapcore.CapitalLevelEncoder
+	fileEncoder := zapcore.NewJSONEncoder(fileEncoderCfg)
+
+	// Ensure log directory exists
+	if err := os.MkdirAll("logs", 0o755); err != nil {
 		return nil, err
 	}
 
+	// Lumberjack rotation config
+	appWriter := &lumberjack.Logger{
+		Filename:   "logs/app.log",
+		MaxSize:    50,   // MB per file
+		MaxBackups: 7,    // number of old files to keep
+		MaxAge:     30,   // days to keep a log file
+		Compress:   true, // gzip old log files
+	}
+	errorWriter := &lumberjack.Logger{
+		Filename:   "logs/error.log",
+		MaxSize:    50,
+		MaxBackups: 7,
+		MaxAge:     30,
+		Compress:   true,
+	}
+
+	appSyncer := zapcore.AddSync(appWriter)
+	errorSyncer := zapcore.AddSync(errorWriter)
+	consoleSyncer := zapcore.AddSync(os.Stdout)
+
+	core := zapcore.NewTee(
+		// All logs -> app.log (rotated daily)
+		zapcore.NewCore(fileEncoder, appSyncer, zap.LevelEnablerFunc(func(l zapcore.Level) bool {
+			return l >= level
+		})),
+		// Error and above -> error.log (rotated daily)
+		zapcore.NewCore(fileEncoder, errorSyncer, zap.LevelEnablerFunc(func(l zapcore.Level) bool {
+			return l >= zapcore.ErrorLevel
+		})),
+		// Console output
+		zapcore.NewCore(consoleEncoder, consoleSyncer, zap.LevelEnablerFunc(func(l zapcore.Level) bool {
+			return l >= level
+		})),
+	)
+
+	logger := zap.New(core, zap.AddCaller(), zap.AddCallerSkip(1))
 	return &Logger{Logger: logger}, nil
 }
