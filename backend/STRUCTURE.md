@@ -1,263 +1,206 @@
 .
+├── cmd/
+│   └── api/
+│       └── main.go                                  # Application entrypoint: load config, build DI graph, start servers, handle graceful shutdown
+├── configs/
+│   ├── config.example.yaml                          # Example configuration file (no secrets)
+│   └── config.go                                    # Configuration loading/parsing/validation (env + file -> typed config)
 ├── docs/
 │   ├── openapi/
-│   │   ├── openapi.yaml
-│   │   ├── user.yaml
-│   │   ├── auth.yaml
-│   │   └── components/
-│   │       ├── schemas.yaml
-│   │       ├── responses.yaml
-│   │       └── parameters.yaml
-│   │
+│   │   ├── openapi.yaml                             # Root OpenAPI spec (info/servers + references to paths/components)
+│   │   ├── components/
+│   │   │   ├── schemas.yaml                         # Reusable schema definitions (request/response DTOs)
+│   │   │   ├── responses.yaml                       # Reusable response templates (standard errors, common responses)
+│   │   │   └── parameters.yaml                      # Reusable parameter definitions (pagination, headers, etc.)
+│   │   └── paths/
+│   │       ├── users.yaml                           # User endpoints (paths/operations)
+│   │       └── auth.yaml                            # Auth endpoints (paths/operations)
 │   └── postman/
-│       ├── user.postman_collection.json
-│       ├── auth.postman_collection.json
-│       └── environment/
-│           ├── local.postman_environment.json
-│           └── staging.postman_environment.json
-|
-├── cmd/
-│   ├── api/
-│   │   ├── main.go
-│   │   ├── config.yaml
-│   │   └── wiring.go
-│   ├── worker/
-│   │   └── main.go
-│   └─── migration/
-|       ├── schema/
-│       │   └── main.go
-│       └── data/
-│           └── main.go
-│
+│       ├── collections/
+│       │   └── myapp.postman_collection.json        # Postman collection for manual QA / development
+│       └── environments/
+│           ├── local.postman_environment.json       # Postman environment for local testing
+│           └── staging.postman_environment.json     # Postman environment for staging testing
+├── db/
+│   ├── migrations/
+│   │   ├── 0001_init.sql                            # Migration: initial schema setup
+│   │   └── 0002_add_indexes.sql                     # Migration: add indexes/constraints for performance/integrity
+│   ├── queries/
+│   │   ├── user/
+│   │   │   ├── user.sql                             # sqlc queries for user domain (CRUD, list, search)
+│   │   │   └── user_admin.sql                       # sqlc queries for admin-grade user operations
+│   │   ├── auth/
+│   │   │   └── auth.sql                             # sqlc queries for authentication/session/token flows
+│   │   └── shared/
+│   │       └── outbox.sql                           # sqlc queries for outbox pattern (optional event publishing)
+│   └── schema/
+│       └── schema.sql                               # Schema snapshot/reference (not a replacement for migrations)
+├── sqlc.yaml                                        # sqlc configuration (engine, schema/queries inputs, code generation output)
+├── scripts/
+│   ├── migrate.sh                                   # Run database migrations (up/down/status) for local/CI usage
+│   ├── sqlc_generate.sh                             # Generate sqlc code from db/queries and db/schema
+│   └── lint.sh                                      # Lint/format/static analysis runner for CI/local
 ├── internal/
 │   ├── app/
-│   │   ├── app.go
-│   │   ├── router.go
-│   │   └── container.go
-│   │
-│   ├── config/
-│   │   └── config.go
-│   │
-│   ├── domain/
-│   │   ├── user/
-│   │   │   ├── model/
-│   │   │   │   ├── user.go
-│   │   │   │   ├── user_id.go
-│   │   │   │   ├── email.go
-│   │   │   │   ├── phone.go
-│   │   │   │   ├── role.go
-│   │   │   │   ├── permission.go
-│   │   │   │   ├── address.go
-│   │   │   │   └── metadata.go
-│   │   │   │
-│   │   │   ├── valueobject/
-│   │   │   │   ├── password_hash.go
-│   │   │   │   ├── created_at.go
-│   │   │   │   └── updated_at.go
-│   │   │   │
-│   │   │   ├── aggregate/
-│   │   │   │   └── user_aggregate.go
-│   │   │   │
-│   │   │   ├── port/
-│   │   │   │   ├── repository.go
-│   │   │   │   ├── cache.go
-│   │   │   │   ├── token.go
-│   │   │   │   ├── hasher.go
-│   │   │   │   ├── otp_sender.go
-│   │   │   │   ├── email_sender.go
-│   │   │   │   ├── sms_sender.go
-│   │   │   │   └── audit_logger.go
-│   │   │   │
-│   │   │   ├── policy/
-│   │   │   │   ├── password_policy.go
-│   │   │   │   ├── username_policy.go
-│   │   │   │   └── permission_policy.go
-│   │   │   │
-│   │   │   ├── service/
-│   │   │   │   ├── user_domain_service.go
-│   │   │   │   └── role_domain_service.go
-│   │   │   │
-│   │   │   ├── specification/
-│   │   │   │   ├── user_filter.go
-│   │   │   │   └── user_query_builder.go
-│   │   │   │
-│   │   │   ├── factory/
-│   │   │   │   └── user_factory.go
-│   │   │   │
-│   │   │   ├── event/
-│   │   │   │   ├── user_registered.go
-│   │   │   │   ├── user_login.go
-│   │   │   │   ├── user_updated.go
-│   │   │   │   ├── user_disabled.go
-│   │   │   │   └── user_password_changed.go
-│   │   │   │
-│   │   │   ├── dto/
-│   │   │   │   ├── user_dto.go
-│   │   │   │   ├── profile_dto.go
-│   │   │   │   ├── filter_dto.go
-│   │   │   │   └── pagination.go
-│   │   │   │
-│   │   │   ├── usecase/
-│   │   │   │   ├── command/
-│   │   │   │   │   ├── register.go
-│   │   │   │   │   ├── login.go
-│   │   │   │   │   ├── logout.go
-│   │   │   │   │   ├── change_password.go
-│   │   │   │   │   ├── change_email.go
-│   │   │   │   │   ├── update_profile.go
-│   │   │   │   │   ├── assign_role.go
-│   │   │   │   │   ├── disable_user.go
-│   │   │   │   │   └── update_address.go
-│   │   │   │   │
-│   │   │   │   └── query/
-│   │   │   │       ├── get_profile.go
-│   │   │   │       ├── get_user.go
-│   │   │   │       ├── list_users.go
-│   │   │   │       └── search_users.go
-│   │   │   │
-│   │   │   ├── error/
-│   │   │   │   ├── user_errors.go
-│   │   │   │   ├── policy_errors.go
-│   │   │   │   └── repository_errors.go
-│   │   │   │
-│   │   │   └── doc.go
-│   │   │
-│   │   └── ... (other domains such as order/, product/, payment/, auth/, billing/, ...)
-│   │
-│   ├── infrastructure/
-│   │   ├── db/
-│   │   │   ├── postgres.go        # Init pgxpool.DB / pgxpool.Pool
-│   │   │   ├── transaction.go
-│   │   │   ├── migrations/
-│   │   │   │   ├── schema/
-│   │   │   │   │   ├── 0001_init.sql
-│   │   │   │   │   ├── 0002_add_user_profile.sql
-│   │   │   │   │   └── 0003_add_role_table.sql
-│   │   │   │   │
-│   │   │   │   └── data/
-│   │   │   │       ├── 0001_seed_roles.jsonl
-│   │   │   │       ├── 0002_seed_permissions.jsonl
-│   │   │   │       └── 0003_seed_default_admin.jsonl
-│   │   │   │
-│   │   │   └── sqlc/
-│   │   │       ├── query/
-│   │   │       │   ├── user/
-│   │   │       │   │   ├── user_crud.sql
-│   │   │       │   │   ├── user_profile.sql
-│   │   │       │   │   ├── user_auth.sql
-│   │   │       │   │   ├── user_role.sql
-│   │   │       │   │   ├── user_address.sql
-│   │   │       │   │   └── user_search.sql
-│   │   │       │   │
-│   │   │       │   ├── role/
-│   │   │       │   │   ├── role_crud.sql
-│   │   │       │   │   └── role_permission.sql
-│   │   │       │   │
-│   │   │       │   └── common/
-│   │   │       │       ├── pagination.sql
-│   │   │       │       └── audit.sql
-│   │   │       │
-│   │   │       └── gen/
-│   │   │           ├── user/
-│   │   │           │   ├── user_crud.sql.go
-│   │   │           │   ├── user_profile.sql.go
-│   │   │           │   ├── user_auth.sql.go
-│   │   │           │   ├── user_role.sql.go
-│   │   │           │   ├── user_address.sql.go
-│   │   │           │   └── user_search.sql.go
-│   │   │           │
-│   │   │           ├── role/
-│   │   │           │   ├── role_crud.sql.go
-│   │   │           │   └── role_permission.sql.go
-│   │   │           │
-│   │   │           └── common/
-│   │   │               ├── pagination.sql.go
-│   │   │               └── audit.sql.go
-│   │   │
-│   │   ├── repository/          
-│   │   │   ├── user/
-│   │   │   │   ├── user_pg.go       # implements domain/user/port.Repository by sqlc + pgx
-│   │   │   │   ├── user_search_pg.go
-│   │   │   │   └── user_repository_helpers.go
-│   │   │   │
-│   │   │   ├── role/
-│   │   │   │   └── role_pg.go
-│   │   │   │
-│   │   │   └── common/
-│   │   │       └── repository_helpers.go  # isUniqueViolation, map PG error → domain error
-│   │   │
-│   │   ├── cache/
-│   │   │   ├── redis.go
-│   │   │   └── user_cache.go
-│   │   │
-│   │   ├── mq/
-│   │   │   ├── kafka_producer.go
-│   │   │   ├── kafka_consumer.go
-│   │   │   └── event_dispatcher.go
-│   │   │
-│   │   ├── email/
-│   │   │   └── sendgrid_adapter.go
-│   │   │
-│   │   ├── sms/
-│   │   │   └── twilio_adapter.go
-│   │   │
-│   │   ├── token/
-│   │   │   └── jwt_provider.go
-│   │   │
-│   │   ├── logger/
-│   │   │   └── zap_logger.go
-│   │   │
-│   │   └── storage/
-│   │       └── s3_adapter.go
-│   │
-│   ├── interface/
-│   │   ├── http/
-│   │   │   ├── server.go
-│   │   │   ├── middleware/
-│   │   │   │   ├── auth.go
-│   │   │   │   ├── logger.go
-│   │   │   │   └── cors.go
-│   │   │   └── handler/
-│   │   │       ├── user_handler.go
-│   │   │       └── auth_handler.go
-│   │   │
-│   │   ├── grpc/
-│   │   │   ├── user_service.go
-│   │   │   └── server.go
-│   │   │
-│   │   ├── worker/
-│   │   │   ├── user_consumer.go
-│   │   │   └── email_consumer.go
-│   │   │
-│   │   └── translator/
-│   │       ├── user_converter.go
-│   │       └── dto_to_model.go
-│   │
+│   │   ├── bootstrap/
+│   │   │   ├── wire.go                              # Dependency wiring/composition root (wire or manual constructors)
+│   │   │   ├── http_server.go                       # HTTP server construction/startup (router + middleware chain)
+│   │   │   ├── grpc_server.go                       # gRPC server construction/startup (optional)
+│   │   │   └── cron.go                              # Scheduler/cron initialization (optional background jobs)
+│   │   ├── di/
+│   │   │   └── container.go                         # DI container/provider definitions (interfaces -> implementations)
+│   │   └── lifecycle/
+│   │       └── shutdown.go                          # Graceful shutdown orchestration (signals, context cancellation, resource cleanup)
 │   ├── shared/
-│   │   ├── util/
-│   │   ├── validator/
-│   │   ├── response/
-│   │   ├── pagination/
-│   │   └── constants/
-│   │
-│   └── security/
-│       ├── rbac.go
-│       ├── permission_map.go
-│       └── policy.go
-│
+│   │   ├── logger/
+│   │   │   ├── logger.go                            # Logger interface + contextual field helpers
+│   │   │   └── zap_logger.go                        # zap-based implementation of the logger interface
+│   │   ├── errors/
+│   │   │   ├── app_error.go                         # Canonical application error type (code/message/cause/metadata)
+│   │   │   ├── codes.go                             # Error code catalog (domain/usecase/http mapping anchors)
+│   │   │   └── http_mapper.go                       # Maps AppError -> HTTP status + standardized error response body
+│   │   ├── validation/
+│   │   │   └── validator.go                         # Validation wrapper (struct tags + custom rules)
+│   │   ├── auth/
+│   │   │   ├── jwt.go                               # JWT signing/verification + claim parsing utilities
+│   │   │   ├── password.go                          # Password hashing/verification utilities (bcrypt/argon2 wrapper)
+│   │   │   └── permissions.go                       # RBAC primitives (roles/permissions helpers)
+│   │   ├── security/
+│   │   │   ├── headers.go                           # Security header configuration utilities (HSTS, nosniff, etc.)
+│   │   │   ├── cors.go                              # CORS policy configuration utilities (allowlist-based)
+│   │   │   └── csrf.go                              # CSRF utilities (only for cookie-based auth flows)
+│   │   ├── observability/
+│   │   │   ├── request_context.go                   # Context keys (request_id/user_id/trace_id) + helpers
+│   │   │   ├── metrics.go                           # Metrics primitives/exporter wiring (Prometheus/OTel)
+│   │   │   └── tracing.go                           # Tracing primitives (OTel tracer/span helpers)
+│   │   └── pagination/
+│   │       └── pagination.go                        # Pagination utilities (limit/offset/cursor parsing and metadata)
+│   ├── platform/
+│   │   ├── db/
+│   │   │   ├── postgres.go                          # PostgreSQL connection pool initialization (pgx) + health checks
+│   │   │   ├── tx.go                                # Transaction helpers (begin/commit/rollback) with context propagation
+│   │   │   └── sqlc/
+│   │   │       ├── store.go                         # Store wrapper to expose sqlc Queries and transaction-scoped execution
+│   │   │       └── gen/                             # sqlc-generated code (DO NOT EDIT)
+│   │   │           ├── db.go                        # sqlc core types: Queries struct + constructors
+│   │   │           ├── models.go                    # sqlc model structs/types generated from schema
+│   │   │           ├── user.sql.go                  # Generated query methods for db/queries/user/*.sql
+│   │   │           ├── auth.sql.go                  # Generated query methods for db/queries/auth/*.sql
+│   │   │           └── outbox.sql.go                # Generated query methods for db/queries/shared/outbox.sql
+│   │   ├── cache/
+│   │   │   └── redis.go                             # Redis client initialization + cache helpers (namespacing, TTL)
+│   │   ├── mq/
+│   │   │   ├── kafka.go                             # Kafka producer/consumer initialization (optional)
+│   │   │   └── rabbitmq.go                          # RabbitMQ connection/channel initialization (optional)
+│   │   └── httpclient/
+│   │       └── client.go                            # Outbound HTTP client (timeouts/retries/circuit-breaking hooks)
+│   ├── transport/
+│   │   ├── http/
+│   │   │   ├── server.go                            # net/http server configuration (timeouts, base settings)
+│   │   │   ├── router.go                            # Route registration (module routers) + middleware assembly
+│   │   │   ├── response.go                          # Standard response envelope (data/error/meta) helpers
+│   │   │   └── middleware/
+│   │   │       ├── request_id.go                    # Assign/propagate request ID (X-Request-ID) into context/logs
+│   │   │       ├── real_ip.go                       # Resolve real client IP using trusted proxy headers
+│   │   │       ├── recover.go                       # Catch panics and convert to standardized 500 errors
+│   │   │       ├── error_handler.go                 # Centralized error rendering (AppError -> HTTP JSON)
+│   │   │       ├── access_log.go                    # Access logging (method/path/status/latency/bytes/request_id)
+│   │   │       ├── audit_log.go                     # Audit logging for sensitive operations (who did what/when)
+│   │   │       ├── authn_jwt.go                     # JWT authentication middleware (principal injection into context)
+│   │   │       ├── authz_rbac.go                    # Authorization middleware (RBAC/permission checks)
+│   │   │       ├── cors.go                          # CORS enforcement middleware
+│   │   │       ├── security_headers.go              # Apply security headers (HSTS, nosniff, frame options, etc.)
+│   │   │       ├── csrf.go                          # CSRF protection middleware (cookie-based auth only)
+│   │   │       ├── rate_limit.go                    # Rate limiting middleware (by IP/user/token with burst/window)
+│   │   │       ├── timeout.go                       # Request timeout middleware (context cancellation)
+│   │   │       ├── body_limit.go                    # Request body size limit middleware (DoS protection)
+│   │   │       ├── gzip.go                          # Response compression middleware (optional)
+│   │   │       ├── etag.go                          # ETag/If-None-Match support for cacheable GET endpoints
+│   │   │       └── idempotency.go                   # Idempotency key support for safe retries on write endpoints
+│   │   └── grpc/
+│   │       ├── server.go                            # gRPC server setup + service registration (optional)
+│   │       └── interceptors/
+│   │           ├── recover.go                       # gRPC panic recovery interceptor
+│   │           ├── error_mapper.go                  # Map AppError/domain errors to gRPC status codes/details
+│   │           ├── access_log.go                    # gRPC access logging interceptor (method/latency/code)
+│   │           ├── authn.go                         # gRPC authentication interceptor (JWT via metadata)
+│   │           └── timeout.go                       # gRPC deadline enforcement interceptor
+│   └── modules/
+│       ├── user/
+│       │   ├── domain/
+│       │   │   ├── entity.go                        # User entity + core invariants
+│       │   │   ├── value_objects.go                 # Domain value objects (UserID/Email/etc.) with validation
+│       │   │   ├── repository.go                    # Domain repository interface (usecases depend on this)
+│       │   │   └── errors.go                        # Domain-specific errors (not found, invalid state, etc.)
+│       │   ├── usecase/
+│       │   │   ├── create_user/
+│       │   │   │   ├── handler.go                   # Use case orchestration for creating a user (kept thin)
+│       │   │   │   ├── input.go                     # Use case input DTO
+│       │   │   │   ├── output.go                    # Use case output DTO
+│       │   │   │   └── validator.go                 # Use case input validation rules
+│       │   │   ├── get_user/
+│       │   │   │   ├── handler.go                   # Use case orchestration for fetching a user
+│       │   │   │   ├── input.go                     # Use case input DTO (ID)
+│       │   │   │   └── output.go                    # Use case output DTO (view model)
+│       │   │   └── list_users/
+│       │   │       ├── handler.go                   # Use case orchestration for listing users
+│       │   │       ├── input.go                     # Use case input DTO (pagination/filter)
+│       │   │       ├── output.go                    # Use case output DTO (items + meta)
+│       │   │       └── filter.go                    # Filter/query composition helpers to keep handler small
+│       │   ├── adapter/
+│       │   │   └── http/
+│       │   │       ├── routes.go                    # User route registration + per-route middleware binding
+│       │   │       ├── handler_create.go            # HTTP handler: parse/validate -> call create_user use case
+│       │   │       ├── handler_get.go               # HTTP handler: parse -> call get_user use case
+│       │   │       ├── handler_list.go              # HTTP handler: parse -> call list_users use case
+│       │   │       └── dto.go                       # HTTP DTOs (requests/responses), separate from domain/usecase
+│       │   └── infra/
+│       │       └── persistence/
+│       │           └── postgres/
+│       │               ├── repo.go                  # Repository implementation wrapping sqlc Store/Queries
+│       │               └── mapper.go                # Mapping between sqlc models and domain entities
+│       ├── auth/
+│       │   ├── domain/
+│       │   │   ├── entity.go                        # Auth-related entities (Session/RefreshToken) if needed
+│       │   │   ├── repository.go                    # Auth repository interface (tokens/sessions persistence)
+│       │   │   └── errors.go                        # Auth domain errors (invalid credentials, revoked token, etc.)
+│       │   ├── usecase/
+│       │   │   ├── login/
+│       │   │   │   ├── handler.go                   # Login orchestration (verify credentials, issue tokens)
+│       │   │   │   ├── input.go                     # Login input DTO
+│       │   │   │   ├── output.go                    # Login output DTO (access/refresh tokens)
+│       │   │   │   └── validator.go                 # Login validation rules
+│       │   │   └── refresh_token/
+│       │   │       ├── handler.go                   # Refresh orchestration (validate refresh token, rotate/issue)
+│       │   │       ├── input.go                     # Refresh input DTO
+│       │   │       └── output.go                    # Refresh output DTO
+│       │   ├── adapter/
+│       │   │   └── http/
+│       │   │       ├── routes.go                    # Auth route registration
+│       │   │       ├── handler_login.go             # HTTP handler for login
+│       │   │       ├── handler_refresh.go           # HTTP handler for refresh
+│       │   │       └── dto.go                       # HTTP DTOs for auth endpoints
+│       │   └── infra/
+│       │       └── persistence/
+│       │           └── postgres/
+│       │               ├── repo.go                  # Auth repository implementation wrapping sqlc
+│       │               └── mapper.go                # Mapping between sqlc models and auth domain types
+│       └── health/
+│           ├── usecase/
+│           │   └── ping/
+│           │       ├── handler.go                   # Health/ping orchestration (optionally checks dependencies)
+│           │       └── output.go                    # Health response DTO (status/version/build info)
+│           └── adapter/
+│               └── http/
+│                   ├── routes.go                    # Health route registration (e.g., /healthz, /readyz)
+│                   └── handler_ping.go              # HTTP handler for health checks
 ├── pkg/
-│   ├── logger/
-│   ├── retry/
-│   ├── pagination/
-│   └── middleware/
-│
-├── proto/
-│   └── user.proto
-│
-├── logs/
-│   ├── app.log
-│   └── error.log
-│
-├── Makefile
-├── sqlc.yaml
-└── go.mod
+│   ├── id/
+│   │   └── uuid.go                                  # Public UUID helpers (generate/parse/validate)
+│   └── timeutil/
+│       └── timeutil.go                              # Public time utilities (UTC normalization, parsing)
+├── test/                                             # OPTIONAL: test scaffolding (include only if you want a dedicated top-level test directory)
+│   ├── integration/                                  # OPTIONAL: integration tests (DB + HTTP server)
+│   └── contract/                                     # OPTIONAL: contract tests (OpenAPI/Postman/consumer-driven)
+├── go.mod                                            # Go module definition and dependency constraints
+└── go.sum                                            # Dependency checksums (auto-generated)
