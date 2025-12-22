@@ -1,4 +1,4 @@
-package dto
+package get_word_detail
 
 import (
 	"github.com/english-coach/backend/internal/modules/dictionary/domain"
@@ -26,3 +26,4 @@ type SenseDetail struct {
 	Translations         []*domain.Word    `json:"translations"`
 	Examples             []*domain.Example `json:"examples"`
 }
+

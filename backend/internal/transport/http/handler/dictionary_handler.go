@@ -5,7 +5,7 @@ import (
 	"strconv"
 
 	"github.com/english-coach/backend/internal/modules/dictionary/domain"
-	"github.com/english-coach/backend/internal/domain/dictionary/service"
+	dictusecase "github.com/english-coach/backend/internal/modules/dictionary/usecase/get_word_detail"
 	"github.com/english-coach/backend/internal/transport/http/middleware"
 	sharederrors "github.com/english-coach/backend/internal/shared/errors"
 	"github.com/english-coach/backend/internal/shared/pagination"
@@ -20,7 +20,7 @@ type DictionaryHandler struct {
 	topicRepo         domain.TopicRepository
 	levelRepo         domain.LevelRepository
 	wordRepo          domain.WordRepository
-	dictionaryService *service.DictionaryService
+	getWordDetailUC   *dictusecase.Handler
 	logger            *zap.Logger
 }
 
@@ -30,16 +30,16 @@ func NewDictionaryHandler(
 	topicRepo domain.TopicRepository,
 	levelRepo domain.LevelRepository,
 	wordRepo domain.WordRepository,
-	dictionaryService *service.DictionaryService,
+	getWordDetailUC *dictusecase.Handler,
 	logger *zap.Logger,
 ) *DictionaryHandler {
 	return &DictionaryHandler{
-		languageRepo:      languageRepo,
-		topicRepo:         topicRepo,
-		levelRepo:         levelRepo,
-		wordRepo:          wordRepo,
-		dictionaryService: dictionaryService,
-		logger:            logger,
+		languageRepo:    languageRepo,
+		topicRepo:       topicRepo,
+		levelRepo:       levelRepo,
+		wordRepo:        wordRepo,
+		getWordDetailUC: getWordDetailUC,
+		logger:          logger,
 	}
 }
 
@@ -207,7 +207,7 @@ func (h *DictionaryHandler) GetWordDetail(c *gin.Context) {
 		zap.Int64("word_id", wordID),
 	)
 
-	wordDetail, err := h.dictionaryService.GetWordDetail(ctx, wordID)
+	wordDetail, err := h.getWordDetailUC.Execute(ctx, wordID)
 	if err != nil {
 		middleware.SetError(c, err)
 		return

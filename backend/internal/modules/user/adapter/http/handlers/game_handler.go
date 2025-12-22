@@ -4,9 +4,9 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/english-coach/backend/internal/domain/game/dto"
 	"github.com/english-coach/backend/internal/modules/game/domain"
-	"github.com/english-coach/backend/internal/domain/game/usecase/command"
+	gamecreatesession "github.com/english-coach/backend/internal/modules/game/usecase/create_session"
+	gamesubmitanswer "github.com/english-coach/backend/internal/modules/game/usecase/submit_answer"
 	"github.com/english-coach/backend/internal/transport/http/middleware"
 	sharederrors "github.com/english-coach/backend/internal/shared/errors"
 	"github.com/english-coach/backend/internal/shared/response"
@@ -16,8 +16,8 @@ import (
 
 // GameHandler handles game-related HTTP requests
 type GameHandler struct {
-	createSessionUC *command.CreateGameSessionUseCase
-	submitAnswerUC  *command.SubmitAnswerUseCase
+	createSessionUC *gamecreatesession.Handler
+	submitAnswerUC  *gamesubmitanswer.Handler
 	questionRepo    domain.GameQuestionRepository
 	sessionRepo     domain.GameSessionRepository
 	logger          *zap.Logger
@@ -25,8 +25,8 @@ type GameHandler struct {
 
 // NewGameHandler creates a new game handler
 func NewGameHandler(
-	createSessionUC *command.CreateGameSessionUseCase,
-	submitAnswerUC *command.SubmitAnswerUseCase,
+	createSessionUC *gamecreatesession.Handler,
+	submitAnswerUC *gamesubmitanswer.Handler,
 	questionRepo domain.GameQuestionRepository,
 	sessionRepo domain.GameSessionRepository,
 	logger *zap.Logger,
@@ -71,7 +71,7 @@ func (h *GameHandler) CreateSession(c *gin.Context) {
 	}
 
 	// Bind request
-	var req dto.CreateGameSessionRequest
+	var req gamecreatesession.CreateGameSessionRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		middleware.SetError(c, sharederrors.ErrInvalidRequest.WithDetails(err.Error()))
 		return
@@ -244,7 +244,7 @@ func (h *GameHandler) SubmitAnswer(c *gin.Context) {
 	}
 
 	// Bind request
-	var req dto.SubmitAnswerRequest
+	var req gamesubmitanswer.SubmitAnswerRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		middleware.SetError(c, sharederrors.ErrInvalidRequest.WithDetails(err.Error()))
 		return

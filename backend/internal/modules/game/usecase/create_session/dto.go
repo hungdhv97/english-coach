@@ -1,4 +1,4 @@
-package dto
+package create_session
 
 import (
 	"errors"
@@ -40,3 +40,4 @@ func (r *CreateGameSessionRequest) Validate() error {
 
 	return nil
 }
+

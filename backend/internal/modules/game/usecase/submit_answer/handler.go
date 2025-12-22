@@ -1,31 +1,30 @@
-package command
+package submit_answer
 
 import (
 	"context"
 	"time"
 
-	"github.com/english-coach/backend/internal/domain/game/dto"
 	"github.com/english-coach/backend/internal/modules/game/domain"
 	"github.com/english-coach/backend/internal/shared/errors"
 	"go.uber.org/zap"
 )
 
-// SubmitAnswerUseCase handles answer submission
-type SubmitAnswerUseCase struct {
+// Handler handles answer submission
+type Handler struct {
 	answerRepo   domain.GameAnswerRepository
 	questionRepo domain.GameQuestionRepository
 	sessionRepo  domain.GameSessionRepository
 	logger       *zap.Logger
 }
 
-// NewSubmitAnswerUseCase creates a new use case
-func NewSubmitAnswerUseCase(
+// NewHandler creates a new use case
+func NewHandler(
 	answerRepo domain.GameAnswerRepository,
 	questionRepo domain.GameQuestionRepository,
 	sessionRepo domain.GameSessionRepository,
 	logger *zap.Logger,
-) *SubmitAnswerUseCase {
-	return &SubmitAnswerUseCase{
+) *Handler {
+	return &Handler{
 		answerRepo:   answerRepo,
 		questionRepo: questionRepo,
 		sessionRepo:  sessionRepo,
@@ -34,11 +33,11 @@ func NewSubmitAnswerUseCase(
 }
 
 // Execute submits an answer to a question
-func (uc *SubmitAnswerUseCase) Execute(ctx context.Context, req *dto.SubmitAnswerRequest, sessionID, userID int64) (*domain.GameAnswer, error) {
+func (h *Handler) Execute(ctx context.Context, req *SubmitAnswerRequest, sessionID, userID int64) (*domain.GameAnswer, error) {
 	// Get question and options to verify the answer
-	question, options, err := uc.questionRepo.FindByID(ctx, req.QuestionID)
+	question, options, err := h.questionRepo.FindByID(ctx, req.QuestionID)
 	if err != nil {
-		uc.logger.Error("failed to find question",
+		h.logger.Error("failed to find question",
 			zap.Error(err),
 			zap.Int64("question_id", req.QuestionID),
 		)
@@ -71,7 +70,7 @@ func (uc *SubmitAnswerUseCase) Execute(ctx context.Context, req *dto.SubmitAnswe
 	}
 
 	// Check if answer already exists
-	existingAnswer, _ := uc.answerRepo.FindByQuestionID(ctx, req.QuestionID, sessionID, userID)
+	existingAnswer, _ := h.answerRepo.FindByQuestionID(ctx, req.QuestionID, sessionID, userID)
 	if existingAnswer != nil {
 		return nil, domain.ErrAnswerAlreadySubmitted
 	}
@@ -87,8 +86,8 @@ func (uc *SubmitAnswerUseCase) Execute(ctx context.Context, req *dto.SubmitAnswe
 		AnsweredAt:       time.Now(),
 	}
 
-	if err := uc.answerRepo.Create(ctx, answer); err != nil {
-		uc.logger.Error("failed to create answer",
+	if err := h.answerRepo.Create(ctx, answer); err != nil {
+		h.logger.Error("failed to create answer",
 			zap.Error(err),
 			zap.Int64("question_id", req.QuestionID),
 		)
@@ -97,11 +96,11 @@ func (uc *SubmitAnswerUseCase) Execute(ctx context.Context, req *dto.SubmitAnswe
 
 	// Update session correct count if answer is correct
 	if isCorrect {
-		session, err := uc.sessionRepo.FindByID(ctx, sessionID)
+		session, err := h.sessionRepo.FindByID(ctx, sessionID)
 		if err == nil {
 			session.CorrectQuestions++
-			if err := uc.sessionRepo.Update(ctx, session); err != nil {
-				uc.logger.Warn("failed to update session correct count",
+			if err := h.sessionRepo.Update(ctx, session); err != nil {
+				h.logger.Warn("failed to update session correct count",
 					zap.Error(err),
 					zap.Int64("session_id", sessionID),
 				)
@@ -110,7 +109,7 @@ func (uc *SubmitAnswerUseCase) Execute(ctx context.Context, req *dto.SubmitAnswe
 	}
 
 	// Log answer submission
-	uc.logger.Info("answer submitted",
+	h.logger.Info("answer submitted",
 		zap.Int64("answer_id", answer.ID),
 		zap.Int64("question_id", req.QuestionID),
 		zap.Int64("session_id", sessionID),
@@ -121,3 +120,4 @@ func (uc *SubmitAnswerUseCase) Execute(ctx context.Context, req *dto.SubmitAnswe
 
 	return answer, nil
 }
+

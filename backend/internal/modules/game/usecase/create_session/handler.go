@@ -1,33 +1,32 @@
-package command
+package create_session
 
 import (
 	"context"
 	"strings"
 	"time"
 
-	"github.com/english-coach/backend/internal/domain/game/dto"
 	"github.com/english-coach/backend/internal/modules/game/domain"
 	"github.com/english-coach/backend/internal/shared/constants"
 	"github.com/english-coach/backend/internal/shared/errors"
 	"go.uber.org/zap"
 )
 
-// CreateGameSessionUseCase handles game session creation
-type CreateGameSessionUseCase struct {
+// Handler handles game session creation
+type Handler struct {
 	sessionRepo       domain.GameSessionRepository
 	questionRepo      domain.GameQuestionRepository
 	questionGenerator domain.QuestionGenerator
 	logger            *zap.Logger
 }
 
-// NewCreateGameSessionUseCase creates a new use case
-func NewCreateGameSessionUseCase(
+// NewHandler creates a new use case
+func NewHandler(
 	sessionRepo domain.GameSessionRepository,
 	questionRepo domain.GameQuestionRepository,
 	questionGenerator domain.QuestionGenerator,
 	logger *zap.Logger,
-) *CreateGameSessionUseCase {
-	return &CreateGameSessionUseCase{
+) *Handler {
+	return &Handler{
 		sessionRepo:       sessionRepo,
 		questionRepo:      questionRepo,
 		questionGenerator: questionGenerator,
@@ -36,7 +35,7 @@ func NewCreateGameSessionUseCase(
 }
 
 // Execute creates a new game session
-func (uc *CreateGameSessionUseCase) Execute(ctx context.Context, req *dto.CreateGameSessionRequest, userID int64) (*domain.GameSession, error) {
+func (h *Handler) Execute(ctx context.Context, req *CreateGameSessionRequest, userID int64) (*domain.GameSession, error) {
 	// Validate request
 	if err := req.Validate(); err != nil {
 		return nil, errors.ErrValidationError.WithDetails(err.Error())
@@ -64,8 +63,8 @@ func (uc *CreateGameSessionUseCase) Execute(ctx context.Context, req *dto.Create
 	}
 
 	// Save session to database first (needed for question generation)
-	if err := uc.sessionRepo.Create(ctx, session); err != nil {
-		uc.logger.Error("failed to create game session",
+	if err := h.sessionRepo.Create(ctx, session); err != nil {
+		h.logger.Error("failed to create game session",
 			zap.Error(err),
 			zap.Int64("user_id", userID),
 			zap.String("mode", req.Mode),
@@ -74,7 +73,7 @@ func (uc *CreateGameSessionUseCase) Execute(ctx context.Context, req *dto.Create
 	}
 
 	// Generate questions upfront - request up to MaxGameQuestionCount (20)
-	questions, options, err := uc.questionGenerator.GenerateQuestions(
+	questions, options, err := h.questionGenerator.GenerateQuestions(
 		ctx,
 		session.ID,
 		req.SourceLanguageID,
@@ -85,7 +84,7 @@ func (uc *CreateGameSessionUseCase) Execute(ctx context.Context, req *dto.Create
 		constants.MaxGameQuestionCount,
 	)
 	if err != nil {
-		uc.logger.Error("failed to generate questions",
+		h.logger.Error("failed to generate questions",
 			zap.Error(err),
 			zap.Int64("session_id", session.ID),
 			zap.String("mode", req.Mode),
@@ -108,8 +107,8 @@ func (uc *CreateGameSessionUseCase) Execute(ctx context.Context, req *dto.Create
 	}
 
 	// Save questions and options
-	if err := uc.questionRepo.CreateBatch(ctx, questions, options); err != nil {
-		uc.logger.Error("failed to save questions",
+	if err := h.questionRepo.CreateBatch(ctx, questions, options); err != nil {
+		h.logger.Error("failed to save questions",
 			zap.Error(err),
 			zap.Int64("session_id", session.ID),
 		)
@@ -118,8 +117,8 @@ func (uc *CreateGameSessionUseCase) Execute(ctx context.Context, req *dto.Create
 
 	// Update session with question count
 	session.TotalQuestions = int16(len(questions))
-	if err := uc.sessionRepo.Update(ctx, session); err != nil {
-		uc.logger.Error("failed to update session with question count",
+	if err := h.sessionRepo.Update(ctx, session); err != nil {
+		h.logger.Error("failed to update session with question count",
 			zap.Error(err),
 			zap.Int64("session_id", session.ID),
 		)
@@ -127,7 +126,7 @@ func (uc *CreateGameSessionUseCase) Execute(ctx context.Context, req *dto.Create
 	}
 
 	// Log session creation
-	uc.logger.Info("game session created with questions",
+	h.logger.Info("game session created with questions",
 		zap.Int64("session_id", session.ID),
 		zap.Int64("user_id", userID),
 		zap.String("mode", req.Mode),
@@ -138,3 +137,4 @@ func (uc *CreateGameSessionUseCase) Execute(ctx context.Context, req *dto.Create
 
 	return session, nil
 }
+

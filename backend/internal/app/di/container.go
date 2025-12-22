@@ -4,10 +4,11 @@ import (
 	"context"
 
 	config "github.com/english-coach/backend/configs"
-	"github.com/english-coach/backend/internal/domain/dictionary/service"
-	gamesvc "github.com/english-coach/backend/internal/domain/game/service"
-	gamecmd "github.com/english-coach/backend/internal/domain/game/usecase/command"
+	dictusecase "github.com/english-coach/backend/internal/modules/dictionary/usecase/get_word_detail"
 	"github.com/english-coach/backend/internal/modules/dictionary/infra/persistence/postgres/dictionary"
+	gamesvc "github.com/english-coach/backend/internal/modules/game/service"
+	gamecreatesession "github.com/english-coach/backend/internal/modules/game/usecase/create_session"
+	gamesubmitanswer "github.com/english-coach/backend/internal/modules/game/usecase/submit_answer"
 	gamerepo "github.com/english-coach/backend/internal/modules/game/infra/persistence/postgres"
 	userrepo "github.com/english-coach/backend/internal/modules/user/infra/persistence/postgres/user"
 	usergetprofile "github.com/english-coach/backend/internal/modules/user/usecase/get_profile"
@@ -41,12 +42,12 @@ type Container struct {
 	UserRepo       *userrepo.UserRepository
 
 	// Services
-	DictionaryService        *service.DictionaryService
 	QuestionGeneratorService *gamesvc.QuestionGeneratorService
 
 	// Use Cases
-	CreateGameSessionUC *gamecmd.CreateGameSessionUseCase
-	SubmitAnswerUC      *gamecmd.SubmitAnswerUseCase
+	GetWordDetailUC     *dictusecase.Handler
+	CreateGameSessionUC *gamecreatesession.Handler
+	SubmitAnswerUC      *gamesubmitanswer.Handler
 	RegisterUC          *userregister.Handler
 	LoginUC             *userlogin.Handler
 	GetProfileUC        *usergetprofile.Handler
@@ -115,7 +116,13 @@ func NewContainer(cfg *config.Config) (*Container, error) {
 	container.UserRepo = userrepo.NewUserRepository(pool)
 
 	// Initialize services
-	container.DictionaryService = service.NewDictionaryService(
+	container.QuestionGeneratorService = gamesvc.NewQuestionGeneratorService(
+		container.DictionaryRepo.WordRepository(),
+		appLogger.Logger,
+	)
+
+	// Initialize use cases
+	container.GetWordDetailUC = dictusecase.NewHandler(
 		container.DictionaryRepo.WordRepository(),
 		container.DictionaryRepo.SenseRepository(),
 		container.DictionaryRepo.LanguageRepository(),
@@ -125,20 +132,14 @@ func NewContainer(cfg *config.Config) (*Container, error) {
 		appLogger.Logger,
 	)
 
-	container.QuestionGeneratorService = gamesvc.NewQuestionGeneratorService(
-		container.DictionaryRepo.WordRepository(),
-		appLogger.Logger,
-	)
-
-	// Initialize use cases
-	container.CreateGameSessionUC = gamecmd.NewCreateGameSessionUseCase(
+	container.CreateGameSessionUC = gamecreatesession.NewHandler(
 		container.GameRepo.GameSessionRepo(),
 		container.GameRepo.GameQuestionRepo(),
 		container.QuestionGeneratorService,
 		appLogger.Logger,
 	)
 
-	container.SubmitAnswerUC = gamecmd.NewSubmitAnswerUseCase(
+	container.SubmitAnswerUC = gamesubmitanswer.NewHandler(
 		container.GameRepo.GameAnswerRepo(),
 		container.GameRepo.GameQuestionRepo(),
 		container.GameRepo.GameSessionRepo(),
@@ -172,7 +173,7 @@ func NewContainer(cfg *config.Config) (*Container, error) {
 		container.DictionaryRepo.TopicRepository(),
 		container.DictionaryRepo.LevelRepository(),
 		container.DictionaryRepo.WordRepository(),
-		container.DictionaryService,
+		container.GetWordDetailUC,
 		appLogger.Logger,
 	)
 

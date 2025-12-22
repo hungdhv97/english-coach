@@ -1,17 +1,16 @@
-package service
+package get_word_detail
 
 import (
 	"context"
 	"fmt"
 
-	"github.com/english-coach/backend/internal/domain/dictionary/dto"
 	"github.com/english-coach/backend/internal/modules/dictionary/domain"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"go.uber.org/zap"
 )
 
-// DictionaryService provides dictionary lookup functionality
-type DictionaryService struct {
+// Handler provides dictionary lookup functionality
+type Handler struct {
 	wordRepo         domain.WordRepository
 	senseRepo        domain.SenseRepository
 	languageRepo     domain.LanguageRepository
@@ -21,8 +20,8 @@ type DictionaryService struct {
 	logger           *zap.Logger
 }
 
-// NewDictionaryService creates a new dictionary service
-func NewDictionaryService(
+// NewHandler creates a new dictionary handler
+func NewHandler(
 	wordRepo domain.WordRepository,
 	senseRepo domain.SenseRepository,
 	languageRepo domain.LanguageRepository,
@@ -30,8 +29,8 @@ func NewDictionaryService(
 	partOfSpeechRepo domain.PartOfSpeechRepository,
 	pool *pgxpool.Pool,
 	logger *zap.Logger,
-) *DictionaryService {
-	return &DictionaryService{
+) *Handler {
+	return &Handler{
 		wordRepo:         wordRepo,
 		senseRepo:        senseRepo,
 		languageRepo:     languageRepo,
@@ -42,10 +41,10 @@ func NewDictionaryService(
 	}
 }
 
-// GetWordDetail retrieves detailed information about a word including senses, translations, examples, and pronunciations
-func (s *DictionaryService) GetWordDetail(ctx context.Context, wordID int64) (*dto.WordDetail, error) {
+// Execute retrieves detailed information about a word including senses, translations, examples, and pronunciations
+func (h *Handler) Execute(ctx context.Context, wordID int64) (*WordDetail, error) {
 	// Get word
-	word, err := s.wordRepo.FindByID(ctx, wordID)
+	word, err := h.wordRepo.FindByID(ctx, wordID)
 	if err != nil {
 		return nil, err
 	}
@@ -56,7 +55,7 @@ func (s *DictionaryService) GetWordDetail(ctx context.Context, wordID int64) (*d
 	}
 
 	// Get senses
-	senses, err := s.senseRepo.FindByWordID(ctx, wordID)
+	senses, err := h.senseRepo.FindByWordID(ctx, wordID)
 	if err != nil {
 		return nil, err
 	}
@@ -68,9 +67,9 @@ func (s *DictionaryService) GetWordDetail(ctx context.Context, wordID int64) (*d
 	}
 
 	// Get sense translations
-	translations, err := s.getSenseTranslations(ctx, senseIDs)
+	translations, err := h.getSenseTranslations(ctx, senseIDs)
 	if err != nil {
-		s.logger.Warn("failed to fetch sense translations", zap.Error(err))
+		h.logger.Warn("failed to fetch sense translations", zap.Error(err))
 		translations = make(map[int64][]*domain.Word)
 	}
 	if translations == nil {
@@ -78,9 +77,9 @@ func (s *DictionaryService) GetWordDetail(ctx context.Context, wordID int64) (*d
 	}
 
 	// Get examples for senses
-	examples, err := s.getExamples(ctx, senseIDs)
+	examples, err := h.getExamples(ctx, senseIDs)
 	if err != nil {
-		s.logger.Warn("failed to fetch examples", zap.Error(err))
+		h.logger.Warn("failed to fetch examples", zap.Error(err))
 		examples = make(map[int64][]*domain.Example)
 	}
 	if examples == nil {
@@ -88,9 +87,9 @@ func (s *DictionaryService) GetWordDetail(ctx context.Context, wordID int64) (*d
 	}
 
 	// Get pronunciations
-	pronunciations, err := s.getPronunciations(ctx, wordID)
+	pronunciations, err := h.getPronunciations(ctx, wordID)
 	if err != nil {
-		s.logger.Warn("failed to fetch pronunciations", zap.Error(err))
+		h.logger.Warn("failed to fetch pronunciations", zap.Error(err))
 		pronunciations = []*domain.Pronunciation{}
 	}
 	if pronunciations == nil {
@@ -117,9 +116,9 @@ func (s *DictionaryService) GetWordDetail(ctx context.Context, wordID int64) (*d
 	// Fetch part of speech names
 	posMap := make(map[int16]*string)
 	if len(posIDs) > 0 {
-		posData, err := s.partOfSpeechRepo.FindByIDs(ctx, posIDs)
+		posData, err := h.partOfSpeechRepo.FindByIDs(ctx, posIDs)
 		if err != nil {
-			s.logger.Warn("failed to fetch part of speech names", zap.Error(err))
+			h.logger.Warn("failed to fetch part of speech names", zap.Error(err))
 		} else {
 			for id, pos := range posData {
 				name := pos.Name
@@ -131,9 +130,9 @@ func (s *DictionaryService) GetWordDetail(ctx context.Context, wordID int64) (*d
 	// Fetch level names
 	levelMap := make(map[int64]*string)
 	for _, levelID := range levelIDs {
-		level, err := s.levelRepo.FindByID(ctx, levelID)
+		level, err := h.levelRepo.FindByID(ctx, levelID)
 		if err != nil {
-			s.logger.Warn("failed to fetch level name", zap.Int64("level_id", levelID), zap.Error(err))
+			h.logger.Warn("failed to fetch level name", zap.Int64("level_id", levelID), zap.Error(err))
 		} else {
 			levelMap[levelID] = &level.Name
 		}
@@ -142,9 +141,9 @@ func (s *DictionaryService) GetWordDetail(ctx context.Context, wordID int64) (*d
 	// Fetch language names
 	langMap := make(map[int16]*string)
 	for _, langID := range langIDs {
-		lang, err := s.languageRepo.FindByID(ctx, langID)
+		lang, err := h.languageRepo.FindByID(ctx, langID)
 		if err != nil {
-			s.logger.Warn("failed to fetch language name", zap.Int16("language_id", langID), zap.Error(err))
+			h.logger.Warn("failed to fetch language name", zap.Int16("language_id", langID), zap.Error(err))
 		} else {
 			name := lang.Name
 			langMap[langID] = &name
@@ -152,7 +151,7 @@ func (s *DictionaryService) GetWordDetail(ctx context.Context, wordID int64) (*d
 	}
 
 	// Build sense details
-	senseDetails := make([]dto.SenseDetail, len(senses))
+	senseDetails := make([]SenseDetail, len(senses))
 	for i, sense := range senses {
 		var levelName *string
 		if sense.LevelID != nil {
@@ -171,7 +170,7 @@ func (s *DictionaryService) GetWordDetail(ctx context.Context, wordID int64) (*d
 			senseExamples = []*domain.Example{}
 		}
 
-		senseDetails[i] = dto.SenseDetail{
+		senseDetails[i] = SenseDetail{
 			ID:                   sense.ID,
 			SenseOrder:           sense.SenseOrder,
 			PartOfSpeechID:       sense.PartOfSpeechID,
@@ -187,24 +186,24 @@ func (s *DictionaryService) GetWordDetail(ctx context.Context, wordID int64) (*d
 	}
 
 	// Get topics for word
-	topics, err := s.getWordTopics(ctx, wordID)
+	topics, err := h.getWordTopics(ctx, wordID)
 	if err != nil {
-		s.logger.Warn("failed to fetch word topics", zap.Error(err))
+		h.logger.Warn("failed to fetch word topics", zap.Error(err))
 	} else {
 		word.Topics = topics
 	}
 
 	// Get relations for word
-	relations, err := s.getWordRelations(ctx, wordID)
+	relations, err := h.getWordRelations(ctx, wordID)
 	if err != nil {
-		s.logger.Warn("failed to fetch word relations", zap.Error(err))
+		h.logger.Warn("failed to fetch word relations", zap.Error(err))
 		relations = []*domain.WordRelation{}
 	}
 	if relations == nil {
 		relations = []*domain.WordRelation{}
 	}
 
-	return &dto.WordDetail{
+	return &WordDetail{
 		Word:           word,
 		Senses:         senseDetails,
 		Pronunciations: pronunciations,
@@ -213,7 +212,7 @@ func (s *DictionaryService) GetWordDetail(ctx context.Context, wordID int64) (*d
 }
 
 // getSenseTranslations retrieves translations for given sense IDs
-func (s *DictionaryService) getSenseTranslations(ctx context.Context, senseIDs []int64) (map[int64][]*domain.Word, error) {
+func (h *Handler) getSenseTranslations(ctx context.Context, senseIDs []int64) (map[int64][]*domain.Word, error) {
 	if len(senseIDs) == 0 {
 		return make(map[int64][]*domain.Word), nil
 	}
@@ -227,7 +226,7 @@ func (s *DictionaryService) getSenseTranslations(ctx context.Context, senseIDs [
 		WHERE st.source_sense_id = ANY($1)
 		ORDER BY st.source_sense_id, st.priority, tw.frequency_rank NULLS LAST
 	`
-	rows, err := s.pool.Query(ctx, query, senseIDs)
+	rows, err := h.pool.Query(ctx, query, senseIDs)
 	if err != nil {
 		return nil, err
 	}
@@ -272,7 +271,7 @@ func (s *DictionaryService) getSenseTranslations(ctx context.Context, senseIDs [
 }
 
 // getExamples retrieves examples for given sense IDs
-func (s *DictionaryService) getExamples(ctx context.Context, senseIDs []int64) (map[int64][]*domain.Example, error) {
+func (h *Handler) getExamples(ctx context.Context, senseIDs []int64) (map[int64][]*domain.Example, error) {
 	if len(senseIDs) == 0 {
 		return make(map[int64][]*domain.Example), nil
 	}
@@ -283,7 +282,7 @@ func (s *DictionaryService) getExamples(ctx context.Context, senseIDs []int64) (
 		WHERE e.source_sense_id = ANY($1)
 		ORDER BY e.source_sense_id, e.id
 	`
-	rows, err := s.pool.Query(ctx, query, senseIDs)
+	rows, err := h.pool.Query(ctx, query, senseIDs)
 	if err != nil {
 		return nil, err
 	}
@@ -329,16 +328,16 @@ func (s *DictionaryService) getExamples(ctx context.Context, senseIDs []int64) (
 			WHERE et.example_id = ANY($1)
 			ORDER BY et.example_id
 		`
-		transRows, err := s.pool.Query(ctx, transQuery, exampleIDs)
+		transRows, err := h.pool.Query(ctx, transQuery, exampleIDs)
 		if err != nil {
-			s.logger.Warn("failed to fetch example translations", zap.Error(err))
+			h.logger.Warn("failed to fetch example translations", zap.Error(err))
 		} else {
 			defer transRows.Close()
 			for transRows.Next() {
 				var exampleID int64
 				var langCode, content string
 				if err := transRows.Scan(&exampleID, &langCode, &content); err != nil {
-					s.logger.Warn("failed to scan example translation", zap.Error(err))
+					h.logger.Warn("failed to scan example translation", zap.Error(err))
 					continue
 				}
 				if example, ok := exampleMap[exampleID]; ok {
@@ -355,14 +354,14 @@ func (s *DictionaryService) getExamples(ctx context.Context, senseIDs []int64) (
 }
 
 // getPronunciations retrieves pronunciations for a word
-func (s *DictionaryService) getPronunciations(ctx context.Context, wordID int64) ([]*domain.Pronunciation, error) {
+func (h *Handler) getPronunciations(ctx context.Context, wordID int64) ([]*domain.Pronunciation, error) {
 	query := `
 		SELECT id, word_id, dialect, ipa, phonetic, audio_url
 		FROM pronunciations
 		WHERE word_id = $1
 		ORDER BY id
 	`
-	rows, err := s.pool.Query(ctx, query, wordID)
+	rows, err := h.pool.Query(ctx, query, wordID)
 	if err != nil {
 		return []*domain.Pronunciation{}, err
 	}
@@ -401,7 +400,7 @@ func (s *DictionaryService) getPronunciations(ctx context.Context, wordID int64)
 }
 
 // getWordTopics retrieves topic objects (with code and name) for a word
-func (s *DictionaryService) getWordTopics(ctx context.Context, wordID int64) ([]*domain.Topic, error) {
+func (h *Handler) getWordTopics(ctx context.Context, wordID int64) ([]*domain.Topic, error) {
 	query := `
 		SELECT t.id, t.code, t.name
 		FROM word_topics wt
@@ -409,7 +408,7 @@ func (s *DictionaryService) getWordTopics(ctx context.Context, wordID int64) ([]
 		WHERE wt.word_id = $1
 		ORDER BY t.code
 	`
-	rows, err := s.pool.Query(ctx, query, wordID)
+	rows, err := h.pool.Query(ctx, query, wordID)
 	if err != nil {
 		return nil, err
 	}
@@ -436,7 +435,7 @@ func (s *DictionaryService) getWordTopics(ctx context.Context, wordID int64) ([]
 }
 
 // getWordRelations retrieves relations for a word
-func (s *DictionaryService) getWordRelations(ctx context.Context, wordID int64) ([]*domain.WordRelation, error) {
+func (h *Handler) getWordRelations(ctx context.Context, wordID int64) ([]*domain.WordRelation, error) {
 	query := `
 		SELECT wr.relation_type, wr.note, 
 		       tw.id, tw.language_id, tw.lemma, tw.lemma_normalized, tw.search_key,
@@ -447,7 +446,7 @@ func (s *DictionaryService) getWordRelations(ctx context.Context, wordID int64) 
 		WHERE wr.from_word_id = $1
 		ORDER BY wr.relation_type, tw.lemma
 	`
-	rows, err := s.pool.Query(ctx, query, wordID)
+	rows, err := h.pool.Query(ctx, query, wordID)
 	if err != nil {
 		return nil, err
 	}
@@ -485,9 +484,9 @@ func (s *DictionaryService) getWordRelations(ctx context.Context, wordID int64) 
 		targetWord.Note = targetNote
 
 		// Get topics for target word
-		targetTopics, err := s.getWordTopics(ctx, targetWord.ID)
+		targetTopics, err := h.getWordTopics(ctx, targetWord.ID)
 		if err != nil {
-			s.logger.Warn("failed to fetch topics for related word", zap.Int64("word_id", targetWord.ID), zap.Error(err))
+			h.logger.Warn("failed to fetch topics for related word", zap.Int64("word_id", targetWord.ID), zap.Error(err))
 		} else {
 			targetWord.Topics = targetTopics
 		}
@@ -506,3 +505,4 @@ func (s *DictionaryService) getWordRelations(ctx context.Context, wordID int64) 
 
 	return relations, nil
 }
+
