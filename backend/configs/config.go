@@ -65,19 +65,22 @@ type CORSConfig struct {
 
 // Load loads configuration from environment variables and config files
 func Load() (*Config, error) {
-	viper.SetConfigName("config")
-	viper.SetConfigType("yaml")
-	viper.AddConfigPath(".")
-	viper.AddConfigPath("./configs")
-	viper.AddConfigPath("../configs")
-	viper.AddConfigPath("./config")
-	viper.AddConfigPath("../config")
-
 	// Enable environment variables
 	viper.AutomaticEnv()
 
-	// Set defaults
+	// Set defaults and env bindings
 	setDefaults()
+
+	// Determine environment (from env vars or default)
+	env := viper.GetString("app.env")
+	if env == "" {
+		env = "development"
+	}
+
+	// Load environment-specific config file: config.<env>.yaml
+	viper.SetConfigType("yaml")
+	viper.AddConfigPath("./configs")
+	viper.SetConfigName(fmt.Sprintf("config.%s", env))
 
 	// Try to read config file (optional)
 	_ = viper.ReadInConfig()
