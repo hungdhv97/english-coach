@@ -19,7 +19,7 @@
 │   │       └── auth.yaml                            # Auth endpoints (paths/operations)
 │   └── postman/
 │       ├── collections/
-│       │   └── myapp.postman_collection.json        # Postman collection for manual QA / development
+│       │   └── domain.postman_collection.json        # Postman collection for manual QA / development
 │       └── environments/
 │           ├── local.postman_environment.json       # Postman environment for local testing
 │           └── staging.postman_environment.json     # Postman environment for staging testing
@@ -38,10 +38,9 @@
 │   └── schema/
 │       └── schema.sql                               # Schema snapshot/reference (not a replacement for migrations)
 ├── sqlc.yaml                                        # sqlc configuration (engine, schema/queries inputs, code generation output)
-├── scripts/
-│   ├── migrate.sh                                   # Run database migrations (up/down/status) for local/CI usage
-│   ├── sqlc_generate.sh                             # Generate sqlc code from db/queries and db/schema
-│   └── lint.sh                                      # Lint/format/static analysis runner for CI/local
+├── logs/                                            # Application log files (auto-generated at runtime)
+│   ├── app.log                                      # All application logs (rotated by lumberjack: max 50MB, 7 backups, 30 days retention)
+│   └── error.log                                    # Error-level and above logs (rotated by lumberjack: max 50MB, 7 backups, 30 days retention)
 ├── internal/
 │   ├── app/
 │   │   ├── bootstrap/
@@ -56,7 +55,7 @@
 │   ├── shared/
 │   │   ├── logger/
 │   │   │   ├── logger.go                            # Logger interface + contextual field helpers
-│   │   │   └── zap_logger.go                        # zap-based implementation of the logger interface
+│   │   │   └── zap_logger.go                        # zap-based implementation: creates logs/ directory, configures file rotation (lumberjack), console output, and structured JSON logging with environment-aware levels
 │   │   ├── errors/
 │   │   │   ├── app_error.go                         # Canonical application error type (code/message/cause/metadata)
 │   │   │   ├── codes.go                             # Error code catalog (domain/usecase/http mapping anchors)
@@ -102,12 +101,15 @@
 │   │   │   ├── router.go                            # Route registration (module routers) + middleware assembly
 │   │   │   ├── response.go                          # Standard response envelope (data/error/meta) helpers
 │   │   │   └── middleware/
-│   │   │       ├── request_id.go                    # Assign/propagate request ID (X-Request-ID) into context/logs
-│   │   │       ├── real_ip.go                       # Resolve real client IP using trusted proxy headers
-│   │   │       ├── recover.go                       # Catch panics and convert to standardized 500 errors
-│   │   │       ├── error_handler.go                 # Centralized error rendering (AppError -> HTTP JSON)
-│   │   │       ├── access_log.go                    # Access logging (method/path/status/latency/bytes/request_id)
-│   │   │       ├── audit_log.go                     # Audit logging for sensitive operations (who did what/when)
+│   │   │       ├── logger.go                        # Request logging middleware: generates/assigns request ID (X-Request-ID), logs request start/completion with method/path/status/duration/remote_addr using zap logger
+│   │   │       ├── error_handler.go                 # Centralized error rendering (AppError -> HTTP JSON) with zap logger integration
+│   │   │       ├── auth.go                          # JWT authentication middleware (token validation, principal injection into context)
+│   │   │       ├── cors.go                          # CORS enforcement middleware (allowlist-based origins)
+│   │   │       ├── request_id.go                    # (Planned) Assign/propagate request ID (X-Request-ID) into context/logs
+│   │   │       ├── real_ip.go                       # (Planned) Resolve real client IP using trusted proxy headers
+│   │   │       ├── recover.go                       # (Planned) Catch panics and convert to standardized 500 errors
+│   │   │       ├── access_log.go                    # (Planned) Access logging (method/path/status/latency/bytes/request_id)
+│   │   │       ├── audit_log.go                     # (Planned) Audit logging for sensitive operations (who did what/when)
 │   │   │       ├── authn_jwt.go                     # JWT authentication middleware (principal injection into context)
 │   │   │       ├── authz_rbac.go                    # Authorization middleware (RBAC/permission checks)
 │   │   │       ├── cors.go                          # CORS enforcement middleware
