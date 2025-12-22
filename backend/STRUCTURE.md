@@ -3,8 +3,10 @@
 │   └── api/
 │       └── main.go                                  # Application entrypoint: load config, build DI graph, start servers, handle graceful shutdown
 ├── configs/
-│   ├── config.example.yaml                          # Example configuration file (no secrets)
-│   └── config.go                                    # Configuration loading/parsing/validation (env + file -> typed config)
+│   ├── config.development.yaml                      # Development environment configuration (local development)
+│   ├── config.staging.yaml                          # Staging environment configuration (pre-production testing)
+│   ├── config.production.yaml                       # Production environment configuration (production deployment)
+│   └── config.go                                    # Configuration loading/parsing/validation (env-aware: reads config.{env}.yaml based on APP_ENV)
 ├── docs/
 │   ├── openapi/
 │   │   ├── openapi.yaml                             # Root OpenAPI spec (info/servers + references to paths/components)
