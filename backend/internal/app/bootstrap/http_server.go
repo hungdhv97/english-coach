@@ -2,11 +2,11 @@ package bootstrap
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/english-coach/backend/internal/shared/logger"
+	httptransport "github.com/english-coach/backend/internal/transport/http"
 	"github.com/gin-contrib/requestid"
 	"github.com/gin-gonic/gin"
 )
@@ -20,13 +20,16 @@ type HTTPServerConfig struct {
 	ShutdownTimeout time.Duration
 }
 
-// HTTPServer represents the HTTP server
+// HTTPServer represents the application-specific HTTP server.
+// It handles router setup, middleware chain, and wraps the generic transport/http.Server
 type HTTPServer struct {
 	router *gin.Engine
-	server *http.Server
+	server *httptransport.Server
 }
 
-// NewHTTPServer creates a new HTTP server using Gin
+// NewHTTPServer creates a new HTTP server with application-specific configuration:
+// - Sets up Gin router with application middleware chain
+// - Wraps it in the generic transport/http.Server for low-level HTTP handling
 func NewHTTPServer(
 	cfg HTTPServerConfig,
 	appLogger logger.ILogger,
@@ -72,29 +75,32 @@ func NewHTTPServer(
 		router.Use(errorMiddleware)
 	}
 
-	// Create HTTP server
-	server := &http.Server{
-		Addr:         fmt.Sprintf(":%d", cfg.Port),
-		Handler:      router,
-		ReadTimeout:  cfg.ReadTimeout,
-		WriteTimeout: cfg.WriteTimeout,
-		IdleTimeout:  cfg.IdleTimeout,
-	}
+	// Wrap router in generic HTTP server (low-level config)
+	httpServer := httptransport.NewServer(
+		httptransport.Config{
+			Port:            cfg.Port,
+			ReadTimeout:     cfg.ReadTimeout,
+			WriteTimeout:    cfg.WriteTimeout,
+			IdleTimeout:     cfg.IdleTimeout,
+			ShutdownTimeout: cfg.ShutdownTimeout,
+		},
+		router, // router implements http.Handler
+	)
 
 	return &HTTPServer{
 		router: router,
-		server: server,
+		server: httpServer,
 	}
 }
 
-// Router returns the Gin router
+// Router returns the Gin router for route registration
 func (s *HTTPServer) Router() *gin.Engine {
 	return s.router
 }
 
 // Start starts the HTTP server
 func (s *HTTPServer) Start() error {
-	return s.server.ListenAndServe()
+	return s.server.Start()
 }
 
 // Shutdown gracefully shuts down the server

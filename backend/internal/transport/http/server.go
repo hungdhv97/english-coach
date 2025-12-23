@@ -5,19 +5,16 @@ import (
 	"fmt"
 	"net/http"
 	"time"
-
-	"github.com/english-coach/backend/internal/shared/logger"
-	"github.com/gin-contrib/requestid"
-	"github.com/gin-gonic/gin"
 )
 
-// Server represents the HTTP server
+// Server represents a generic HTTP server with low-level configuration
+// It only handles HTTP server settings (timeouts, address) and delegates
+// request handling to the provided handler.
 type Server struct {
-	router *gin.Engine
 	server *http.Server
 }
 
-// Config holds server configuration
+// Config holds HTTP server configuration (timeouts, port, etc.)
 type Config struct {
 	Port            int
 	ReadTimeout     time.Duration
@@ -26,66 +23,20 @@ type Config struct {
 	ShutdownTimeout time.Duration
 }
 
-// NewServer creates a new HTTP server using Gin with Sonic JSON binding
-func NewServer(cfg Config, appLogger logger.ILogger, corsMiddleware, errorMiddleware, loggerMiddleware gin.HandlerFunc) *Server {
-	// Set Gin mode based on environment
-	gin.SetMode(gin.ReleaseMode)
-
-	// Use Sonic for JSON binding (faster JSON parsing)
-	gin.EnableJsonDecoderUseNumber()
-
-	router := gin.New()
-
-	// Add request ID middleware
-	router.Use(requestid.New())
-
-	// Add logger middleware
-	if loggerMiddleware != nil {
-		router.Use(loggerMiddleware)
-	}
-
-	// Add CORS middleware
-	if corsMiddleware != nil {
-		router.Use(corsMiddleware)
-	}
-
-	// Add recovery middleware
-	router.Use(gin.CustomRecovery(func(c *gin.Context, recovered interface{}) {
-		if appLogger != nil {
-			appLogger.Error("panic recovered",
-				logger.Any("error", recovered),
-				logger.String("path", c.Request.URL.Path),
-			)
-		}
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-			"code":    "INTERNAL_ERROR",
-			"message": "An internal error occurred",
-		})
-	}))
-
-	// Add error handler middleware
-	if errorMiddleware != nil {
-		router.Use(errorMiddleware)
-	}
-
-	// Create HTTP server
+// NewServer creates a new HTTP server with the given configuration and handler.
+// This is a generic, low-level server that doesn't know about routing frameworks.
+func NewServer(cfg Config, handler http.Handler) *Server {
 	server := &http.Server{
 		Addr:         fmt.Sprintf(":%d", cfg.Port),
-		Handler:      router,
+		Handler:      handler,
 		ReadTimeout:  cfg.ReadTimeout,
 		WriteTimeout: cfg.WriteTimeout,
 		IdleTimeout:  cfg.IdleTimeout,
 	}
 
 	return &Server{
-		router: router,
 		server: server,
 	}
-}
-
-// Router returns the Gin router
-func (s *Server) Router() *gin.Engine {
-	return s.router
 }
 
 // Start starts the HTTP server

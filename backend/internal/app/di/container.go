@@ -21,7 +21,6 @@ import (
 	"github.com/english-coach/backend/internal/platform/db"
 	"github.com/english-coach/backend/internal/shared/auth"
 	"github.com/english-coach/backend/internal/shared/logger"
-	"github.com/english-coach/backend/internal/transport/http"
 	"github.com/english-coach/backend/internal/transport/http/handler"
 	"github.com/english-coach/backend/internal/transport/http/middleware"
 	"github.com/gin-gonic/gin"
@@ -60,9 +59,6 @@ type Container struct {
 	GameHandler       *gameadapter.Handler
 	UserHandler       *useradapter.Handler
 	OpenAPIHandler    *handler.OpenAPIHandler
-
-	// HTTP Server
-	HTTPServer *http.Server
 
 	// Middleware
 	CORSMiddleware   gin.HandlerFunc
@@ -207,21 +203,6 @@ func NewContainer(cfg *config.Config) (*Container, error) {
 	container.ErrorMiddleware = middleware.ErrorHandler(appLogger)
 	container.LoggerMiddleware = middleware.LoggerMiddleware(appLogger)
 	container.AuthMiddleware = middleware.AuthMiddleware(container.JWTManager)
-
-	// Initialize HTTP server
-	container.HTTPServer = http.NewServer(
-		http.Config{
-			Port:            cfg.Server.Port,
-			ReadTimeout:     cfg.Server.ReadTimeout,
-			WriteTimeout:    cfg.Server.WriteTimeout,
-			IdleTimeout:     cfg.Server.IdleTimeout,
-			ShutdownTimeout: cfg.Server.ShutdownTimeout,
-		},
-		appLogger,
-		container.CORSMiddleware,
-		container.ErrorMiddleware,
-		container.LoggerMiddleware,
-	)
 
 	return container, nil
 }

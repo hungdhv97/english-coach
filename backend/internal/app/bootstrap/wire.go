@@ -10,14 +10,13 @@ import (
 	gameadapter "github.com/english-coach/backend/internal/modules/game/adapter/http"
 	useradapter "github.com/english-coach/backend/internal/modules/user/adapter/http"
 	"github.com/english-coach/backend/internal/shared/logger"
-	"github.com/english-coach/backend/internal/transport/http"
 	"github.com/gin-gonic/gin"
 )
 
 // Application represents the fully wired application
 type Application struct {
 	Container *di.Container
-	Server    *http.Server
+	Server    *HTTPServer
 	Logger    logger.ILogger
 }
 
@@ -29,12 +28,27 @@ func Wire(cfg *config.Config) (*Application, error) {
 		return nil, err
 	}
 
+	// Initialize HTTP server with application-specific configuration
+	httpServer := NewHTTPServer(
+		HTTPServerConfig{
+			Port:            cfg.Server.Port,
+			ReadTimeout:     cfg.Server.ReadTimeout,
+			WriteTimeout:    cfg.Server.WriteTimeout,
+			IdleTimeout:     cfg.Server.IdleTimeout,
+			ShutdownTimeout: cfg.Server.ShutdownTimeout,
+		},
+		container.Logger,
+		container.CORSMiddleware,
+		container.ErrorMiddleware,
+		container.LoggerMiddleware,
+	)
+
 	// Register routes
-	registerRoutes(container)
+	registerRoutes(httpServer, container)
 
 	app := &Application{
 		Container: container,
-		Server:    container.HTTPServer,
+		Server:    httpServer,
 		Logger:    container.Logger,
 	}
 
@@ -81,8 +95,8 @@ func (app *Application) Run() {
 }
 
 // registerRoutes registers all HTTP routes
-func registerRoutes(container *di.Container) {
-	router := container.HTTPServer.Router()
+func registerRoutes(httpServer *HTTPServer, container *di.Container) {
+	router := httpServer.Router()
 
 	// Health check endpoint
 	router.GET("/health", func(c *gin.Context) {
