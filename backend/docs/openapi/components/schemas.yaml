@@ -64,13 +64,6 @@ components:
         bio:
           type: string
           nullable: true
-        created_at:
-          type: string
-          format: date-time
-        updated_at:
-          type: string
-          format: date-time
-          nullable: true
 
     RegisterRequest:
       type: object
@@ -95,15 +88,17 @@ components:
       type: object
       required:
         - user_id
-        - token
       properties:
         user_id:
           type: integer
           format: int64
-        token:
+        email:
           type: string
-        user:
-          $ref: '#/components/schemas/User'
+          format: email
+          nullable: true
+        username:
+          type: string
+          nullable: true
 
     LoginRequest:
       type: object
@@ -129,8 +124,13 @@ components:
           format: int64
         token:
           type: string
-        user:
-          $ref: '#/components/schemas/User'
+        email:
+          type: string
+          format: email
+          nullable: true
+        username:
+          type: string
+          nullable: true
 
     UpdateProfileRequest:
       type: object
