@@ -178,8 +178,11 @@ func (h *Handler) SearchWords(c *gin.Context) {
 		logger.Int64("total", total),
 	)
 
+	// Map domain words to response DTOs with RFC3339 time format
+	wordResponses := mapWordsToResponse(words)
+
 	// Return paginated response
-	response.Paginated(c, http.StatusOK, words, paginationParams, total)
+	response.Paginated(c, http.StatusOK, wordResponses, paginationParams, total)
 }
 
 // GetWordDetail handles GET /api/v1/dictionary/words/:wordId
@@ -225,7 +228,10 @@ func (h *Handler) GetWordDetail(c *gin.Context) {
 		logger.Int("pronunciations_count", len(wordDetail.Pronunciations)),
 	)
 
-	// Map use case output to HTTP response DTO
+	// Map Word to WordResponse
+	wordResp := mapWordToResponse(wordDetail.Word)
+
+	// Map Senses to SenseDetailResponse
 	senseDTOs := make([]SenseDetailResponse, len(wordDetail.Senses))
 	for i, s := range wordDetail.Senses {
 		senseDTOs[i] = SenseDetailResponse{
@@ -238,14 +244,29 @@ func (h *Handler) GetWordDetail(c *gin.Context) {
 			LevelID:              s.LevelID,
 			LevelName:            s.LevelName,
 			Note:                 s.Note,
+			Translations:         mapWordsToResponse(s.Translations),
+			Examples:             s.Examples, // Examples không có time fields, giữ nguyên
+		}
+	}
+
+	// Map Relations to WordRelationResponse
+	var relationDTOs []*WordRelationResponse
+	if wordDetail.Relations != nil && len(wordDetail.Relations) > 0 {
+		relationDTOs = make([]*WordRelationResponse, len(wordDetail.Relations))
+		for i, r := range wordDetail.Relations {
+			relationDTOs[i] = &WordRelationResponse{
+				RelationType: r.RelationType,
+				Note:         r.Note,
+				TargetWord:   mapWordToResponse(r.TargetWord),
+			}
 		}
 	}
 
 	resp := GetWordDetailResponse{
-		Word:           wordDetail.Word,
+		Word:           wordResp,
 		Senses:         senseDTOs,
-		Pronunciations: wordDetail.Pronunciations,
-		Relations:      wordDetail.Relations,
+		Pronunciations: wordDetail.Pronunciations, // Pronunciations không có time fields, giữ nguyên
+		Relations:      relationDTOs,
 	}
 
 	response.Success(c, http.StatusOK, resp)

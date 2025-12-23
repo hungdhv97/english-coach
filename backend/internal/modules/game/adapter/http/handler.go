@@ -210,17 +210,46 @@ func (h *Handler) GetSession(c *gin.Context) {
 		optionsByQuestion[opt.QuestionID] = append(optionsByQuestion[opt.QuestionID], opt)
 	}
 
+	// Map session to response DTO
+	sessionResp := GameSessionResponse{
+		ID:               session.ID,
+		UserID:           session.UserID,
+		Mode:             session.Mode,
+		SourceLanguageID: session.SourceLanguageID,
+		TargetLanguageID: session.TargetLanguageID,
+		TopicID:          session.TopicID,
+		LevelID:          session.LevelID,
+		TotalQuestions:   session.TotalQuestions,
+		CorrectQuestions: session.CorrectQuestions,
+		StartedAt:        session.StartedAt.Format(time.RFC3339),
+	}
+	if session.EndedAt != nil {
+		endedAtStr := session.EndedAt.Format(time.RFC3339)
+		sessionResp.EndedAt = &endedAtStr
+	}
+
 	// Build response
 	questionsWithOptions := make([]QuestionWithOptions, 0, len(questions))
 	for _, q := range questions {
 		questionsWithOptions = append(questionsWithOptions, QuestionWithOptions{
-			GameQuestion: q,
-			Options:      optionsByQuestion[q.ID],
+			GameQuestionResponse: GameQuestionResponse{
+				ID:                  q.ID,
+				SessionID:           q.SessionID,
+				QuestionOrder:       q.QuestionOrder,
+				QuestionType:        q.QuestionType,
+				SourceWordID:        q.SourceWordID,
+				SourceSenseID:       q.SourceSenseID,
+				CorrectTargetWordID: q.CorrectTargetWordID,
+				SourceLanguageID:    q.SourceLanguageID,
+				TargetLanguageID:    q.TargetLanguageID,
+				CreatedAt:           q.CreatedAt.Format(time.RFC3339),
+			},
+			Options: optionsByQuestion[q.ID],
 		})
 	}
 
 	response.Success(c, http.StatusOK, GetSessionResponse{
-		Session:   session,
+		Session:   sessionResp,
 		Questions: questionsWithOptions,
 	})
 }
