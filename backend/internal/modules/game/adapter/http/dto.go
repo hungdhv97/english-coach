@@ -13,11 +13,38 @@ type CreateSessionRequest struct {
 	TopicIDs         []int64 `json:"topic_ids,omitempty"`
 }
 
+// CreateSessionResponse represents the response body for creating a game session
+type CreateSessionResponse struct {
+	ID               int64   `json:"id"`
+	UserID           int64   `json:"user_id"`
+	Mode             string  `json:"mode"`
+	SourceLanguageID int16   `json:"source_language_id"`
+	TargetLanguageID int16   `json:"target_language_id"`
+	TopicID          *int64  `json:"topic_id,omitempty"`
+	LevelID          *int64  `json:"level_id,omitempty"`
+	TotalQuestions   int16   `json:"total_questions"`
+	CorrectQuestions int16   `json:"correct_questions"`
+	StartedAt        string  `json:"started_at"`
+	EndedAt          *string `json:"ended_at,omitempty"`
+}
+
 // SubmitAnswerRequest represents the request body for submitting an answer
 type SubmitAnswerRequest struct {
 	QuestionID       int64 `json:"question_id" binding:"required"`
 	SelectedOptionID int64 `json:"selected_option_id" binding:"required"`
 	ResponseTimeMs   *int  `json:"response_time_ms,omitempty"`
+}
+
+// SubmitAnswerResponse represents the response body for submitting an answer
+type SubmitAnswerResponse struct {
+	ID               int64   `json:"id"`
+	QuestionID       int64   `json:"question_id"`
+	SessionID        int64   `json:"session_id"`
+	UserID           int64   `json:"user_id"`
+	SelectedOptionID *int64  `json:"selected_option_id,omitempty"`
+	IsCorrect        bool    `json:"is_correct"`
+	ResponseTimeMs   *int    `json:"response_time_ms,omitempty"`
+	AnsweredAt       string  `json:"answered_at"`
 }
 
 // GetSessionRequest represents the path parameter for getting a session

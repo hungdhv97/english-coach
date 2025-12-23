@@ -207,7 +207,7 @@ func (h *Handler) GetWordDetail(c *gin.Context) {
 		logger.Int64("word_id", wordID),
 	)
 
-	wordDetail, err := h.getWordDetailUC.Execute(ctx, dictusecase.Input{WordID: wordID})
+	wordDetail, err := h.getWordDetailUC.Execute(ctx, dictusecase.GetWordDetailInput{WordID: wordID})
 	if err != nil {
 		middleware.SetError(c, err)
 		return
@@ -225,5 +225,28 @@ func (h *Handler) GetWordDetail(c *gin.Context) {
 		logger.Int("pronunciations_count", len(wordDetail.Pronunciations)),
 	)
 
-	response.Success(c, http.StatusOK, wordDetail)
+	// Map use case output to HTTP response DTO
+	senseDTOs := make([]SenseDetailResponse, len(wordDetail.Senses))
+	for i, s := range wordDetail.Senses {
+		senseDTOs[i] = SenseDetailResponse{
+			ID:                   s.ID,
+			SenseOrder:           s.SenseOrder,
+			PartOfSpeechID:       s.PartOfSpeechID,
+			PartOfSpeechName:     s.PartOfSpeechName,
+			Definition:           s.Definition,
+			DefinitionLanguageID: s.DefinitionLanguageID,
+			LevelID:              s.LevelID,
+			LevelName:            s.LevelName,
+			Note:                 s.Note,
+		}
+	}
+
+	resp := GetWordDetailResponse{
+		Word:           wordDetail.Word,
+		Senses:         senseDTOs,
+		Pronunciations: wordDetail.Pronunciations,
+		Relations:      wordDetail.Relations,
+	}
+
+	response.Success(c, http.StatusOK, resp)
 }

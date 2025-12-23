@@ -26,7 +26,7 @@ func NewHandler(
 }
 
 // Execute updates user profile
-func (h *Handler) Execute(ctx context.Context, userID int64, input Input) (*Output, error) {
+func (h *Handler) Execute(ctx context.Context, userID int64, input UpdateProfileInput) (*UpdateProfileOutput, error) {
 	profile, err := h.profileRepo.Update(ctx, userID, input.DisplayName, input.AvatarURL, input.BirthDay, input.Bio)
 	if err != nil {
 		h.logger.Error("failed to update user profile", logger.Error(err), logger.Int64("user_id", userID))
@@ -39,7 +39,7 @@ func (h *Handler) Execute(ctx context.Context, userID int64, input Input) (*Outp
 		birthDayStr = &formatted
 	}
 
-	return &Output{
+	return &UpdateProfileOutput{
 		UserID:      profile.UserID,
 		DisplayName: profile.DisplayName,
 		AvatarURL:   profile.AvatarURL,

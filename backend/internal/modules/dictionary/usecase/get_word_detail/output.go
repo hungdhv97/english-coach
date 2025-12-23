@@ -4,26 +4,26 @@ import (
 	"github.com/english-coach/backend/internal/modules/dictionary/domain"
 )
 
-// Output represents detailed information about a word
-type Output struct {
-	Word           *domain.Word            `json:"word"`
-	Senses         []SenseDetail           `json:"senses"`
-	Pronunciations []*domain.Pronunciation `json:"pronunciations"`
-	Relations      []*domain.WordRelation  `json:"relations,omitempty"`
+// GetWordDetailOutput represents detailed information about a word for the use case.
+type GetWordDetailOutput struct {
+	Word           *domain.Word
+	Senses         []SenseDetail
+	Pronunciations []*domain.Pronunciation
+	Relations      []*domain.WordRelation
 }
 
-// SenseDetail represents detailed information about a sense
+// SenseDetail represents detailed information about a sense.
 type SenseDetail struct {
-	ID                   int64             `json:"id"`
-	SenseOrder           int16             `json:"sense_order"`
-	PartOfSpeechID       int16             `json:"part_of_speech_id"`
-	PartOfSpeechName     *string           `json:"part_of_speech_name,omitempty"`
-	Definition           string            `json:"definition"`
-	DefinitionLanguageID int16             `json:"definition_language_id"`
-	LevelID              *int64            `json:"level_id,omitempty"`
-	LevelName            *string           `json:"level_name,omitempty"`
-	Note                 *string           `json:"note,omitempty"`
-	Translations         []*domain.Word    `json:"translations"`
-	Examples             []*domain.Example `json:"examples"`
+	ID                   int64
+	SenseOrder           int16
+	PartOfSpeechID       int16
+	PartOfSpeechName     *string
+	Definition           string
+	DefinitionLanguageID int16
+	LevelID              *int64
+	LevelName            *string
+	Note                 *string
+	Translations         []*domain.Word
+	Examples             []*domain.Example
 }
 

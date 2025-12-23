@@ -33,7 +33,7 @@ func NewHandler(
 }
 
 // Execute submits an answer to a question
-func (h *Handler) Execute(ctx context.Context, input Input, sessionID, userID int64) (*Output, error) {
+func (h *Handler) Execute(ctx context.Context, input SubmitAnswerInput, sessionID, userID int64) (*SubmitAnswerOutput, error) {
 	// Get question and options to verify the answer
 	question, options, err := h.questionRepo.FindByID(ctx, input.QuestionID)
 	if err != nil {
@@ -121,7 +121,7 @@ func (h *Handler) Execute(ctx context.Context, input Input, sessionID, userID in
 	}
 	h.logger.Info("answer submitted", fields...)
 
-	return &Output{
+	return &SubmitAnswerOutput{
 		ID:               answer.ID,
 		QuestionID:       answer.QuestionID,
 		SessionID:        answer.SessionID,

@@ -42,7 +42,7 @@ func NewHandler(
 }
 
 // Execute retrieves detailed information about a word including senses, translations, examples, and pronunciations
-func (h *Handler) Execute(ctx context.Context, input Input) (*Output, error) {
+func (h *Handler) Execute(ctx context.Context, input GetWordDetailInput) (*GetWordDetailOutput, error) {
 	// Get word
 	word, err := h.wordRepo.FindByID(ctx, input.WordID)
 	if err != nil {
@@ -203,7 +203,7 @@ func (h *Handler) Execute(ctx context.Context, input Input) (*Output, error) {
 		relations = []*domain.WordRelation{}
 	}
 
-	return &Output{
+	return &GetWordDetailOutput{
 		Word:           word,
 		Senses:         senseDetails,
 		Pronunciations: pronunciations,

@@ -35,7 +35,7 @@ func NewHandler(
 }
 
 // Execute creates a new game session
-func (h *Handler) Execute(ctx context.Context, input Input, userID int64) (*Output, error) {
+func (h *Handler) Execute(ctx context.Context, input CreateSessionInput, userID int64) (*CreateSessionOutput, error) {
 	// Validate request
 	if err := input.Validate(); err != nil {
 		return nil, errors.ErrValidationError.WithDetails(err.Error())
@@ -135,7 +135,7 @@ func (h *Handler) Execute(ctx context.Context, input Input, userID int64) (*Outp
 		logger.Int("question_count", len(questions)),
 	)
 
-	return &Output{
+	return &CreateSessionOutput{
 		ID:               session.ID,
 		UserID:           session.UserID,
 		Mode:             session.Mode,

@@ -26,7 +26,7 @@ func NewHandler(
 }
 
 // Execute gets user profile
-func (h *Handler) Execute(ctx context.Context, input Input) (*Output, error) {
+func (h *Handler) Execute(ctx context.Context, input GetProfileInput) (*GetProfileOutput, error) {
 	profile, err := h.profileRepo.GetByUserID(ctx, input.UserID)
 	if err != nil {
 		h.logger.Error("failed to get user profile", logger.Error(err), logger.Int64("user_id", input.UserID))
@@ -43,7 +43,7 @@ func (h *Handler) Execute(ctx context.Context, input Input) (*Output, error) {
 		birthDayStr = &formatted
 	}
 
-	return &Output{
+	return &GetProfileOutput{
 		UserID:      profile.UserID,
 		DisplayName: profile.DisplayName,
 		AvatarURL:   profile.AvatarURL,

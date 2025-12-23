@@ -4,17 +4,17 @@ import (
 	"errors"
 )
 
-// Input represents the input to create a game session
-type Input struct {
-	SourceLanguageID int16   `json:"source_language_id" validate:"required,gt=0"`
-	TargetLanguageID int16   `json:"target_language_id" validate:"required,gt=0"`
-	Mode             string  `json:"mode" validate:"required,oneof=level"`               // Always 'level' now
-	LevelID          int64   `json:"level_id" validate:"required,gt=0"`                  // Required
-	TopicIDs         []int64 `json:"topic_ids,omitempty" validate:"omitempty,dive,gt=0"` // Optional array (empty/null means all topics)
+// CreateSessionInput represents the input to create a game session use case.
+type CreateSessionInput struct {
+	SourceLanguageID int16
+	TargetLanguageID int16
+	Mode             string  // Always 'level' now
+	LevelID          int64   // Required
+	TopicIDs         []int64 // Optional array (empty/nil means all topics)
 }
 
-// Validate validates the Input
-func (r *Input) Validate() error {
+// Validate validates the CreateSessionInput.
+func (r *CreateSessionInput) Validate() error {
 	// Source and target languages must be different
 	if r.SourceLanguageID == r.TargetLanguageID {
 		return errors.New("Ngôn ngữ nguồn và ngôn ngữ đích phải khác nhau")

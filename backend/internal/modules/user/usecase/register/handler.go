@@ -27,7 +27,7 @@ func NewHandler(
 }
 
 // Execute executes the user registration
-func (h *Handler) Execute(ctx context.Context, input Input) (*Output, error) {
+func (h *Handler) Execute(ctx context.Context, input RegisterInput) (*RegisterOutput, error) {
 	// Validate input
 	if (input.Email == nil || *input.Email == "") && (input.Username == nil || *input.Username == "") {
 		return nil, domain.ErrEmailRequired
@@ -81,7 +81,7 @@ func (h *Handler) Execute(ctx context.Context, input Input) (*Output, error) {
 		return nil, errors.WrapError(err, "failed to create user")
 	}
 
-	return &Output{
+	return &RegisterOutput{
 		UserID:   user.ID,
 		Email:    user.Email,
 		Username: user.Username,

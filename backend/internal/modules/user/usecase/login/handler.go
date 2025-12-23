@@ -30,7 +30,7 @@ func NewHandler(
 }
 
 // Execute executes the user login
-func (h *Handler) Execute(ctx context.Context, input Input) (*Output, error) {
+func (h *Handler) Execute(ctx context.Context, input LoginInput) (*LoginOutput, error) {
 	// Find user by email or username
 	var user *domain.User
 	var err error
@@ -78,7 +78,7 @@ func (h *Handler) Execute(ctx context.Context, input Input) (*Output, error) {
 		return nil, errors.WrapError(err, "failed to generate token")
 	}
 
-	return &Output{
+	return &LoginOutput{
 		Token:    token,
 		UserID:   user.ID,
 		Email:    user.Email,

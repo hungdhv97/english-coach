@@ -3,6 +3,7 @@ package http
 import (
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/english-coach/backend/internal/modules/game/domain"
 	gamecreatesession "github.com/english-coach/backend/internal/modules/game/usecase/create_session"
@@ -78,7 +79,7 @@ func (h *Handler) CreateSession(c *gin.Context) {
 	}
 
 	// Convert to use case input
-	input := gamecreatesession.Input{
+	input := gamecreatesession.CreateSessionInput{
 		Mode:             req.Mode,
 		SourceLanguageID: req.SourceLanguageID,
 		TargetLanguageID: req.TargetLanguageID,
@@ -125,7 +126,24 @@ func (h *Handler) CreateSession(c *gin.Context) {
 		logger.Int("total_questions", int(session.TotalQuestions)),
 	)
 
-	response.Success(c, http.StatusCreated, session)
+	resp := CreateSessionResponse{
+		ID:               session.ID,
+		UserID:           session.UserID,
+		Mode:             session.Mode,
+		SourceLanguageID: session.SourceLanguageID,
+		TargetLanguageID: session.TargetLanguageID,
+		TopicID:          session.TopicID,
+		LevelID:          session.LevelID,
+		TotalQuestions:   session.TotalQuestions,
+		CorrectQuestions: session.CorrectQuestions,
+		StartedAt:        session.StartedAt.Format(time.RFC3339),
+	}
+	if session.EndedAt != nil {
+		ended := session.EndedAt.Format(time.RFC3339)
+		resp.EndedAt = &ended
+	}
+
+	response.Success(c, http.StatusCreated, resp)
 }
 
 // GetSession handles GET /api/v1/games/sessions/{sessionId}
@@ -253,7 +271,7 @@ func (h *Handler) SubmitAnswer(c *gin.Context) {
 	}
 
 	// Convert to use case input
-	input := gamesubmitanswer.Input{
+	input := gamesubmitanswer.SubmitAnswerInput{
 		QuestionID:       req.QuestionID,
 		SelectedOptionID: req.SelectedOptionID,
 		ResponseTimeMs:   req.ResponseTimeMs,
@@ -266,5 +284,16 @@ func (h *Handler) SubmitAnswer(c *gin.Context) {
 		return
 	}
 
-	response.Success(c, http.StatusCreated, answer)
+	resp := SubmitAnswerResponse{
+		ID:               answer.ID,
+		QuestionID:       answer.QuestionID,
+		SessionID:        answer.SessionID,
+		UserID:           answer.UserID,
+		SelectedOptionID: answer.SelectedOptionID,
+		IsCorrect:        answer.IsCorrect,
+		ResponseTimeMs:   answer.ResponseTimeMs,
+		AnsweredAt:       answer.AnsweredAt.Format(time.RFC3339),
+	}
+
+	response.Success(c, http.StatusCreated, resp)
 }

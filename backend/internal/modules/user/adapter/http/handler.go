@@ -63,7 +63,7 @@ func (h *Handler) Register(c *gin.Context) {
 		return
 	}
 
-	result, err := h.registerUC.Execute(ctx, userregister.Input{
+	result, err := h.registerUC.Execute(ctx, userregister.RegisterInput{
 		DisplayName: req.DisplayName,
 		Email:       req.Email,
 		Username:    req.Username,
@@ -87,7 +87,13 @@ func (h *Handler) Register(c *gin.Context) {
 		}
 	}
 
-	response.Success(c, http.StatusCreated, result)
+	resp := RegisterResponse{
+		UserID:   result.UserID,
+		Email:    result.Email,
+		Username: result.Username,
+	}
+
+	response.Success(c, http.StatusCreated, resp)
 }
 
 // Login handles POST /api/v1/auth/login
@@ -106,7 +112,7 @@ func (h *Handler) Login(c *gin.Context) {
 		return
 	}
 
-	result, err := h.loginUC.Execute(ctx, userlogin.Input{
+	result, err := h.loginUC.Execute(ctx, userlogin.LoginInput{
 		Email:    req.Email,
 		Username: req.Username,
 		Password: req.Password,
@@ -117,7 +123,14 @@ func (h *Handler) Login(c *gin.Context) {
 		return
 	}
 
-	response.Success(c, http.StatusOK, result)
+	resp := LoginResponse{
+		Token:    result.Token,
+		UserID:   result.UserID,
+		Email:    result.Email,
+		Username: result.Username,
+	}
+
+	response.Success(c, http.StatusOK, resp)
 }
 
 // GetProfile handles GET /api/v1/users/profile
@@ -137,13 +150,21 @@ func (h *Handler) GetProfile(c *gin.Context) {
 		return
 	}
 
-	profile, err := h.getProfileUC.Execute(ctx, usergetprofile.Input{UserID: userIDInt64})
+	profile, err := h.getProfileUC.Execute(ctx, usergetprofile.GetProfileInput{UserID: userIDInt64})
 	if err != nil {
 		middleware.SetError(c, err)
 		return
 	}
 
-	response.Success(c, http.StatusOK, profile)
+	resp := UserProfileResponse{
+		UserID:      profile.UserID,
+		DisplayName: profile.DisplayName,
+		AvatarURL:   profile.AvatarURL,
+		BirthDay:    profile.BirthDay,
+		Bio:         profile.Bio,
+	}
+
+	response.Success(c, http.StatusOK, resp)
 }
 
 // UpdateProfile handles PUT /api/v1/users/profile
@@ -169,7 +190,7 @@ func (h *Handler) UpdateProfile(c *gin.Context) {
 		return
 	}
 
-	result, err := h.updateProfileUC.Execute(ctx, userIDInt64, userupdateprofile.Input{
+	result, err := h.updateProfileUC.Execute(ctx, userIDInt64, userupdateprofile.UpdateProfileInput{
 		DisplayName: req.DisplayName,
 		AvatarURL:   req.AvatarURL,
 		BirthDay:    req.BirthDay,
@@ -181,7 +202,15 @@ func (h *Handler) UpdateProfile(c *gin.Context) {
 		return
 	}
 
-	response.Success(c, http.StatusOK, result)
+	resp := UpdateProfileResponse{
+		UserID:      result.UserID,
+		DisplayName: result.DisplayName,
+		AvatarURL:   result.AvatarURL,
+		BirthDay:    result.BirthDay,
+		Bio:         result.Bio,
+	}
+
+	response.Success(c, http.StatusOK, resp)
 }
 
 // CheckEmailAvailability handles GET /api/v1/auth/check-email?email=...

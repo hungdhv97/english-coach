@@ -1,10 +1,10 @@
 package update_profile
 
-// Input represents the input for updating user profile
-type Input struct {
-	DisplayName *string `json:"display_name,omitempty"`
-	AvatarURL   *string `json:"avatar_url,omitempty"`
-	BirthDay    *string `json:"birth_day,omitempty"` // Format: YYYY-MM-DD
-	Bio         *string `json:"bio,omitempty"`
+// UpdateProfileInput represents the input for updating user profile use case.
+type UpdateProfileInput struct {
+	DisplayName *string
+	AvatarURL   *string
+	BirthDay    *string // Format: YYYY-MM-DD
+	Bio         *string
 }
 
