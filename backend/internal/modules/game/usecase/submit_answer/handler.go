@@ -70,7 +70,15 @@ func (h *Handler) Execute(ctx context.Context, input SubmitAnswerInput, sessionI
 	}
 
 	// Check if answer already exists
-	existingAnswer, _ := h.answerRepo.FindByQuestionID(ctx, input.QuestionID, sessionID, userID)
+	existingAnswer, err := h.answerRepo.FindByQuestionID(ctx, input.QuestionID, sessionID, userID)
+	if err != nil {
+		h.logger.Error("failed to check existing answer",
+			logger.Error(err),
+			logger.Int64("question_id", input.QuestionID),
+			logger.Int64("session_id", sessionID),
+		)
+		return nil, errors.WrapError(err, "failed to check existing answer")
+	}
 	if existingAnswer != nil {
 		return nil, domain.ErrAnswerAlreadySubmitted
 	}
@@ -97,14 +105,20 @@ func (h *Handler) Execute(ctx context.Context, input SubmitAnswerInput, sessionI
 	// Update session correct count if answer is correct
 	if isCorrect {
 		session, err := h.sessionRepo.FindByID(ctx, sessionID)
-		if err == nil {
-			session.CorrectQuestions++
-			if err := h.sessionRepo.Update(ctx, session); err != nil {
-				h.logger.Warn("failed to update session correct count",
-					logger.Error(err),
-					logger.Int64("session_id", sessionID),
-				)
-			}
+		if err != nil {
+			h.logger.Error("failed to find session for update",
+				logger.Error(err),
+				logger.Int64("session_id", sessionID),
+			)
+			return nil, errors.WrapError(err, "failed to find session for update")
+		}
+		session.CorrectQuestions++
+		if err := h.sessionRepo.Update(ctx, session); err != nil {
+			h.logger.Error("failed to update session correct count",
+				logger.Error(err),
+				logger.Int64("session_id", sessionID),
+			)
+			return nil, errors.WrapError(err, "failed to update session correct count")
 		}
 	}
 

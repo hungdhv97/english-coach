@@ -44,9 +44,11 @@ func (h *Handler) Execute(ctx context.Context, input LoginInput) (*LoginOutput, 
 	}
 
 	if err != nil {
-		// Check if it's a not found error (can be checked via errors package if needed)
-		return nil, domain.ErrInvalidCredentials
 		h.logger.Error("failed to find user", logger.Error(err))
+		// Check if it's a not found error (can be checked via errors package if needed)
+		if errors.IsNotFound(err) {
+			return nil, domain.ErrInvalidCredentials
+		}
 		return nil, errors.WrapError(err, "failed to find user")
 	}
 
