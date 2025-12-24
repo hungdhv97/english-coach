@@ -73,8 +73,7 @@ func (h *Handler) Execute(ctx context.Context, input LoginInput) (*LoginOutput, 
 
 	token, err := h.jwtManager.GenerateToken(user.ID, username)
 	if err != nil {
-		// Unexpected error from auth layer
-		return nil, sharederrors.WrapUnexpectedError(err, "failed to generate token")
+		return nil, sharederrors.MapDomainErrorToAppError(err)
 	}
 
 	return &LoginOutput{

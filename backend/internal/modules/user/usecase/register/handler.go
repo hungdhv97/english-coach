@@ -60,8 +60,7 @@ func (h *Handler) Execute(ctx context.Context, input RegisterInput) (*RegisterOu
 	// Hash password
 	passwordHash, err := auth.HashPassword(input.Password)
 	if err != nil {
-		// Unexpected error from auth layer
-		return nil, sharederrors.WrapUnexpectedError(err, "failed to hash password")
+		return nil, sharederrors.MapDomainErrorToAppError(err)
 	}
 
 	// Create user
