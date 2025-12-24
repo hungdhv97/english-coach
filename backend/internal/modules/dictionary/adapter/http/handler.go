@@ -245,7 +245,7 @@ func (h *Handler) GetWordDetail(c *gin.Context) {
 			LevelName:            s.LevelName,
 			Note:                 s.Note,
 			Translations:         mapWordsToResponse(s.Translations),
-			Examples:             s.Examples, // Examples không có time fields, giữ nguyên
+			Examples:             s.Examples,
 		}
 	}
 
@@ -265,7 +265,7 @@ func (h *Handler) GetWordDetail(c *gin.Context) {
 	resp := GetWordDetailResponse{
 		Word:           wordResp,
 		Senses:         senseDTOs,
-		Pronunciations: wordDetail.Pronunciations, // Pronunciations không có time fields, giữ nguyên
+		Pronunciations: wordDetail.Pronunciations,
 		Relations:      relationDTOs,
 	}
 
