@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"net/http"
-	"strings"
 
 	sharederrors "github.com/english-coach/backend/internal/shared/errors"
 	"github.com/english-coach/backend/internal/shared/logger"
@@ -42,11 +41,9 @@ func ErrorHandler(appLogger logger.ILogger) gin.HandlerFunc {
 
 			// For non-domain errors (fmt.Errorf, etc.), log in English lowercase
 			// and return generic internal error
-			errorMsg := strings.ToLower(err.Error())
 			appLogger.Error("request error",
 				logger.String("method", c.Request.Method),
 				logger.String("path", c.Request.URL.Path),
-				logger.String("error", errorMsg),
 				logger.Error(err),
 			)
 

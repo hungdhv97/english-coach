@@ -168,6 +168,15 @@ func NewLogger(env string) (*Logger, error) {
 		})),
 	)
 
-	logger := zap.New(core, zap.AddCaller())
+	// Configure logger with caller information and stacktraces
+	logger := zap.New(
+		core,
+		// Add caller info, but skip this wrapper layer so that the
+		// logged caller points to the actual call site in your code.
+		zap.AddCaller(),
+		zap.AddCallerSkip(1),
+		// Include stacktrace for error level and above
+		zap.AddStacktrace(zapcore.ErrorLevel),
+	)
 	return &Logger{Logger: logger}, nil
 }

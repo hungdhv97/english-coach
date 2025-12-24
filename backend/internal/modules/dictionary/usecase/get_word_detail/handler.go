@@ -2,9 +2,9 @@ package get_word_detail
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/english-coach/backend/internal/modules/dictionary/domain"
+	sharederrors "github.com/english-coach/backend/internal/shared/errors"
 	"github.com/english-coach/backend/internal/shared/logger"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -46,12 +46,16 @@ func (h *Handler) Execute(ctx context.Context, input GetWordDetailInput) (*GetWo
 	// Get word
 	word, err := h.wordRepo.FindByID(ctx, input.WordID)
 	if err != nil {
+		// Check if error is "not found" (pgx.ErrNoRows)
+		if sharederrors.IsNotFound(err) {
+			return nil, domain.ErrWordNotFound
+		}
 		return nil, err
 	}
 
-	// Check if word is nil
+	// Check if word is nil (should not happen if repository is correct, but check for safety)
 	if word == nil {
-		return nil, fmt.Errorf("word not found")
+		return nil, domain.ErrWordNotFound
 	}
 
 	// Get senses
