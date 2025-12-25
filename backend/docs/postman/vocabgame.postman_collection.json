@@ -1,9 +1,9 @@
 {
   "info": {
-    "name": "English Coach - Game API",
+    "name": "English Coach - VocabGame API",
     "description": "Collection for vocabulary game session management and statistics endpoints",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "_postman_id": "game-collection",
+    "_postman_id": "vocabgame-collection",
     "version": {
       "major": 1,
       "minor": 0,
@@ -39,9 +39,9 @@
               }
             },
             "url": {
-              "raw": "{{base_url}}/games/sessions",
+              "raw": "{{base_url}}/vocabgames/sessions",
               "host": ["{{base_url}}"],
-              "path": ["games", "sessions"]
+              "path": ["vocabgames", "sessions"]
             },
             "description": "Create a new vocabulary game session with topic mode"
           },
@@ -88,9 +88,9 @@
               }
             },
             "url": {
-              "raw": "{{base_url}}/games/sessions",
+              "raw": "{{base_url}}/vocabgames/sessions",
               "host": ["{{base_url}}"],
-              "path": ["games", "sessions"]
+              "path": ["vocabgames", "sessions"]
             },
             "description": "Create a game session with level mode"
           },
@@ -124,9 +124,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/games/sessions/{{session_id}}",
+              "raw": "{{base_url}}/vocabgames/sessions/{{session_id}}",
               "host": ["{{base_url}}"],
-              "path": ["games", "sessions", "{{session_id}}"]
+              "path": ["vocabgames", "sessions", "{{session_id}}"]
             },
             "description": "Get game session details with questions"
           },
@@ -162,9 +162,9 @@
               }
             },
             "url": {
-              "raw": "{{base_url}}/games/sessions/{{session_id}}/answers",
+              "raw": "{{base_url}}/vocabgames/sessions/{{session_id}}/answers",
               "host": ["{{base_url}}"],
-              "path": ["games", "sessions", "{{session_id}}", "answers"]
+              "path": ["vocabgames", "sessions", "{{session_id}}", "answers"]
             },
             "description": "Submit an answer to a game question"
           },

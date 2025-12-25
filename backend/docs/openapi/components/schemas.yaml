@@ -516,7 +516,7 @@ components:
         pagination:
           $ref: '#/components/schemas/PaginationMetadata'
 
-    # Game Schemas
+    # VocabGame Schemas
     CreateGameSessionRequest:
       type: object
       required:

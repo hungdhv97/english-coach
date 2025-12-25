@@ -27,8 +27,8 @@ tags:
     description: User authentication, registration, and profile management
   - name: Dictionary
     description: Dictionary lookup, word search, and reference data
-  - name: Games
-    description: Vocabulary game session management
+  - name: VocabGames
+    description: Vocabulary vocabgame session management
   - name: Statistics
     description: User statistics and performance metrics
   - name: Health
@@ -83,13 +83,13 @@ paths:
   /reference/levels:
     $ref: './paths/dictionary.yaml#/paths/~1reference~1levels'
 
-  # Game Domain
-  /games/sessions:
-    $ref: './paths/game.yaml#/paths/~1games~1sessions'
-  /games/sessions/{sessionId}:
-    $ref: './paths/game.yaml#/paths/~1games~1sessions~1{sessionId}'
-  /games/sessions/{sessionId}/answers:
-    $ref: './paths/game.yaml#/paths/~1games~1sessions~1{sessionId}~1answers'
+  # VocabGame Domain
+  /vocabgames/sessions:
+    $ref: './paths/vocabgame.yaml#/paths/~1vocabgames~1sessions'
+  /vocabgames/sessions/{sessionId}:
+    $ref: './paths/vocabgame.yaml#/paths/~1vocabgames~1sessions~1{sessionId}'
+  /vocabgames/sessions/{sessionId}/answers:
+    $ref: './paths/vocabgame.yaml#/paths/~1vocabgames~1sessions~1{sessionId}~1answers'
 
   # Statistics Domain
   /statistics/sessions/{sessionId}:

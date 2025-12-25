@@ -23,7 +23,7 @@ export const vocabGameEndpoints = {
    */
   createSession: async (request: CreateVocabGameSessionRequest): Promise<VocabGameSession> => {
     const response = await httpClient.post<ApiResponse<VocabGameSession>>(
-      '/games/sessions',
+      '/vocabgames/sessions',
       request
     );
     return response.data;
@@ -34,7 +34,7 @@ export const vocabGameEndpoints = {
    */
   getSession: async (sessionId: number): Promise<VocabGameSessionWithQuestions> => {
     const response = await httpClient.get<ApiResponse<VocabGameSessionWithQuestions>>(
-      `/games/sessions/${sessionId}`
+      `/vocabgames/sessions/${sessionId}`
     );
     return response.data;
   },
@@ -47,7 +47,7 @@ export const vocabGameEndpoints = {
     request: SubmitAnswerRequest
   ): Promise<VocabGameAnswer> => {
     const response = await httpClient.post<ApiResponse<VocabGameAnswer>>(
-      `/games/sessions/${sessionId}/answers`,
+      `/vocabgames/sessions/${sessionId}/answers`,
       request
     );
     return response.data;

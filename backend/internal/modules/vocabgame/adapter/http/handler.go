@@ -44,7 +44,7 @@ func NewHandler(
 	}
 }
 
-// CreateSession handles POST /api/v1/games/sessions
+// CreateSession handles POST /api/v1/vocabgames/sessions
 func (h *Handler) CreateSession(c *gin.Context) {
 	ctx := c.Request.Context()
 
@@ -148,7 +148,7 @@ func (h *Handler) CreateSession(c *gin.Context) {
 	response.Success(c, http.StatusCreated, resp)
 }
 
-// GetSession handles GET /api/v1/games/sessions/{sessionId}
+// GetSession handles GET /api/v1/vocabgames/sessions/{sessionId}
 func (h *Handler) GetSession(c *gin.Context) {
 	ctx := c.Request.Context()
 
@@ -316,7 +316,7 @@ func (h *Handler) GetSession(c *gin.Context) {
 	})
 }
 
-// SubmitAnswer handles POST /api/v1/games/sessions/{sessionId}/answers
+// SubmitAnswer handles POST /api/v1/vocabgames/sessions/{sessionId}/answers
 func (h *Handler) SubmitAnswer(c *gin.Context) {
 	ctx := c.Request.Context()
 

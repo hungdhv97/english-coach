@@ -1,12 +1,12 @@
 paths:
-  # Game Endpoints
-  /games/sessions:
+  # VocabGame Endpoints
+  /vocabgames/sessions:
     post:
       tags:
-        - Games
-      summary: Create a new game session
+        - VocabGames
+      summary: Create a new vocabgame session
       description: Create a new vocabulary game session with specified configuration
-      operationId: createGameSession
+      operationId: createVocabGameSession
       requestBody:
         required: true
         content:
@@ -15,7 +15,7 @@ paths:
               $ref: '#/components/schemas/CreateGameSessionRequest'
       responses:
         '201':
-          description: Game session created successfully
+          description: VocabGame session created successfully
           content:
             application/json:
               schema:
@@ -30,18 +30,18 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
 
-  /games/sessions/{sessionId}:
+  /vocabgames/sessions/{sessionId}:
     get:
       tags:
-        - Games
-      summary: Get game session details
-      description: Retrieve details of a game session including all questions
-      operationId: getGameSession
+        - VocabGames
+      summary: Get vocabgame session details
+      description: Retrieve details of a vocabgame session including all questions
+      operationId: getVocabGameSession
       parameters:
         - $ref: '#/components/parameters/SessionId'
       responses:
         '200':
-          description: Game session details
+          description: VocabGame session details
           content:
             application/json:
               schema:
@@ -54,12 +54,12 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
 
-  /games/sessions/{sessionId}/answers:
+  /vocabgames/sessions/{sessionId}/answers:
     post:
       tags:
-        - Games
+        - VocabGames
       summary: Submit an answer
-      description: Submit an answer to a game question
+      description: Submit an answer to a vocabgame question
       operationId: submitAnswer
       parameters:
         - $ref: '#/components/parameters/SessionId'

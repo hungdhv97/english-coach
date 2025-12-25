@@ -6,11 +6,11 @@ import (
 
 // RegisterRoutes registers vocabgame-related HTTP routes
 func RegisterRoutes(router *gin.RouterGroup, handler *Handler, authMiddleware gin.HandlerFunc) {
-	// VocabGame routes: /api/v1/games/... (protected - requires login)
-	gameGroup := router.Group("/games")
-	gameGroup.Use(authMiddleware)
+	// VocabGame routes: /api/v1/vocabgames/... (protected - requires login)
+	vocabGameGroup := router.Group("/vocabgames")
+	vocabGameGroup.Use(authMiddleware)
 	{
-		sessionsGroup := gameGroup.Group("/sessions")
+		sessionsGroup := vocabGameGroup.Group("/sessions")
 		{
 			sessionsGroup.POST("", handler.CreateSession)
 			sessionsGroup.GET("/:sessionId", handler.GetSession)

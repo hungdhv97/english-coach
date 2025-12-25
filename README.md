@@ -131,10 +131,10 @@ english-coach/
 - `GET /api/v1/dictionary/search?q={query}&languageId={id}&limit={limit}&offset={offset}` - Search words
 - `GET /api/v1/dictionary/words/{wordId}` - Get word detail
 
-### Game
-- `POST /api/v1/games/sessions` - Create game session
-- `GET /api/v1/games/sessions/{sessionId}` - Get game session with questions
-- `POST /api/v1/games/sessions/{sessionId}/answers` - Submit answer
+### VocabGame
+- `POST /api/v1/vocabgames/sessions` - Create vocabgame session
+- `GET /api/v1/vocabgames/sessions/{sessionId}` - Get vocabgame session with questions
+- `POST /api/v1/vocabgames/sessions/{sessionId}/answers` - Submit answer
 
 ### Statistics
 - `GET /api/v1/statistics/sessions/{sessionId}` - Get session statistics
