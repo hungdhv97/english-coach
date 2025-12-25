@@ -23,7 +23,6 @@ export default function GamePlayPage() {
   const sessionIdNum = sessionId ? parseInt(sessionId, 10) : 0;
 
   const { data: sessionData, isLoading, error } = gameQueries.useSession(sessionIdNum);
-  const [wordTexts, setWordTexts] = useState<Map<number, string>>(new Map());
 
   const {
     currentQuestionIndex,
@@ -53,22 +52,6 @@ export default function GamePlayPage() {
       startQuestion();
     }
   }, [currentQuestionIndex, sessionData, startQuestion]);
-
-  // Extract word IDs and create a simple mapping (in production, fetch actual words)
-  useEffect(() => {
-    if (!sessionData?.questions) return;
-
-    const wordMap = new Map<number, string>();
-    sessionData.questions.forEach((q) => {
-      // For now, use word IDs as placeholders
-      // In production, fetch actual word text from dictionary API
-      wordMap.set(q.source_word_id, `Word ${q.source_word_id}`);
-      q.options.forEach((opt) => {
-        wordMap.set(opt.target_word_id, `Word ${opt.target_word_id}`);
-      });
-    });
-    setWordTexts(wordMap);
-  }, [sessionData]);
 
   const currentQuestion: GameQuestionWithOptions | undefined = useMemo(() => {
     if (!sessionData?.questions) return undefined;
@@ -207,7 +190,6 @@ export default function GamePlayPage() {
     );
   }
 
-  const sourceWordText = wordTexts.get(currentQuestion.source_word_id) || `Word ${currentQuestion.source_word_id}`;
   const selectedAnswer = answers.get(currentQuestion.id);
   const selectedOptionId = selectedAnswer?.selected_option_id;
 
@@ -235,8 +217,6 @@ export default function GamePlayPage() {
 
         <GameQuestion
           question={currentQuestion}
-          sourceWord={sourceWordText}
-          targetWords={wordTexts}
           onAnswerSelect={handleAnswerSelect}
           isSubmitting={isSubmitting}
           selectedOptionId={selectedOptionId}

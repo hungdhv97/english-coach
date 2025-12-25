@@ -20,19 +20,18 @@ type GameSessionRepository interface {
 type GameQuestionRepository interface {
 	// CreateBatch creates multiple questions and their options in a transaction
 	CreateBatch(ctx context.Context, questions []*GameQuestion, options []*GameQuestionOption) error
-	// FindBySessionID returns all questions for a session
-	FindBySessionID(ctx context.Context, sessionID int64) ([]*GameQuestion, []*GameQuestionOption, error)
+	// FindQuestionsBySessionID returns all questions for a session
+	FindQuestionsBySessionID(ctx context.Context, sessionID int64) ([]*GameQuestion, []*GameQuestionOption, error)
 	// FindByID returns a question by ID with its options
-	FindByID(ctx context.Context, questionID int64) (*GameQuestion, []*GameQuestionOption, error)
+	FindQuestionByID(ctx context.Context, questionID int64) (*GameQuestion, []*GameQuestionOption, error)
 }
 
 // GameAnswerRepository defines operations for game answer data access
 type GameAnswerRepository interface {
 	// Create creates a new answer
 	Create(ctx context.Context, answer *GameAnswer) error
-	// FindByQuestionID returns the answer for a specific question
-	FindByQuestionID(ctx context.Context, questionID, sessionID, userID int64) (*GameAnswer, error)
-	// FindBySessionID returns all answers for a session
-	FindBySessionID(ctx context.Context, sessionID, userID int64) ([]*GameAnswer, error)
+	// FindAnswerByQuestionID returns the answer for a specific question in a session
+	FindAnswerByQuestionID(ctx context.Context, questionID, sessionID, userID int64) (*GameAnswer, error)
+	// FindAnswersBySessionID returns all answers for a session
+	FindAnswersBySessionID(ctx context.Context, sessionID, userID int64) ([]*GameAnswer, error)
 }
-

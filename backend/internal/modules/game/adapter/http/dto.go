@@ -2,8 +2,6 @@ package http
 
 import (
 	"time"
-
-	"github.com/english-coach/backend/internal/modules/game/domain"
 )
 
 // CreateSessionRequest represents the request body for creating a game session
@@ -83,10 +81,20 @@ type GameQuestionResponse struct {
 	CreatedAt           time.Time `json:"created_at"`
 }
 
+// OptionResponse represents an option for a question (without is_correct for security)
+type OptionResponse struct {
+	ID           int64  `json:"id"`
+	QuestionID   int64  `json:"question_id"`
+	OptionLabel  string `json:"option_label"`
+	TargetWordID int64  `json:"target_word_id"`
+	WordText     string `json:"word_text"`
+}
+
 // QuestionWithOptions represents a question with its options for the response
 type QuestionWithOptions struct {
 	GameQuestionResponse
-	Options []*domain.GameQuestionOption `json:"options"`
+	SourceWordText string          `json:"source_word_text"`
+	Options        []OptionResponse `json:"options"`
 }
 
 // GetSessionResponse represents the response for getting a session

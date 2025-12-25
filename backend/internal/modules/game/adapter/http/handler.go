@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
+	dictdomain "github.com/english-coach/backend/internal/modules/dictionary/domain"
 	"github.com/english-coach/backend/internal/modules/game/domain"
 	gamecreatesession "github.com/english-coach/backend/internal/modules/game/usecase/create_session"
 	gamesubmitanswer "github.com/english-coach/backend/internal/modules/game/usecase/submit_answer"
@@ -20,6 +21,7 @@ type Handler struct {
 	submitAnswerUC  *gamesubmitanswer.Handler
 	questionRepo    domain.GameQuestionRepository
 	sessionRepo     domain.GameSessionRepository
+	wordRepo        dictdomain.WordRepository
 	logger          logger.ILogger
 }
 
@@ -29,6 +31,7 @@ func NewHandler(
 	submitAnswerUC *gamesubmitanswer.Handler,
 	questionRepo domain.GameQuestionRepository,
 	sessionRepo domain.GameSessionRepository,
+	wordRepo dictdomain.WordRepository,
 	logger logger.ILogger,
 ) *Handler {
 	return &Handler{
@@ -36,6 +39,7 @@ func NewHandler(
 		submitAnswerUC:  submitAnswerUC,
 		questionRepo:    questionRepo,
 		sessionRepo:     sessionRepo,
+		wordRepo:        wordRepo,
 		logger:          logger,
 	}
 }
@@ -196,10 +200,41 @@ func (h *Handler) GetSession(c *gin.Context) {
 	}
 
 	// Get questions and options
-	questions, options, err := h.questionRepo.FindBySessionID(ctx, sessionID)
+	questions, options, err := h.questionRepo.FindQuestionsBySessionID(ctx, sessionID)
 	if err != nil {
 		middleware.SetError(c, err)
 		return
+	}
+
+	// Collect all word IDs (source words and target words in options)
+	wordIDs := make(map[int64]bool)
+	for _, q := range questions {
+		wordIDs[q.SourceWordID] = true
+	}
+	for _, opt := range options {
+		wordIDs[opt.TargetWordID] = true
+	}
+
+	// Fetch all words in one batch
+	wordIDList := make([]int64, 0, len(wordIDs))
+	for id := range wordIDs {
+		wordIDList = append(wordIDList, id)
+	}
+
+	// Fetch words if we have any
+	var words []*dictdomain.Word
+	if len(wordIDList) > 0 {
+		words, err = h.wordRepo.FindByIDs(ctx, wordIDList)
+		if err != nil {
+			middleware.SetError(c, err)
+			return
+		}
+	}
+
+	// Create word map for quick lookup
+	wordMap := make(map[int64]*dictdomain.Word)
+	for _, word := range words {
+		wordMap[word.ID] = word
 	}
 
 	// Group options by question ID
@@ -225,9 +260,35 @@ func (h *Handler) GetSession(c *gin.Context) {
 		sessionResp.EndedAt = session.EndedAt
 	}
 
-	// Build response
+	// Build response with word text and options without is_correct
 	questionsWithOptions := make([]QuestionWithOptions, 0, len(questions))
 	for _, q := range questions {
+		// Get source word text
+		sourceWord := wordMap[q.SourceWordID]
+		sourceWordText := ""
+		if sourceWord != nil {
+			sourceWordText = sourceWord.Lemma
+		}
+
+		// Build options WITHOUT is_correct (for security)
+		optionResponses := make([]OptionResponse, 0, len(optionsByQuestion[q.ID]))
+		for _, opt := range optionsByQuestion[q.ID] {
+			targetWord := wordMap[opt.TargetWordID]
+			targetWordText := ""
+			if targetWord != nil {
+				targetWordText = targetWord.Lemma
+			}
+
+			optionResponses = append(optionResponses, OptionResponse{
+				ID:           opt.ID,
+				QuestionID:   opt.QuestionID,
+				OptionLabel:  opt.OptionLabel,
+				TargetWordID: opt.TargetWordID,
+				WordText:     targetWordText,
+				// Note: is_correct is intentionally omitted for security
+			})
+		}
+
 		questionsWithOptions = append(questionsWithOptions, QuestionWithOptions{
 			GameQuestionResponse: GameQuestionResponse{
 				ID:                  q.ID,
@@ -241,7 +302,8 @@ func (h *Handler) GetSession(c *gin.Context) {
 				TargetLanguageID:    q.TargetLanguageID,
 				CreatedAt:           q.CreatedAt,
 			},
-			Options: optionsByQuestion[q.ID],
+			SourceWordText: sourceWordText,
+			Options:        optionResponses,
 		})
 	}
 

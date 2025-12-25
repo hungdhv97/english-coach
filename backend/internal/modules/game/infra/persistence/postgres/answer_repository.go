@@ -46,15 +46,15 @@ func (r *gameAnswerRepo) Create(ctx context.Context, answer *domain.GameAnswer) 
 	return nil
 }
 
-// FindByQuestionID returns the answer for a specific question
-func (r *gameAnswerRepo) FindByQuestionID(ctx context.Context, questionID, sessionID, userID int64) (*domain.GameAnswer, error) {
+// FindAnswerByQuestionID returns the answer for a specific question in a session
+func (r *gameAnswerRepo) FindAnswerByQuestionID(ctx context.Context, questionID, sessionID, userID int64) (*domain.GameAnswer, error) {
 	row, err := r.queries.FindGameAnswerByQuestionID(ctx, db.FindGameAnswerByQuestionIDParams{
 		QuestionID: questionID,
 		SessionID:  sessionID,
 		UserID:     userID,
 	})
 	if err != nil {
-		return nil, errors.MapPgError(err)
+		return nil, errors.MapGameRepositoryError(err, "GetByQuestionIDAndSession")
 	}
 
 	var selectedOptionID *int64
@@ -81,8 +81,8 @@ func (r *gameAnswerRepo) FindByQuestionID(ctx context.Context, questionID, sessi
 	}, nil
 }
 
-// FindBySessionID returns all answers for a session
-func (r *gameAnswerRepo) FindBySessionID(ctx context.Context, sessionID, userID int64) ([]*domain.GameAnswer, error) {
+// FindAnswersBySessionID returns all answers for a session
+func (r *gameAnswerRepo) FindAnswersBySessionID(ctx context.Context, sessionID, userID int64) ([]*domain.GameAnswer, error) {
 	rows, err := r.queries.FindGameAnswersBySessionID(ctx, db.FindGameAnswersBySessionIDParams{
 		SessionID: sessionID,
 		UserID:    userID,

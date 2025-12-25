@@ -47,7 +47,9 @@ export interface GameQuestionOption {
   question_id: number;
   option_label: 'A' | 'B' | 'C' | 'D';
   target_word_id: number;
-  is_correct: boolean;
+  word_text: string; // Word text included in response
+  // Note: is_correct is not included in GetSession response for security
+  // It's only returned in SubmitAnswer response
 }
 
 export interface GameQuestionWithOptions {
@@ -61,6 +63,7 @@ export interface GameQuestionWithOptions {
   source_language_id: number;
   target_language_id: number;
   created_at: string;
+  source_word_text: string; // Source word text included in response
   options: GameQuestionOption[];
 }
 

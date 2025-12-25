@@ -166,6 +166,7 @@ func NewContainer(cfg *config.Config) (*Container, error) {
 		container.SubmitAnswerUC,
 		container.GameRepo.GameQuestionRepo(),
 		container.GameRepo.GameSessionRepo(),
+		container.DictionaryRepo.WordRepository(),
 		appLogger,
 	)
 

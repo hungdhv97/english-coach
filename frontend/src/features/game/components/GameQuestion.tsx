@@ -11,8 +11,6 @@ import { cn } from '@/lib/utils';
 
 interface GameQuestionProps {
   question: GameQuestionWithOptions;
-  sourceWord: string; // The word to display (fetched separately)
-  targetWords: Map<number, string>; // Map of word_id -> word text
   onAnswerSelect: (optionId: number) => void;
   isSubmitting?: boolean;
   selectedOptionId?: number;
@@ -21,8 +19,6 @@ interface GameQuestionProps {
 
 export default function GameQuestion({
   question,
-  sourceWord,
-  targetWords,
   onAnswerSelect,
   isSubmitting = false,
   selectedOptionId,
@@ -50,14 +46,13 @@ export default function GameQuestion({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-center text-2xl">{sourceWord}</CardTitle>
+        <CardTitle className="text-center text-2xl">{question.source_word_text}</CardTitle>
         <p className="text-center text-muted-foreground">
           Chọn từ đúng trong ngôn ngữ đích
         </p>
       </CardHeader>
       <CardContent className="space-y-3">
         {sortedOptions.map((option) => {
-          const wordText = targetWords.get(option.target_word_id) || '...';
           const isSelected = localSelected === option.id;
           const isDisabled = isSubmitting || localSelected !== null;
 
@@ -72,12 +67,12 @@ export default function GameQuestion({
               )}
               onClick={() => handleOptionClick(option.id)}
               disabled={isDisabled}
-              aria-label={`Option ${option.option_label}: ${wordText}`}
+              aria-label={`Option ${option.option_label}: ${option.word_text}`}
             >
               <span className="font-semibold mr-3 min-w-[2rem] text-center">
                 {option.option_label}.
               </span>
-              <span>{wordText}</span>
+              <span>{option.word_text}</span>
             </Button>
           );
         })}

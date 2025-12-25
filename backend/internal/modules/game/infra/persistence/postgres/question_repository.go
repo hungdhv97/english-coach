@@ -53,24 +53,47 @@ func (r *gameQuestionRepo) CreateBatch(ctx context.Context, questions []*domain.
 	}
 
 	// Insert options
-	for _, option := range options {
-		optionID, err := qtx.CreateGameQuestionOption(ctx, db.CreateGameQuestionOptionParams{
-			QuestionID:   option.QuestionID,
-			OptionLabel:  option.OptionLabel,
-			TargetWordID: option.TargetWordID,
-			IsCorrect:    option.IsCorrect,
-		})
-		if err != nil {
-			return errors.MapPgError(err)
+	// Each question has exactly 4 options (A, B, C, D), so we map options to questions by index
+	const optionsPerQuestion = 4
+	expectedOptionsCount := len(questions) * optionsPerQuestion
+	if len(options) != expectedOptionsCount {
+		return errors.NewAppError(
+			errors.CodeInternalError,
+			"mismatch between questions and options count",
+		).WithMetadata("expected", expectedOptionsCount).
+			WithMetadata("questions", len(questions)).
+			WithMetadata("options", len(options))
+	}
+
+	for i, question := range questions {
+		// Calculate the start index for this question's options
+		optionStartIndex := i * optionsPerQuestion
+		optionEndIndex := optionStartIndex + optionsPerQuestion
+
+		// Insert options for this question
+		for j := optionStartIndex; j < optionEndIndex; j++ {
+			option := options[j]
+			// Update the option's QuestionID to the actual question ID
+			option.QuestionID = question.ID
+
+			optionID, err := qtx.CreateGameQuestionOption(ctx, db.CreateGameQuestionOptionParams{
+				QuestionID:   option.QuestionID,
+				OptionLabel:  option.OptionLabel,
+				TargetWordID: option.TargetWordID,
+				IsCorrect:    option.IsCorrect,
+			})
+			if err != nil {
+				return errors.MapPgError(err)
+			}
+			option.ID = optionID
 		}
-		option.ID = optionID
 	}
 
 	return tx.Commit(ctx)
 }
 
-// FindBySessionID returns all questions for a session
-func (r *gameQuestionRepo) FindBySessionID(ctx context.Context, sessionID int64) ([]*domain.GameQuestion, []*domain.GameQuestionOption, error) {
+// FindQuestionsBySessionID returns all questions for a session
+func (r *gameQuestionRepo) FindQuestionsBySessionID(ctx context.Context, sessionID int64) ([]*domain.GameQuestion, []*domain.GameQuestionOption, error) {
 	questionRows, err := r.queries.FindGameQuestionsBySessionID(ctx, sessionID)
 	if err != nil {
 		return nil, nil, errors.MapPgError(err)
@@ -124,8 +147,8 @@ func (r *gameQuestionRepo) FindBySessionID(ctx context.Context, sessionID int64)
 	return questions, options, nil
 }
 
-// FindByID returns a question by ID with its options
-func (r *gameQuestionRepo) FindByID(ctx context.Context, questionID int64) (*domain.GameQuestion, []*domain.GameQuestionOption, error) {
+// FindQuestionByID returns a question by ID with its options
+func (r *gameQuestionRepo) FindQuestionByID(ctx context.Context, questionID int64) (*domain.GameQuestion, []*domain.GameQuestionOption, error) {
 	questionRow, err := r.queries.FindGameQuestionByID(ctx, questionID)
 	if err != nil {
 		return nil, nil, errors.MapPgError(err)

@@ -35,7 +35,7 @@ func NewHandler(
 // Execute submits an answer to a question
 func (h *Handler) Execute(ctx context.Context, input SubmitAnswerInput, sessionID, userID int64) (*SubmitAnswerOutput, error) {
 	// Get question and options to verify the answer
-	question, options, err := h.questionRepo.FindByID(ctx, input.QuestionID)
+	question, options, err := h.questionRepo.FindQuestionByID(ctx, input.QuestionID)
 	if err != nil {
 		h.logger.Error("failed to find question",
 			logger.Error(err),
@@ -91,14 +91,21 @@ func (h *Handler) Execute(ctx context.Context, input SubmitAnswerInput, sessionI
 	}
 
 	// Check if answer already exists
-	existingAnswer, err := h.answerRepo.FindByQuestionID(ctx, input.QuestionID, sessionID, userID)
+	existingAnswer, err := h.answerRepo.FindAnswerByQuestionID(ctx, input.QuestionID, sessionID, userID)
 	if err != nil {
-		h.logger.Error("failed to check existing answer",
-			logger.Error(err),
-			logger.Int64("question_id", input.QuestionID),
-			logger.Int64("session_id", sessionID),
-		)
-		return nil, sharederrors.MapDomainErrorToAppError(err)
+		// If not found, it's a normal case (answer doesn't exist yet, allow submission)
+		if sharederrors.IsNotFound(err) {
+			existingAnswer = nil
+		} else {
+			// Real error occurred
+			h.logger.Error("failed to check existing answer",
+				logger.Error(err),
+				logger.Int64("question_id", input.QuestionID),
+				logger.Int64("session_id", sessionID),
+				logger.Int64("user_id", userID),
+			)
+			return nil, sharederrors.MapDomainErrorToAppError(err)
+		}
 	}
 	if existingAnswer != nil {
 		return nil, sharederrors.MapDomainErrorToAppError(domain.ErrAnswerAlreadySubmitted)
