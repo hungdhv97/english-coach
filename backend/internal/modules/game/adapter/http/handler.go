@@ -191,7 +191,7 @@ func (h *Handler) GetSession(c *gin.Context) {
 
 	// Verify user owns session
 	if session.UserID != userIDInt64 {
-		middleware.SetError(c, sharederrors.ErrForbidden)
+		middleware.SetError(c, sharederrors.ErrSessionNotOwned)
 		return
 	}
 

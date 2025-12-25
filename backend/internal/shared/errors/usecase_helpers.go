@@ -83,6 +83,8 @@ func mapGameDomainErrorToAppError(err error) *AppError {
 		return ErrInvalidMode
 	case gamedomain.ErrSessionNotOwned:
 		return ErrSessionNotOwned
+	case gamedomain.ErrTranslationNotFound:
+		return ErrTranslationNotFound
 	default:
 		return nil
 	}

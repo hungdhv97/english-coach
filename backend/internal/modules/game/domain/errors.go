@@ -13,4 +13,5 @@ var (
 	ErrAnswerAlreadySubmitted = errors.New("Answer has already been submitted")
 	ErrInvalidMode            = errors.New("Invalid mode")
 	ErrSessionNotOwned        = errors.New("Session is not owned by this user")
+	ErrTranslationNotFound    = errors.New("Translation not found")
 )

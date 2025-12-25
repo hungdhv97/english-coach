@@ -35,6 +35,7 @@ var (
 	ErrAnswerAlreadySubmitted = NewAppError(CodeAnswerAlreadySubmitted, "Đã gửi câu trả lời cho câu hỏi này")
 	ErrInvalidMode            = NewAppError(CodeInvalidMode, "Chế độ không hợp lệ")
 	ErrSessionNotOwned        = NewAppError(CodeSessionNotOwned, "Phiên chơi không thuộc về người dùng này")
+	ErrTranslationNotFound    = NewAppError(CodeTranslationNotFound, "Không tìm thấy bản dịch cho từ này")
 
 	// Dictionary domain errors
 	ErrWordNotFound = NewAppError(CodeWordNotFound, "Không tìm thấy từ")

@@ -289,6 +289,7 @@ func (h *Handler) buildQuestions(
 	questions := make([]*domain.GameQuestion, 0, len(selectedWords))
 	allTargetWords := make(map[int64]*dictdomain.Word)
 	questionOrder := int16(0)
+	wordsWithoutTranslation := 0
 
 	for _, sourceWord := range selectedWords {
 		// Get correct translation
@@ -304,10 +305,12 @@ func (h *Handler) buildQuestions(
 			return nil, nil, err
 		}
 		if len(translations) == 0 {
+			wordsWithoutTranslation++
 			h.logger.Warn("no translations found for word",
 				logger.Int64("word_id", sourceWord.ID),
 				logger.Int("target_language_id", int(targetLanguageID)),
 			)
+			// Skip this word if no translation found, but log for monitoring
 			continue
 		}
 
@@ -334,6 +337,12 @@ func (h *Handler) buildQuestions(
 			CreatedAt:           time.Now(),
 		}
 		questions = append(questions, question)
+	}
+
+	// If all words lack translations, return ErrTranslationNotFound
+	// This is more specific than ErrInsufficientWords
+	if len(questions) == 0 && wordsWithoutTranslation == len(selectedWords) {
+		return nil, nil, domain.ErrTranslationNotFound
 	}
 
 	return questions, allTargetWords, nil

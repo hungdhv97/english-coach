@@ -39,6 +39,7 @@ const (
 	CodeAnswerAlreadySubmitted = "ANSWER_ALREADY_SUBMITTED"
 	CodeInvalidMode            = "INVALID_MODE"
 	CodeSessionNotOwned        = "SESSION_NOT_OWNED"
+	CodeTranslationNotFound    = "TRANSLATION_NOT_FOUND"
 )
 
 // Dictionary domain error codes

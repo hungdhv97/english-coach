@@ -54,6 +54,27 @@ func (h *Handler) Execute(ctx context.Context, input SubmitAnswerInput, sessionI
 		return nil, sharederrors.MapDomainErrorToAppError(domain.ErrQuestionNotInSession)
 	}
 
+	// Check if session exists and has not ended
+	session, err := h.sessionRepo.FindByID(ctx, sessionID)
+	if err != nil {
+		h.logger.Error("failed to find session",
+			logger.Error(err),
+			logger.Int64("session_id", sessionID),
+		)
+		return nil, sharederrors.MapDomainErrorToAppError(err)
+	}
+	if session == nil {
+		return nil, sharederrors.MapDomainErrorToAppError(domain.ErrSessionNotFound)
+	}
+	if session.EndedAt != nil {
+		return nil, sharederrors.MapDomainErrorToAppError(domain.ErrSessionEnded)
+	}
+
+	// Verify user owns session
+	if session.UserID != userID {
+		return nil, sharederrors.MapDomainErrorToAppError(domain.ErrSessionNotOwned)
+	}
+
 	// Find the selected option
 	var selectedOption *domain.GameQuestionOption
 	var isCorrect bool
@@ -104,14 +125,6 @@ func (h *Handler) Execute(ctx context.Context, input SubmitAnswerInput, sessionI
 
 	// Update session correct count if answer is correct
 	if isCorrect {
-		session, err := h.sessionRepo.FindByID(ctx, sessionID)
-		if err != nil {
-			h.logger.Error("failed to find session for update",
-				logger.Error(err),
-				logger.Int64("session_id", sessionID),
-			)
-			return nil, sharederrors.MapDomainErrorToAppError(err)
-		}
 		session.CorrectQuestions++
 		if err := h.sessionRepo.Update(ctx, session); err != nil {
 			h.logger.Error("failed to update session correct count",
