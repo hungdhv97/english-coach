@@ -2,8 +2,8 @@ package errors
 
 import (
 	dictionarydomain "github.com/english-coach/backend/internal/modules/dictionary/domain"
-	gamedomain "github.com/english-coach/backend/internal/modules/game/domain"
 	userdomain "github.com/english-coach/backend/internal/modules/user/domain"
+	vocabgamedomain "github.com/english-coach/backend/internal/modules/vocabgame/domain"
 )
 
 // MapToDomainError translates technical errors (pgx, etc.) to domain errors
@@ -50,8 +50,8 @@ func MapUserRepositoryError(err error, operation string) error {
 	return err
 }
 
-// MapGameRepositoryError translates technical errors to game domain errors
-func MapGameRepositoryError(err error, operation string) error {
+// MapVocabGameRepositoryError translates technical errors to vocabgame domain errors
+func MapVocabGameRepositoryError(err error, operation string) error {
 	if err == nil {
 		return nil
 	}
@@ -59,20 +59,20 @@ func MapGameRepositoryError(err error, operation string) error {
 	// Check for "not found" errors
 	if IsNotFound(err) {
 		switch operation {
-		// Game Session operations
+		// VocabGame Session operations
 		case "FindGameSessionByID":
-			return gamedomain.ErrSessionNotFound
-		// Game Question operations
+			return vocabgamedomain.ErrSessionNotFound
+		// VocabGame Question operations
 		case "FindGameQuestionByID":
-			return gamedomain.ErrQuestionNotFound
+			return vocabgamedomain.ErrQuestionNotFound
 		case "FindGameQuestionsBySessionID":
 			// FindGameQuestionsBySessionID returns empty slice if not found, not an error
 			// But if there's a DB error, return as-is
 			return err
-		// Game Question Option operations
+		// VocabGame Question Option operations
 		case "FindOptionByID":
-			return gamedomain.ErrOptionNotFound
-		// Game Answer operations
+			return vocabgamedomain.ErrOptionNotFound
+		// VocabGame Answer operations
 		case "FindGameAnswerByQuestionID":
 			// Answer not found is not necessarily an error - might be first time answering
 			// Return as-is, let usecase decide
@@ -93,7 +93,7 @@ func MapGameRepositoryError(err error, operation string) error {
 
 	// Check for unique violation errors (if any unique constraints exist)
 	if IsUniqueViolation(err) {
-		// Game domain doesn't have unique constraints that need special handling
+		// VocabGame domain doesn't have unique constraints that need special handling
 		// Return as-is, let usecase handle
 		return err
 	}

@@ -7,16 +7,16 @@ import (
 	dictadapter "github.com/english-coach/backend/internal/modules/dictionary/adapter/http"
 	dictrepo "github.com/english-coach/backend/internal/modules/dictionary/infra/persistence/postgres"
 	dictusecase "github.com/english-coach/backend/internal/modules/dictionary/usecase/get_word_detail"
-	gameadapter "github.com/english-coach/backend/internal/modules/game/adapter/http"
-	gamerepo "github.com/english-coach/backend/internal/modules/game/infra/persistence/postgres"
-	gamecreatesession "github.com/english-coach/backend/internal/modules/game/usecase/create_session"
-	gamesubmitanswer "github.com/english-coach/backend/internal/modules/game/usecase/submit_answer"
 	useradapter "github.com/english-coach/backend/internal/modules/user/adapter/http"
 	userrepo "github.com/english-coach/backend/internal/modules/user/infra/persistence/postgres"
 	usergetprofile "github.com/english-coach/backend/internal/modules/user/usecase/get_profile"
 	userlogin "github.com/english-coach/backend/internal/modules/user/usecase/login"
 	userregister "github.com/english-coach/backend/internal/modules/user/usecase/register"
 	userupdateprofile "github.com/english-coach/backend/internal/modules/user/usecase/update_profile"
+	vocabgameadapter "github.com/english-coach/backend/internal/modules/vocabgame/adapter/http"
+	gamerepo "github.com/english-coach/backend/internal/modules/vocabgame/infra/persistence/postgres"
+	gamecreatesession "github.com/english-coach/backend/internal/modules/vocabgame/usecase/create_session"
+	gamesubmitanswer "github.com/english-coach/backend/internal/modules/vocabgame/usecase/submit_answer"
 	"github.com/english-coach/backend/internal/platform/db"
 	"github.com/english-coach/backend/internal/shared/auth"
 	"github.com/english-coach/backend/internal/shared/logger"
@@ -52,7 +52,7 @@ type Container struct {
 
 	// Handlers
 	DictionaryHandler *dictadapter.Handler
-	GameHandler       *gameadapter.Handler
+	VocabGameHandler  *vocabgameadapter.Handler
 	UserHandler       *useradapter.Handler
 	OpenAPIHandler    *handler.OpenAPIHandler
 
@@ -161,7 +161,7 @@ func NewContainer(cfg *config.Config) (*Container, error) {
 		appLogger,
 	)
 
-	container.GameHandler = gameadapter.NewHandler(
+	container.VocabGameHandler = vocabgameadapter.NewHandler(
 		container.CreateGameSessionUC,
 		container.SubmitAnswerUC,
 		container.GameRepo.GameQuestionRepository(),

@@ -28,7 +28,7 @@ const (
 	CodeUserNotFound       = "USER_NOT_FOUND"
 )
 
-// Game domain error codes
+// VocabGame domain error codes
 const (
 	CodeInsufficientWords      = "INSUFFICIENT_WORDS"
 	CodeSessionNotFound        = "SESSION_NOT_FOUND"

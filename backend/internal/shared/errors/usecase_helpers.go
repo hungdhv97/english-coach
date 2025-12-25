@@ -2,8 +2,8 @@ package errors
 
 import (
 	dictionarydomain "github.com/english-coach/backend/internal/modules/dictionary/domain"
-	gamedomain "github.com/english-coach/backend/internal/modules/game/domain"
 	userdomain "github.com/english-coach/backend/internal/modules/user/domain"
+	vocabgamedomain "github.com/english-coach/backend/internal/modules/vocabgame/domain"
 )
 
 // MapDomainErrorToAppError maps a domain error to an AppError
@@ -23,8 +23,8 @@ func MapDomainErrorToAppError(err error) *AppError {
 		return err
 	}
 
-	// Map game domain errors
-	if err := mapGameDomainErrorToAppError(err); err != nil {
+	// Map vocabgame domain errors
+	if err := mapvocabgamedomainErrorToAppError(err); err != nil {
 		return err
 	}
 
@@ -62,28 +62,28 @@ func mapUserDomainErrorToAppError(err error) *AppError {
 	}
 }
 
-// mapGameDomainErrorToAppError maps game domain errors to AppError
-func mapGameDomainErrorToAppError(err error) *AppError {
+// mapvocabgamedomainErrorToAppError maps vocabgame domain errors to AppError
+func mapvocabgamedomainErrorToAppError(err error) *AppError {
 	switch err {
-	case gamedomain.ErrInsufficientWords:
+	case vocabgamedomain.ErrInsufficientWords:
 		return ErrInsufficientWords
-	case gamedomain.ErrSessionNotFound:
+	case vocabgamedomain.ErrSessionNotFound:
 		return ErrSessionNotFound
-	case gamedomain.ErrSessionEnded:
+	case vocabgamedomain.ErrSessionEnded:
 		return ErrSessionEnded
-	case gamedomain.ErrQuestionNotFound:
+	case vocabgamedomain.ErrQuestionNotFound:
 		return ErrQuestionNotFound
-	case gamedomain.ErrQuestionNotInSession:
+	case vocabgamedomain.ErrQuestionNotInSession:
 		return ErrQuestionNotInSession
-	case gamedomain.ErrOptionNotFound:
+	case vocabgamedomain.ErrOptionNotFound:
 		return ErrOptionNotFound
-	case gamedomain.ErrAnswerAlreadySubmitted:
+	case vocabgamedomain.ErrAnswerAlreadySubmitted:
 		return ErrAnswerAlreadySubmitted
-	case gamedomain.ErrInvalidMode:
+	case vocabgamedomain.ErrInvalidMode:
 		return ErrInvalidMode
-	case gamedomain.ErrSessionNotOwned:
+	case vocabgamedomain.ErrSessionNotOwned:
 		return ErrSessionNotOwned
-	case gamedomain.ErrTranslationNotFound:
+	case vocabgamedomain.ErrTranslationNotFound:
 		return ErrTranslationNotFound
 	default:
 		return nil

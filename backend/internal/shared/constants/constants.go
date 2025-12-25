@@ -1,14 +1,14 @@
 package constants
 
-// Game constants
+// VocabGame constants
 const (
-	// DefaultGameQuestionCount is the default number of questions per game session
+	// DefaultGameQuestionCount is the default number of questions per vocabgame session
 	DefaultGameQuestionCount = 10
 
-	// MaxGameQuestionCount is the maximum number of questions per game session
+	// MaxGameQuestionCount is the maximum number of questions per vocabgame session
 	MaxGameQuestionCount = 20
 
-	// MinGameQuestionCount is the minimum number of questions per game session
+	// MinGameQuestionCount is the minimum number of questions per vocabgame session
 	MinGameQuestionCount = 1
 )
 

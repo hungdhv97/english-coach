@@ -5,10 +5,10 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import Layout from '../../components/layout/Layout';
 import LandingPage from '../../pages/LandingPage';
-import GameListPage from '../../pages/game/GameListPage';
-import GameConfigPage from '../../pages/game/GameConfigPage';
-import GamePlayPage from '../../pages/game/GamePlayPage';
-import GameStatisticsPage from '../../pages/game/GameStatisticsPage';
+import VocabGameListPage from '../../pages/vocabgame/VocabGameListPage';
+import VocabGameConfigPage from '../../pages/vocabgame/VocabGameConfigPage';
+import VocabGamePlayPage from '../../pages/vocabgame/VocabGamePlayPage';
+import VocabGameStatisticsPage from '../../pages/vocabgame/VocabGameStatisticsPage';
 import DictionaryLookupPage from '../../pages/dictionary/DictionaryLookupPage';
 import WordDetailPage from '../../pages/dictionary/WordDetailPage';
 import LoginPage from '../../pages/auth/LoginPage';
@@ -54,7 +54,7 @@ export const router = createBrowserRouter([
         path: '/games',
         element: (
           <ProtectedRoute>
-            <GameListPage />
+            <VocabGameListPage />
           </ProtectedRoute>
         ),
       },
@@ -62,7 +62,7 @@ export const router = createBrowserRouter([
         path: '/games/vocab/config',
         element: (
           <ProtectedRoute>
-            <GameConfigPage />
+            <VocabGameConfigPage />
           </ProtectedRoute>
         ),
       },
@@ -70,7 +70,7 @@ export const router = createBrowserRouter([
         path: '/games/vocab/play/:sessionId',
         element: (
           <ProtectedRoute>
-            <GamePlayPage />
+            <VocabGamePlayPage />
           </ProtectedRoute>
         ),
       },
@@ -78,7 +78,7 @@ export const router = createBrowserRouter([
         path: '/games/vocab/statistics/:sessionId',
         element: (
           <ProtectedRoute>
-            <GameStatisticsPage />
+            <VocabGameStatisticsPage />
           </ProtectedRoute>
         ),
       },

@@ -7,8 +7,8 @@ import (
 	"github.com/english-coach/backend/internal/app/di"
 	"github.com/english-coach/backend/internal/app/lifecycle"
 	dictadapter "github.com/english-coach/backend/internal/modules/dictionary/adapter/http"
-	gameadapter "github.com/english-coach/backend/internal/modules/game/adapter/http"
 	useradapter "github.com/english-coach/backend/internal/modules/user/adapter/http"
+	vocabgameadapter "github.com/english-coach/backend/internal/modules/vocabgame/adapter/http"
 	"github.com/english-coach/backend/internal/shared/logger"
 	"github.com/gin-gonic/gin"
 )
@@ -112,6 +112,6 @@ func registerRoutes(httpServer *HTTPServer, container *di.Container) {
 		// Register module routes
 		useradapter.RegisterRoutes(apiV1, container.UserHandler, container.AuthMiddleware)
 		dictadapter.RegisterRoutes(apiV1, container.DictionaryHandler)
-		gameadapter.RegisterRoutes(apiV1, container.GameHandler, container.AuthMiddleware)
+		vocabgameadapter.RegisterRoutes(apiV1, container.VocabGameHandler, container.AuthMiddleware)
 	}
 }

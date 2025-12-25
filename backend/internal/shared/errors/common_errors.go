@@ -25,7 +25,7 @@ var (
 	ErrProfileNotFound    = NewAppError(CodeProfileNotFound, "Không tìm thấy hồ sơ người dùng")
 	ErrUserNotFound       = NewAppError(CodeUserNotFound, "Không tìm thấy người dùng")
 
-	// Game domain errors
+	// VocabGame domain errors
 	ErrInsufficientWords      = NewAppError(CodeInsufficientWords, "Không đủ từ vựng để tạo phiên chơi. Vui lòng chọn chủ đề hoặc cấp độ khác")
 	ErrSessionNotFound        = NewAppError(CodeSessionNotFound, "Không tìm thấy phiên chơi")
 	ErrSessionEnded           = NewAppError(CodeSessionEnded, "Phiên chơi đã kết thúc")
