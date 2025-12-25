@@ -14,7 +14,7 @@ WHERE id = ANY($1::bigint[])
 ORDER BY id;
 
 -- name: FindWordsByTopicAndLanguages :many
-SELECT DISTINCT w.id, w.language_id, w.lemma, w.lemma_normalized, w.search_key,
+SELECT w.id, w.language_id, w.lemma, w.lemma_normalized, w.search_key,
        w.romanization, w.script_code, w.frequency_rank,
        w.note, w.created_at, w.updated_at
 FROM words w
@@ -81,16 +81,25 @@ ORDER BY w.frequency_rank NULLS LAST, w.id
 LIMIT sqlc.arg('limit');
 
 -- name: FindTranslationsForWord :many
-SELECT DISTINCT tw.id, tw.language_id, tw.lemma, tw.lemma_normalized, tw.search_key,
-       tw.romanization, tw.script_code, tw.frequency_rank,
-       tw.note, tw.created_at, tw.updated_at
-FROM words sw
-INNER JOIN senses s ON sw.id = s.word_id
-INNER JOIN sense_translations st ON s.id = st.source_sense_id
-INNER JOIN words tw ON st.target_word_id = tw.id
-WHERE sw.id = sqlc.arg('source_word_id')
-  AND tw.language_id = sqlc.arg('target_language_id')
-ORDER BY st.priority, tw.frequency_rank NULLS LAST, tw.id
+WITH ranked AS (
+  SELECT
+    st.target_word_id AS tw_id,
+    MIN(st.priority) AS ord_priority
+  FROM senses s
+  JOIN sense_translations st ON st.source_sense_id = s.id
+  WHERE s.word_id = sqlc.arg('source_word_id')
+  GROUP BY st.target_word_id
+)
+SELECT
+  tw.id, tw.language_id, tw.lemma, tw.lemma_normalized, tw.search_key,
+  tw.romanization, tw.script_code, tw.frequency_rank,
+  tw.note, tw.created_at, tw.updated_at
+FROM ranked r
+JOIN words tw ON tw.id = r.tw_id
+WHERE tw.language_id = sqlc.arg('target_language_id')
+ORDER BY r.ord_priority ASC NULLS LAST,
+         tw.frequency_rank NULLS LAST,
+         tw.id
 LIMIT sqlc.arg('limit');
 
 -- name: SearchWords :many

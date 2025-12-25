@@ -35,35 +35,36 @@ func (q *Queries) CountSearchWords(ctx context.Context, arg CountSearchWordsPara
 }
 
 const findTranslationsForWord = `-- name: FindTranslationsForWord :many
-WITH ranked_translations AS (
-    SELECT DISTINCT ON (tw.id) 
-           tw.id, tw.language_id, tw.lemma, tw.lemma_normalized, tw.search_key,
-           tw.romanization, tw.script_code, tw.frequency_rank,
-           tw.note, tw.created_at, tw.updated_at,
-           st.priority
-    FROM words sw
-    INNER JOIN senses s ON sw.id = s.word_id
-    INNER JOIN sense_translations st ON s.id = st.source_sense_id
-    INNER JOIN words tw ON st.target_word_id = tw.id
-    WHERE sw.id = $2
-      AND tw.language_id = $3
+WITH ranked AS (
+  SELECT
+    st.target_word_id AS tw_id,
+    MIN(st.priority) AS ord_priority
+  FROM senses s
+  JOIN sense_translations st ON st.source_sense_id = s.id
+  WHERE s.word_id = $3
+  GROUP BY st.target_word_id
 )
-SELECT id, language_id, lemma, lemma_normalized, search_key,
-       romanization, script_code, frequency_rank,
-       note, created_at, updated_at
-FROM ranked_translations
-ORDER BY priority, frequency_rank NULLS LAST
-LIMIT $1
+SELECT
+  tw.id, tw.language_id, tw.lemma, tw.lemma_normalized, tw.search_key,
+  tw.romanization, tw.script_code, tw.frequency_rank,
+  tw.note, tw.created_at, tw.updated_at
+FROM ranked r
+JOIN words tw ON tw.id = r.tw_id
+WHERE tw.language_id = $1
+ORDER BY r.ord_priority ASC NULLS LAST,
+         tw.frequency_rank NULLS LAST,
+         tw.id
+LIMIT $2
 `
 
 type FindTranslationsForWordParams struct {
+	TargetLanguageID int16 `json:"target_language_id"`
 	Limit            int32 `json:"limit"`
 	SourceWordID     int64 `json:"source_word_id"`
-	TargetLanguageID int16 `json:"target_language_id"`
 }
 
 func (q *Queries) FindTranslationsForWord(ctx context.Context, arg FindTranslationsForWordParams) ([]Word, error) {
-	rows, err := q.db.Query(ctx, findTranslationsForWord, arg.Limit, arg.SourceWordID, arg.TargetLanguageID)
+	rows, err := q.db.Query(ctx, findTranslationsForWord, arg.TargetLanguageID, arg.Limit, arg.SourceWordID)
 	if err != nil {
 		return nil, err
 	}
