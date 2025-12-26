@@ -4,10 +4,14 @@
  */
 
 import { Outlet } from 'react-router-dom';
+import { useTokenExpiration } from '@/hooks/useTokenExpiration';
 import Header from './Header';
 import Footer from './Footer';
 
 export default function Layout() {
+  // Set up token expiration handling
+  useTokenExpiration();
+
   return (
     <div className="flex min-h-screen flex-col">
       <Header />

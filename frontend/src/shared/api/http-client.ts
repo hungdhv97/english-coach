@@ -14,10 +14,23 @@ export interface RequestConfig extends RequestInit {
   timeout?: number;
 }
 
+// Custom error class for token expiration
+export class TokenExpiredError extends Error {
+  code = 'TOKEN_EXPIRED';
+  constructor(message: string = 'Token đã hết hạn') {
+    super(message);
+    this.name = 'TokenExpiredError';
+  }
+}
+
+// Callback type for token expiration handling
+type TokenExpiredCallback = () => void;
+
 class HttpClient {
   private baseURL: string;
   private defaultTimeout: number;
   private authToken: string | null = null;
+  private onTokenExpired: TokenExpiredCallback | null = null;
 
   constructor(baseURL: string, defaultTimeout: number = 30000) {
     this.baseURL = baseURL;
@@ -39,6 +52,14 @@ class HttpClient {
     return this.authToken;
   }
 
+  /**
+   * Set callback to handle token expiration
+   * This will be called automatically when TOKEN_EXPIRED error is detected
+   */
+  setTokenExpiredCallback(callback: TokenExpiredCallback) {
+    this.onTokenExpired = callback;
+  }
+
   private async request<T>(
     endpoint: string,
     config: RequestConfig = {}
@@ -50,9 +71,9 @@ class HttpClient {
       config.timeout || this.defaultTimeout
     );
 
-    const headers: HeadersInit = {
-      ...API_CONFIG.headers,
-      ...config.headers,
+    const headers: Record<string, string> = {
+      ...(API_CONFIG.headers as Record<string, string>),
+      ...(config.headers as Record<string, string>),
     };
 
     // Add auth token if available
@@ -73,19 +94,33 @@ class HttpClient {
 
       if (!response.ok) {
         // Handle error response format
+        let apiError: ApiError;
         if (data.error) {
-          const apiError: ApiError = {
+          apiError = {
             code: data.error.code || 'UNKNOWN_ERROR',
             message: data.error.message || 'An error occurred',
             details: data.error.details,
           };
-          // Throw an Error instance with the message, and attach ApiError properties
-          const error = new Error(apiError.message);
-          (error as any).code = apiError.code;
-          (error as any).details = apiError.details;
-          throw error;
+        } else {
+          apiError = data as ApiError;
         }
-        const apiError: ApiError = data as ApiError;
+
+        // Handle token expiration
+        // Backend returns code "TOKEN_EXPIRED" when token is expired
+        if (apiError.code === 'TOKEN_EXPIRED') {
+          // Clear token immediately
+          this.setAuthToken(null);
+          
+          // Call token expired callback if set
+          if (this.onTokenExpired) {
+            this.onTokenExpired();
+          }
+          
+          // Throw TokenExpiredError
+          throw new TokenExpiredError(apiError.message || 'Token đã hết hạn');
+        }
+
+        // Throw an Error instance with the message, and attach ApiError properties
         const error = new Error(apiError.message || 'An error occurred');
         (error as any).code = apiError.code;
         (error as any).details = apiError.details;
