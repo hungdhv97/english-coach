@@ -97,7 +97,7 @@ func (r *gameQuestionRepository) CreateBatch(ctx context.Context, questions []*d
 }
 
 // FindGameQuestionsBySessionID returns all questions for a session with their options
-func (r *gameQuestionRepository) FindGameQuestionsBySessionID(ctx context.Context, sessionID int64) (*domain.GameQuestionsResult, error) {
+func (r *gameQuestionRepository) FindGameQuestionsBySessionID(ctx context.Context, sessionID int64) ([]*domain.GameQuestion, error) {
 	questionRows, err := r.queries.FindGameQuestionsBySessionID(ctx, sessionID)
 	if err != nil {
 		return nil, sharederrors.MapVocabGameRepositoryError(err, "FindGameQuestionsBySessionID")
@@ -123,16 +123,14 @@ func (r *gameQuestionRepository) FindGameQuestionsBySessionID(ctx context.Contex
 			SourceLanguageID:    row.SourceLanguageID,
 			TargetLanguageID:    row.TargetLanguageID,
 			CreatedAt:           row.CreatedAt.Time,
+			Options:             []*domain.GameQuestionOption{},
 		}
 		questions = append(questions, question)
 		questionIDs = append(questionIDs, question.ID)
 	}
 
 	if len(questionIDs) == 0 {
-		return &domain.GameQuestionsResult{
-			Questions: []*domain.GameQuestion{},
-			Options:   []*domain.GameQuestionOption{},
-		}, nil
+		return questions, nil
 	}
 
 	optionRows, err := r.queries.FindGameQuestionOptionsByQuestionIDs(ctx, questionIDs)
@@ -140,25 +138,31 @@ func (r *gameQuestionRepository) FindGameQuestionsBySessionID(ctx context.Contex
 		return nil, sharederrors.MapVocabGameRepositoryError(err, "FindGameQuestionsBySessionID")
 	}
 
-	options := make([]*domain.GameQuestionOption, 0, len(optionRows))
+	// Create a map to group options by question ID
+	optionsByQuestionID := make(map[int64][]*domain.GameQuestionOption)
 	for _, row := range optionRows {
-		options = append(options, &domain.GameQuestionOption{
+		option := &domain.GameQuestionOption{
 			ID:           row.ID,
 			QuestionID:   row.QuestionID,
 			OptionLabel:  row.OptionLabel,
 			TargetWordID: row.TargetWordID,
 			IsCorrect:    row.IsCorrect,
-		})
+		}
+		optionsByQuestionID[row.QuestionID] = append(optionsByQuestionID[row.QuestionID], option)
 	}
 
-	return &domain.GameQuestionsResult{
-		Questions: questions,
-		Options:   options,
-	}, nil
+	// Populate options for each question
+	for _, question := range questions {
+		if opts, ok := optionsByQuestionID[question.ID]; ok {
+			question.Options = opts
+		}
+	}
+
+	return questions, nil
 }
 
 // FindGameQuestionByID returns a question by ID with its options
-func (r *gameQuestionRepository) FindGameQuestionByID(ctx context.Context, questionID int64) (*domain.GameQuestionWithOptions, error) {
+func (r *gameQuestionRepository) FindGameQuestionByID(ctx context.Context, questionID int64) (*domain.GameQuestion, error) {
 	questionRow, err := r.queries.FindGameQuestionByID(ctx, questionID)
 	if err != nil {
 		return nil, sharederrors.MapVocabGameRepositoryError(err, "FindGameQuestionByID")
@@ -181,6 +185,7 @@ func (r *gameQuestionRepository) FindGameQuestionByID(ctx context.Context, quest
 		SourceLanguageID:    questionRow.SourceLanguageID,
 		TargetLanguageID:    questionRow.TargetLanguageID,
 		CreatedAt:           questionRow.CreatedAt.Time,
+		Options:             []*domain.GameQuestionOption{},
 	}
 
 	optionRows, err := r.queries.FindGameQuestionOptionsByQuestionID(ctx, questionID)
@@ -199,8 +204,7 @@ func (r *gameQuestionRepository) FindGameQuestionByID(ctx context.Context, quest
 		})
 	}
 
-	return &domain.GameQuestionWithOptions{
-		Question: question,
-		Options:  options,
-	}, nil
+	question.Options = options
+
+	return question, nil
 }

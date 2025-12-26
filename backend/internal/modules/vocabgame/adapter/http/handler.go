@@ -299,23 +299,20 @@ func (h *Handler) GetSession(c *gin.Context) {
 		return
 	}
 
-	// Get questions and options
-	questionsResult, err := h.questionRepo.FindGameQuestionsBySessionID(ctx, sessionID)
+	// Get questions with their options
+	questions, err := h.questionRepo.FindGameQuestionsBySessionID(ctx, sessionID)
 	if err != nil {
 		middleware.SetError(c, err)
 		return
 	}
 
-	questions := questionsResult.Questions
-	options := questionsResult.Options
-
 	// Collect all word IDs (source words and target words in options)
 	wordIDs := make(map[int64]bool)
 	for _, q := range questions {
 		wordIDs[q.SourceWordID] = true
-	}
-	for _, opt := range options {
-		wordIDs[opt.TargetWordID] = true
+		for _, opt := range q.Options {
+			wordIDs[opt.TargetWordID] = true
+		}
 	}
 
 	// Fetch all words in one batch
@@ -338,12 +335,6 @@ func (h *Handler) GetSession(c *gin.Context) {
 	wordMap := make(map[int64]*dictdomain.Word)
 	for _, word := range words {
 		wordMap[word.ID] = word
-	}
-
-	// Group options by question ID
-	optionsByQuestion := make(map[int64][]*domain.GameQuestionOption)
-	for _, opt := range options {
-		optionsByQuestion[opt.QuestionID] = append(optionsByQuestion[opt.QuestionID], opt)
 	}
 
 	// Map session to response DTO
@@ -374,8 +365,8 @@ func (h *Handler) GetSession(c *gin.Context) {
 		}
 
 		// Build options WITHOUT is_correct (for security)
-		optionResponses := make([]OptionResponse, 0, len(optionsByQuestion[q.ID]))
-		for _, opt := range optionsByQuestion[q.ID] {
+		optionResponses := make([]OptionResponse, 0, len(q.Options))
+		for _, opt := range q.Options {
 			targetWord := wordMap[opt.TargetWordID]
 			targetWordText := ""
 			if targetWord != nil {

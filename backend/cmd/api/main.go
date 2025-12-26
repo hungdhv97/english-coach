@@ -15,7 +15,7 @@ func main() {
 		log.Fatalf("Failed to load config: %v", err)
 	}
 
-	// Wire all dependencies and create application
+	// Wire all dependencies and create an application
 	app, err := bootstrap.Wire(cfg)
 	if err != nil {
 		log.Fatalf("Failed to wire application: %v", err)

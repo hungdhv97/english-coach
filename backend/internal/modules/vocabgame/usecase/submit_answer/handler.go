@@ -35,7 +35,7 @@ func NewHandler(
 // Execute submits an answer to a question
 func (h *Handler) Execute(ctx context.Context, input SubmitAnswerInput, sessionID, userID int64) (*SubmitAnswerOutput, error) {
 	// Get question and options to verify the answer
-	questionWithOptions, err := h.questionRepo.FindGameQuestionByID(ctx, input.QuestionID)
+	question, err := h.questionRepo.FindGameQuestionByID(ctx, input.QuestionID)
 	if err != nil {
 		h.logger.Error("failed to find question",
 			logger.Error(err),
@@ -45,12 +45,11 @@ func (h *Handler) Execute(ctx context.Context, input SubmitAnswerInput, sessionI
 	}
 
 	// Check if question is nil
-	if questionWithOptions == nil || questionWithOptions.Question == nil {
+	if question == nil {
 		return nil, sharederrors.MapDomainErrorToAppError(domain.ErrQuestionNotFound)
 	}
 
-	question := questionWithOptions.Question
-	options := questionWithOptions.Options
+	options := question.Options
 
 	// Verify question belongs to session
 	if question.SessionID != sessionID {
