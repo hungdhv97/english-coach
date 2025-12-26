@@ -127,7 +127,7 @@ type CharacterJSON struct {
 	ScriptCode  string                 `json:"script_code"`
 	Strokes     *int                   `json:"strokes,omitempty"`
 	Radical     *string                `json:"radical,omitempty"`
-	Level       *string                `json:"level,omitempty"` // level code, will be converted to level_id
+	Level       *string                `json:"level,omitempty"` // level code will be converted to level_id
 	CharOrder   int                    `json:"char_order"`
 	Readings    []CharacterReadingJSON `json:"readings,omitempty"`
 }

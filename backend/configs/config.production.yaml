@@ -12,9 +12,9 @@ server:
 database:
   host: prod-db-host
   port: 5432
-  user: english_coach
+  user: language_coach
   password: change-me
-  database: english_coach
+  database: language_coach
   sslmode: require
   max_conns: 50
   min_conns: 10

@@ -19,7 +19,7 @@ PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 BACKEND_DIR="$PROJECT_ROOT/backend"
 
 # Default database URL (can be overridden by DATABASE_URL env var)
-DEFAULT_DATABASE_URL="postgres://postgres:postgres@localhost:5500/english_coach?sslmode=disable"
+DEFAULT_DATABASE_URL="postgres://postgres:postgres@localhost:5500/language_coach?sslmode=disable"
 
 # Parse flags
 SCHEMA_ONLY=false

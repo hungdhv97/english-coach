@@ -12,9 +12,9 @@ server:
 database:
   host: staging-db-host
   port: 5432
-  user: english_coach
+  user: language_coach
   password: change-me
-  database: english_coach_staging
+  database: language_coach_staging
   sslmode: disable
   max_conns: 20
   min_conns: 5

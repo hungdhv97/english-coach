@@ -135,7 +135,7 @@ func setDefaults() {
 	viper.SetDefault("database.port", 5432)
 	viper.SetDefault("database.user", "postgres")
 	viper.SetDefault("database.password", "postgres")
-	viper.SetDefault("database.database", "english_coach")
+	viper.SetDefault("database.database", "language_coach")
 	viper.SetDefault("database.sslmode", "disable")
 	viper.SetDefault("database.max_conns", 25)
 	viper.SetDefault("database.min_conns", 5)

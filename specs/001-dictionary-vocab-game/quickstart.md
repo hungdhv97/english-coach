@@ -32,7 +32,7 @@ go mod download
 Create a MySQL database:
 
 ```sql
-CREATE DATABASE english_coach CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE language_coach CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
 
 ### 4. Configure Environment
@@ -45,8 +45,8 @@ DB_HOST=localhost
 DB_PORT=3306
 DB_USER=your_username
 DB_PASSWORD=your_password
-DB_NAME=english_coach
-DB_DSN=your_username:your_password@tcp(localhost:3306)/english_coach?charset=utf8mb4&parseTime=True&loc=Local
+DB_NAME=language_coach
+DB_DSN=your_username:your_password@tcp(localhost:3306)/language_coach?charset=utf8mb4&parseTime=True&loc=Local
 ```
 
 ### 5. Run Migrations
@@ -58,7 +58,7 @@ Run the database migration to create tables:
 go run cmd/migration/main.go
 
 # Or manually run:
-mysql -u your_username -p english_coach < internal/infrastructure/db/migrations/0001_init.sql
+mysql -u your_username -p language_coach < internal/infrastructure/db/migrations/0001_init.sql
 ```
 
 ### 6. Start Backend Server
@@ -152,7 +152,7 @@ curl http://localhost:8080/api/v1/reference/languages
 Verify tables were created:
 
 ```sql
-USE english_coach;
+USE language_coach;
 SHOW TABLES;
 ```
 
@@ -336,8 +336,8 @@ Key endpoints:
 ### Reset Database
 
 ```sql
-DROP DATABASE english_coach;
-CREATE DATABASE english_coach CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+DROP DATABASE language_coach;
+CREATE DATABASE language_coach CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
 
 Then re-run migrations.
@@ -345,7 +345,7 @@ Then re-run migrations.
 ### Check Tables
 
 ```sql
-USE english_coach;
+USE language_coach;
 SHOW TABLES;
 DESCRIBE languages;
 DESCRIBE words;
@@ -362,7 +362,7 @@ SELECT
 FROM
     INFORMATION_SCHEMA.KEY_COLUMN_USAGE
 WHERE
-    TABLE_SCHEMA = 'english_coach'
+    TABLE_SCHEMA = 'language_coach'
     AND REFERENCED_TABLE_NAME IS NOT NULL;
 ```
 

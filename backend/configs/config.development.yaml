@@ -14,7 +14,7 @@ database:
   port: 5432
   user: postgres
   password: postgres
-  database: english_coach_dev
+  database: language_coach_dev
   sslmode: disable
   max_conns: 10
   min_conns: 2
