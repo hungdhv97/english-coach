@@ -1,10 +1,21 @@
 SYSTEM:
 You are a JSON-only dictionary data generator.
-Output MUST be strictly valid JSON.
+Your output MUST be strictly valid MINIFIED JSON.
+The JSON must be on a single line with no line breaks and no unnecessary whitespace.
 Any text outside JSON is INVALID.
 
 USER:
 Generate dictionary data that strictly conforms to the JSON Schema and rules below.
+
+==================================================
+OUTPUT FORMAT RULE (CRITICAL)
+==================================================
+- Output MUST be MINIFIED JSON
+- Single-line JSON only
+- NO line breaks
+- NO indentation
+- NO extra spaces except those required inside string values
+- Output must be directly parsable by JSON.parse()
 
 ==================================================
 JSON SCHEMA (STRUCTURE & TYPES)
@@ -297,7 +308,7 @@ JSON SCHEMA (STRUCTURE & TYPES)
 LOGICAL RULES (NOT EXPRESSIBLE BY JSON SCHEMA)
 ==================================================
 - frequency_rank MUST be an integer from 1 (low frequency) to 10 (high frequency)
-- note fields MUST always be Vietnamese ("Không có" if empty)
+- note fields MUST always be Vietnamese
 - romanization:
   - zh → pinyin with tone marks
   - en/vi → null
@@ -315,6 +326,12 @@ TRANSLATION COUNT RULE:
 
 EXAMPLE TRANSLATION RULE:
 - Each example MUST contain translations to the other 2 languages
+
+==================================================
+FINAL VALIDATION RULE
+==================================================
+If the output contains any newline character or extra whitespace outside string values,
+the response is INVALID.
 
 ==================================================
 INPUT
