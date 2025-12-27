@@ -1,6 +1,6 @@
 app:
   env: development
-  name: english-coach-dev
+  name: language-coach-dev
 
 server:
   port: 8080

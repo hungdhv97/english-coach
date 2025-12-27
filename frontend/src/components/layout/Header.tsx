@@ -53,7 +53,7 @@ export default function Header() {
             className="text-lg font-bold"
             onClick={() => navigate('/')}
           >
-            English Coach
+            Language Coach
           </Button>
         </div>
 

@@ -29,7 +29,7 @@ export default function LandingPage() {
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-background to-muted/20">
       <div className="w-full max-w-4xl space-y-8">
         <header className="text-center space-y-4">
-          <h1 className="text-4xl md:text-5xl font-bold tracking-tight">English Coach</h1>
+          <h1 className="text-4xl md:text-5xl font-bold tracking-tight">Language Coach</h1>
           <p className="text-lg text-muted-foreground">
             Học từ vựng đa ngôn ngữ một cách hiệu quả
           </p>

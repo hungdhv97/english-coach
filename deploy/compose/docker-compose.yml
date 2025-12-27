@@ -1,4 +1,4 @@
-# Docker Compose file for English Coach application
+# Docker Compose file for Language Coach application
 # Uses variable substitution for environment-specific configuration
 # Set ENV variable (e.g., dev, staging, prod) before running docker compose commands
 # Example: ENV=dev docker compose up
@@ -6,7 +6,7 @@
 services:
   postgres:
     image: postgres:18.1-alpine
-    container_name: english-coach-postgres
+    container_name: language-coach-postgres
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -21,11 +21,11 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - english-coach-network
+      - language-coach-network
 
   redis:
     image: redis:8.4-alpine
-    container_name: english-coach-redis
+    container_name: language-coach-redis
     ports:
       - "6379:6379"
     volumes:
@@ -36,13 +36,13 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - english-coach-network
+      - language-coach-network
 
   backend:
     build:
       context: ../..
       dockerfile: deploy/docker/backend/${BACKEND_DOCKERFILE:-Dockerfile}
-    container_name: english-coach-backend
+    container_name: language-coach-backend
     ports:
       - "9090:8080"
     env_file:
@@ -56,7 +56,7 @@ services:
       redis:
         condition: service_healthy
     networks:
-      - english-coach-network
+      - language-coach-network
     profiles:
       - ${ENV:-dev}
 
@@ -64,7 +64,7 @@ services:
     build:
       context: ../..
       dockerfile: deploy/docker/frontend/${FRONTEND_DOCKERFILE:-Dockerfile.dev}
-    container_name: english-coach-frontend
+    container_name: language-coach-frontend
     ports:
       - "5173:5173"
     env_file:
@@ -76,7 +76,7 @@ services:
     depends_on:
       - backend
     networks:
-      - english-coach-network
+      - language-coach-network
     profiles:
       - ${ENV:-dev}
 
@@ -85,5 +85,5 @@ volumes:
   redis_data:
 
 networks:
-  english-coach-network:
+  language-coach-network:
     driver: bridge

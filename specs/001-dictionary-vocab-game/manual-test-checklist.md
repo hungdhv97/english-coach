@@ -20,7 +20,7 @@
 ### Test Steps
 
 1. [x] Navigate to `http://localhost:5173/`
-2. [x] Verify landing page displays with title "English Coach"
+2. [x] Verify landing page displays with title "Language Coach"
 3. [x] Verify "Play Game" button is visible and clickable
 4. [x] Verify "Dictionary Lookup" button is visible and clickable
 5. [x] Click "Play Game" button

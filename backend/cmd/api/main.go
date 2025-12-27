@@ -23,7 +23,7 @@ func main() {
 	defer app.Container.Close()
 
 	// Log application startup
-	app.Logger.Info("Starting English Coach Backend API",
+	app.Logger.Info("Starting Language Coach Backend API",
 		logger.String("env", cfg.App.Env),
 		logger.String("name", cfg.App.Name),
 	)

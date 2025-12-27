@@ -1,6 +1,6 @@
 {
   "info": {
-    "name": "English Coach - VocabGame API",
+    "name": "Language Coach - VocabGame API",
     "description": "Collection for vocabulary game session management and statistics endpoints",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_postman_id": "vocabgame-collection",

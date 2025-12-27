@@ -1,6 +1,6 @@
 {
   "info": {
-    "name": "English Coach - Dictionary API",
+    "name": "Language Coach - Dictionary API",
     "description": "Collection for dictionary lookup, word search, and reference data endpoints",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_postman_id": "dictionary-collection",

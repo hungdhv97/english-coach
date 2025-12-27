@@ -121,7 +121,7 @@ func Load() (*Config, error) {
 func setDefaults() {
 	// App defaults
 	viper.SetDefault("app.env", "development")
-	viper.SetDefault("app.name", "english-coach")
+	viper.SetDefault("app.name", "language-coach")
 
 	// Server defaults
 	viper.SetDefault("server.port", 8080)

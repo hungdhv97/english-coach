@@ -1,6 +1,6 @@
 app:
   env: production
-  name: english-coach
+  name: language-coach
 
 server:
   port: 8080
@@ -30,6 +30,6 @@ logging:
 
 cors:
   allowed_origins:
-    - https://english-coach.example.com
+    - https://language-coach.example.com
 
 
