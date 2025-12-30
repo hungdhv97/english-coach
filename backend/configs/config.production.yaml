@@ -30,6 +30,6 @@ logging:
 
 cors:
   allowed_origins:
-    - https://language-coach.example.com
+    - https://lexigo.io.vn
 
 
