@@ -5,9 +5,8 @@ FROM node:20.19-alpine AS builder
 
 WORKDIR /app
 
-# Accept build arguments for Vite environment variables
-ARG VITE_API_BASE_URL
-ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
+# Accept ENV as build argument to determine which .env file to use
+ARG ENV=prod
 
 # Copy package files
 COPY frontend/package*.json ./
@@ -16,7 +15,11 @@ RUN npm ci
 # Copy source code
 COPY frontend/ ./
 
-# Build the application
+# Copy environment file from build context based on ENV
+# Vite will automatically read .env file in the frontend directory
+COPY deploy/env/${ENV}/frontend.env ./.env
+
+# Build the application (Vite will automatically read .env file)
 RUN npm run build
 
 # Production stage
