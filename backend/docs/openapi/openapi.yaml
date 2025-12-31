@@ -1,9 +1,9 @@
 openapi: 3.1.0
 info:
-  title: Language Coach API
+  title: LexiGo API
   version: 1.0.0
   description: |
-    API for Language Coach - Multilingual Dictionary & Vocabulary Game Platform
+    API for LexiGo - Multilingual Dictionary & Vocabulary Game Platform
     
     This API provides endpoints for:
     - User authentication and registration
@@ -12,7 +12,7 @@ info:
     - Vocabulary game sessions
     - Statistics and performance tracking
   contact:
-    name: Language Coach Team
+    name: LexiGo Team
 
 servers:
   - url: http://localhost:9090/api/v1

@@ -1,1 +1,1 @@
-# Language Coach
+# LexiGo

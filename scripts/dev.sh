@@ -16,7 +16,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 COMPOSE_FILE="$PROJECT_ROOT/deploy/compose/docker-compose.yml"
 
-echo -e "${GREEN}🚀 Starting Language Coach Development Environment${NC}"
+echo -e "${GREEN}🚀 Starting LexiGo Development Environment${NC}"
 echo ""
 
 # Check if docker-compose is available

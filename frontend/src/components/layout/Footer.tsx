@@ -13,7 +13,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* About Section */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Language Coach</h3>
+            <h3 className="text-lg font-semibold">LexiGo</h3>
             <p className="text-sm text-muted-foreground">
               Học từ vựng đa ngôn ngữ một cách hiệu quả thông qua các trò chơi và từ điển thông minh.
             </p>
@@ -50,8 +50,8 @@ export default function Footer() {
             <ul className="space-y-2 text-sm">
               <li className="flex items-center gap-2 text-muted-foreground">
                 <Mail className="h-4 w-4" />
-                <a href="mailto:support@languagecoach.com" className="hover:text-foreground transition-colors">
-                  support@languagecoach.com
+                <a href="mailto:support@lexigo.com" className="hover:text-foreground transition-colors">
+                  support@lexigo.com
                 </a>
               </li>
               <li className="flex items-center gap-2 text-muted-foreground">
@@ -71,7 +71,7 @@ export default function Footer() {
 
         {/* Copyright */}
         <div className="mt-8 pt-8 border-t text-center text-sm text-muted-foreground">
-          <p>© {currentYear} Language Coach. All rights reserved.</p>
+          <p>© {currentYear} LexiGo. All rights reserved.</p>
         </div>
       </div>
     </footer>

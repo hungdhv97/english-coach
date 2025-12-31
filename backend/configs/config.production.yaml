@@ -1,6 +1,6 @@
 app:
   env: production
-  name: language-coach
+  name: lexigo
 
 server:
   port: 8080
@@ -12,9 +12,9 @@ server:
 database:
   host: prod-db-host
   port: 5432
-  user: language_coach
+  user: lexigo
   password: change-me
-  database: language_coach
+  database: lexigo
   sslmode: require
   max_conns: 50
   min_conns: 10

@@ -1,11 +1,11 @@
 services:
   postgres:
     image: postgres:18.1-alpine
-    container_name: language-coach-postgres
+    container_name: lexigo-postgres
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: language_coach
+      POSTGRES_DB: lexigo
     ports:
       - "5500:5432"
     volumes:
@@ -16,11 +16,11 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - language-coach-network
+      - lexigo-network
 
   redis:
     image: redis:8.4-alpine
-    container_name: language-coach-redis
+    container_name: lexigo-redis
     ports:
       - "6379:6379"
     volumes:
@@ -31,13 +31,13 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - language-coach-network
+      - lexigo-network
 
   backend:
     build:
       context: ../..
       dockerfile: deploy/docker/backend/Dockerfile.${ENV:-dev}
-    container_name: language-coach-backend
+    container_name: lexigo-backend
     ports:
       - "9090:8080"
     env_file:
@@ -50,7 +50,7 @@ services:
       redis:
         condition: service_healthy
     networks:
-      - language-coach-network
+      - lexigo-network
     profiles:
       - ${ENV:-dev}
 
@@ -60,7 +60,7 @@ services:
       dockerfile: deploy/docker/frontend/Dockerfile.${ENV:-dev}
       args:
         ENV: ${ENV:-dev}
-    container_name: language-coach-frontend
+    container_name: lexigo-frontend
     ports:
       - "5173:5173"
     env_file:
@@ -71,7 +71,7 @@ services:
     depends_on:
       - backend
     networks:
-      - language-coach-network
+      - lexigo-network
     profiles:
       - ${ENV:-dev}
 
@@ -80,5 +80,5 @@ volumes:
   redis_data:
 
 networks:
-  language-coach-network:
+  lexigo-network:
     driver: bridge

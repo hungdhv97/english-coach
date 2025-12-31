@@ -4,7 +4,7 @@ info:
   version: 1.0.0
   description: API for multilingual dictionary lookup and vocabulary learning game
   contact:
-    name: Language Coach Team
+    name: LexiGo Team
 
 servers:
   - url: http://localhost:8080/api/v1

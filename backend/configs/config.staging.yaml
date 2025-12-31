@@ -1,6 +1,6 @@
 app:
   env: staging
-  name: language-coach-staging
+  name: lexigo-staging
 
 server:
   port: 8080
@@ -12,9 +12,9 @@ server:
 database:
   host: staging-db-host
   port: 5432
-  user: language_coach
+  user: lexigo
   password: change-me
-  database: language_coach_staging
+  database: lexigo_staging
   sslmode: disable
   max_conns: 20
   min_conns: 5
@@ -30,6 +30,6 @@ logging:
 
 cors:
   allowed_origins:
-    - https://staging.language-coach.example.com
+    - https://staging.lexigo.example.com
 
 

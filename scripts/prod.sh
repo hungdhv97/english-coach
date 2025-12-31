@@ -22,7 +22,7 @@ ENV_DIR="$PROJECT_ROOT/deploy/env/prod"
 COMMAND="${1:-help}"
 
 show_help() {
-    echo -e "${BLUE}🚀 Language Coach Production Environment Management${NC}"
+    echo -e "${BLUE}🚀 LexiGo Production Environment Management${NC}"
     echo ""
     echo "Usage: $0 [COMMAND]"
     echo ""
@@ -107,7 +107,7 @@ export ENV=prod
 # Handle commands
 case "$COMMAND" in
     up|start)
-        echo -e "${GREEN}🚀 Starting Language Coach Production Environment${NC}"
+        echo -e "${GREEN}🚀 Starting LexiGo Production Environment${NC}"
         echo ""
         check_docker_compose
         check_compose_file
@@ -124,7 +124,7 @@ case "$COMMAND" in
         ;;
         
     down|stop)
-        echo -e "${YELLOW}🛑 Stopping Language Coach Production Environment${NC}"
+        echo -e "${YELLOW}🛑 Stopping LexiGo Production Environment${NC}"
         echo ""
         check_docker_compose
         check_compose_file
@@ -147,7 +147,7 @@ case "$COMMAND" in
         ;;
         
     restart)
-        echo -e "${YELLOW}🔄 Restarting Language Coach Production Environment${NC}"
+        echo -e "${YELLOW}🔄 Restarting LexiGo Production Environment${NC}"
         echo ""
         check_docker_compose
         check_compose_file
@@ -161,7 +161,7 @@ case "$COMMAND" in
         ;;
         
     build)
-        echo -e "${BLUE}🔨 Building Language Coach Production Images${NC}"
+        echo -e "${BLUE}🔨 Building LexiGo Production Images${NC}"
         echo ""
         check_docker_compose
         check_compose_file

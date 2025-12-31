@@ -92,7 +92,7 @@ func main() {
 	// Priority: DATABASE_URL env var > default DSN
 	dsn := os.Getenv("DATABASE_URL")
 	if dsn == "" {
-		dsn = "postgres://postgres:postgres@localhost:5500/language_coach?sslmode=disable"
+		dsn = "postgres://postgres:postgres@localhost:5500/lexigo?sslmode=disable"
 	}
 
 	// Create database if it doesn't exist

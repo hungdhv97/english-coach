@@ -1,6 +1,6 @@
 app:
   env: development
-  name: language-coach-dev
+  name: lexigo-dev
 
 server:
   port: 8080
@@ -14,7 +14,7 @@ database:
   port: 5432
   user: postgres
   password: postgres
-  database: language_coach_dev
+  database: lexigo_dev
   sslmode: disable
   max_conns: 10
   min_conns: 2
