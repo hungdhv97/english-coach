@@ -18,8 +18,14 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 BACKEND_DIR="$PROJECT_ROOT/backend"
 
-# Default database URL (can be overridden by DATABASE_URL env var)
-DEFAULT_DATABASE_URL="postgres://postgres:postgres@localhost:5500/lexigo?sslmode=disable"
+# Get environment from first argument (default to dev)
+# Check if first argument is dev or prod
+if [ "$1" = "dev" ] || [ "$1" = "prod" ]; then
+    ENV="$1"
+    shift  # Remove ENV argument
+else
+    ENV="dev"  # Default to dev
+fi
 
 # Parse flags
 SCHEMA_ONLY=false
@@ -33,7 +39,10 @@ HELP=false
 show_help() {
     echo -e "${BLUE}🗄️  Database Migration Script${NC}"
     echo ""
-    echo "Usage: $0 [OPTIONS]"
+    echo "Usage: $0 [ENV] [OPTIONS]"
+    echo ""
+    echo "Environment:"
+    echo "  ENV                                    Environment (dev|prod), default: dev"
     echo ""
     echo "Options:"
     echo "  --schema-only          Run schema migration only"
@@ -49,16 +58,17 @@ show_help() {
     echo "  - Then run all data migrations (init + word-en + word-vi + word-zh)"
     echo ""
     echo "Examples:"
-    echo "  $0                                    # Schema + all data (default)"
-    echo "  $0 --schema-only                      # Schema only"
-    echo "  $0 --data-only                        # All data only (skip schema)"
-    echo "  $0 --data-init                        # Data init only"
-    echo "  $0 --data-word-en                     # English words only"
-    echo "  $0 --data-init --data-word-en         # Init + English words"
+    echo "  $0 dev                                 # Schema + all data for dev (default)"
+    echo "  $0 prod                                # Schema + all data for prod"
+    echo "  $0 dev --schema-only                   # Schema only for dev"
+    echo "  $0 prod --data-only                    # All data only for prod (skip schema)"
+    echo "  $0 dev --data-init                     # Data init only for dev"
+    echo "  $0 prod --data-word-en                 # English words only for prod"
+    echo "  $0 dev --data-init --data-word-en      # Init + English words for dev"
     echo ""
-    echo "Environment:"
-    echo "  DATABASE_URL                          Database connection string (optional)"
-    echo "                                        Default: $DEFAULT_DATABASE_URL"
+    echo "Note:"
+    echo "  Database connection is configured from deploy/env/{ENV}/backend.env and docker-compose.env"
+    echo "  DATABASE_URL env var can override the default connection"
     echo ""
 }
 
@@ -102,21 +112,60 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-# Show help if requested
+# Show help if requested (before validation)
 if [ "$HELP" = true ]; then
     show_help
     exit 0
 fi
 
-# Set database URL if not already set
+# Validate environment
+if [ "$ENV" != "dev" ] && [ "$ENV" != "prod" ]; then
+    echo -e "${RED}❌ Error: Invalid environment '${ENV}'. Must be 'dev' or 'prod'${NC}"
+    echo ""
+    show_help
+    exit 1
+fi
+
+# Load environment configuration files
+COMPOSE_ENV_FILE="$PROJECT_ROOT/deploy/env/${ENV}/docker-compose.env"
+BACKEND_ENV_FILE="$PROJECT_ROOT/deploy/env/${ENV}/backend.env"
+
+if [ ! -f "$COMPOSE_ENV_FILE" ]; then
+    echo -e "${RED}❌ Error: Docker compose env file not found at $COMPOSE_ENV_FILE${NC}"
+    exit 1
+fi
+
+if [ ! -f "$BACKEND_ENV_FILE" ]; then
+    echo -e "${RED}❌ Error: Backend env file not found at $BACKEND_ENV_FILE${NC}"
+    exit 1
+fi
+
+# Load environment variables from docker-compose.env and backend.env
+set -a  # automatically export all variables
+source "$COMPOSE_ENV_FILE"
+source "$BACKEND_ENV_FILE"
+set +a
+
+# Build DATABASE_URL from environment variables if not already set
 if [ -z "$DATABASE_URL" ]; then
-    export DATABASE_URL="$DEFAULT_DATABASE_URL"
+    # Use POSTGRES_PORT from docker-compose.env (host port)
+    # Use DB_USER, DB_PASSWORD, DB_NAME, DB_SSLMODE from backend.env
+    # Host is localhost because script runs on host machine
+    export DATABASE_URL="postgres://${DB_USER}:${DB_PASSWORD}@localhost:${POSTGRES_PORT}/${DB_NAME}?sslmode=${DB_SSLMODE}"
+fi
+
+# Set environment display names
+if [ "$ENV" = "dev" ]; then
+    ENV_NAME="Development"
+elif [ "$ENV" = "prod" ]; then
+    ENV_NAME="Production"
 fi
 
 echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-echo -e "${BLUE}🗄️  Database Migration Script${NC}"
+echo -e "${BLUE}🗄️  Database Migration Script (${ENV_NAME})${NC}"
 echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo ""
+echo -e "${YELLOW}Environment:${NC} ${ENV} (${ENV_NAME})"
 echo -e "${YELLOW}Database URL:${NC} $DATABASE_URL"
 echo ""
 
